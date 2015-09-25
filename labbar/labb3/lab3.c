@@ -248,6 +248,12 @@ void updateWorld()
 		vec3 r = SetVector(0, kBallSize/2, 0);
 		ball[i].L = ScalarMult(CrossProduct(r, ball[i].P), 1);
 
+		vec3 nfric = ScalarMult(Normalize(ball[i].v), -1);
+		vec3 vc = VectorAdd(ball[i].v, CrossProduct(r, ball[i].omega));
+		//printf("%f \n", vc.x);
+		if(Norm(vc) > 0)
+		  ball[i].F = ScalarMult(nfric, .2f);
+
 		//ball[i].R = Mult(ArbRotate(nrot, .314*Norm(ball[i].v)), ball[i].R);
 		//ball[i].R = Mult(ball[i].R, ArbRotate(ball[i].omega, Norm(ball[i].omega)));
 	}
