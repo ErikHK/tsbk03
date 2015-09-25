@@ -77,7 +77,7 @@ typedef struct
 
   vec3 F, T; // accumulated force and torque
 
-//  mat4 J, Ji; We could have these but we can live without them for spheres.
+  mat4 J, Ji; //We could have these but we can live without them for spheres.
   vec3 omega; // Angular momentum
   vec3 v; // Change in velocity
 
@@ -187,7 +187,8 @@ void updateWorld()
         for (j = i+1; j < kNumBalls; j++)
         {
 		//printf("%i, %i\n", i, j);
-
+		vec3 rA;
+		vec3 rB;
 		// YOUR CODE HERE
 		//if(i != j)
 		//{
@@ -202,8 +203,8 @@ void updateWorld()
 				p.z = (ball[i].X.z+ball[j].X.z)/2.0f;
 				vec3 nA = Normalize(VectorSub(ball[i].X, p));
 
-				vec3 rA = VectorSub(p, ball[i].X);
-				vec3 rB = VectorSub(p, ball[j].X);
+				rA = VectorSub(p, ball[i].X);
+				rB = VectorSub(p, ball[j].X);
 
 				vec3 crossA = CrossProduct(CrossProduct(rA, nA), rA);
 				vec3 crossB = CrossProduct(CrossProduct(rB, nA), rB);
@@ -225,8 +226,12 @@ void updateWorld()
 				ball[i].X = SetVector(ball[i].X.x+kBallSize*nA.x/8, ball[i].X.y+kBallSize*nA.y/8, ball[i].X.z+kBallSize*nA.z/8);
 				ball[j].X = SetVector(ball[j].X.x-kBallSize*nA.x/8, ball[j].X.y-kBallSize*nA.y/8, ball[j].X.z-kBallSize*nA.z/8);
 				//ball[j].v = SetVector(-3*ball[j].v.x, ball[j].v.y, -ball[j].v.z);
-				//ball[i].P = 
+
 			}
+
+			//calc torque:
+			//vec3 N = Normalize(ScalarMult(ball[i].v, -1));
+			//ball[i].F = ScalarMult(N, .001);
 
 		//}
         }
@@ -239,7 +244,12 @@ void updateWorld()
 		static float rot = 0;
 		vec3 n = {0,1,0};
 		vec3 nrot = CrossProduct(n, ball[i].v);
-		ball[i].R = Mult(ArbRotate(nrot, .1*Norm(ball[i].v)), ball[i].R);
+
+		vec3 r = SetVector(0, kBallSize/2, 0);
+		ball[i].L = ScalarMult(CrossProduct(r, ball[i].P), 1);
+
+		//ball[i].R = Mult(ArbRotate(nrot, .314*Norm(ball[i].v)), ball[i].R);
+		//ball[i].R = Mult(ball[i].R, ArbRotate(ball[i].omega, Norm(ball[i].omega)));
 	}
 
 // Update state, follows the book closely
@@ -250,6 +260,10 @@ void updateWorld()
 
 		// Note: omega is not set. How do you calculate it?
 		// YOUR CODE HERE
+		
+		ball[i].omega = MultVec3(ball[i].Ji, ball[i].L);
+
+		//ball[i].omega = SetVector(1,1,1);
 
 //		v := P * 1/mass
 		ball[i].v = ScalarMult(ball[i].P, 1.0/(ball[i].mass));
@@ -267,6 +281,7 @@ void updateWorld()
 //		L := L + t * dT
 		dL = ScalarMult(ball[i].T, deltaT); // dL := T*dT
 		ball[i].L = VectorAdd(ball[i].L, dL); // L := L + dL
+
 
 		OrthoNormalizeMatrix(&ball[i].R);
 	}
@@ -353,15 +368,20 @@ void init()
 		ball[i].X = SetVector(0.0, 0.0, 0.0);
 		ball[i].P = SetVector(((float)(i % 13))/ 50.0, 0.0, ((float)(i % 15))/50.0);
 		ball[i].R = IdentityMatrix();
+		float s = ball[i].mass*kBallSize*kBallSize/3;
+		ball[i].J = S(s,s,s);
+		ball[i].Ji = InvertMat4(ball[i].J);
 	}
+
+	ball[0].mass = 1.0;
 	ball[0].X = SetVector(0, 0, 0.0);
 	ball[1].X = SetVector(0, 0, 1.5);
 	ball[2].X = SetVector(0.0, 0, 1.0);
-	ball[3].X = SetVector(0, 0, 1.5);
-	ball[4].X = SetVector(.05, 0, 1.8);
+	ball[3].X = SetVector(0, 0, .5);
+	ball[4].X = SetVector(.5, 0, 1.0);
 
 	ball[0].P = SetVector(.5, 0, 1.0);
-	ball[1].P = SetVector(0, 0, 0.00);
+	ball[1].P = SetVector(0, 0, 0.0);
 	ball[2].P = SetVector(0, 0, 0);
 	ball[3].P = SetVector(0, 0, 1.00);
 
