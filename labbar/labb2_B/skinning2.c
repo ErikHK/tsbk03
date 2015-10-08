@@ -57,7 +57,7 @@ typedef struct Triangle
 #define CYLINDER_SEGMENT_LENGTH 0.26
 #define kMaxRow 100
 #define kMaxCorners 8
-#define kMaxBones 3
+#define kMaxBones 10
 #define kMaxg_poly ((kMaxRow-1) * kMaxCorners * 2)
 #ifndef Pi
 #define Pi 3.1416
@@ -251,6 +251,8 @@ void DeformCylinder()
 
   Point3D g_vertstmp0[kMaxRow][kMaxCorners];
   Point3D g_vertstmp1[kMaxRow][kMaxCorners];
+  Point3D g_vertstmp2[kMaxRow][kMaxCorners];
+  Point3D g_vertstmp3[kMaxRow][kMaxCorners];
   
   mat4 bone_matrices[kMaxBones];
   mat4 tmpmat1, tmpmat2;
@@ -279,20 +281,50 @@ void DeformCylinder()
       // g_vertsOrg
       // g_vertsRes
 
-      mat4 T1b = T(g_bonesRes[1].pos.x, g_bonesRes[1].pos.y, g_bonesRes[1].pos.z);
-      mat4 invT1b = InvertMat4(T1b);
-
-      g_vertstmp0[row][corner] = MultVec3(Mult(T1b,
-	Mult(g_bonesRes[1].rot, invT1b)), g_vertsOrg[row][corner]);
-
       mat4 T0b = T(g_bonesRes[0].pos.x, g_bonesRes[0].pos.y, g_bonesRes[0].pos.z);
       mat4 invT0b = InvertMat4(T0b);
 
+      mat4 T1b = T(g_bonesRes[1].pos.x-4, g_bonesRes[1].pos.y, g_bonesRes[1].pos.z);
+      mat4 invT1b = InvertMat4(T1b);
 
-      g_vertstmp1[row][corner] = MultVec3(Mult(T1b,
-	Mult(g_bonesRes[1].rot, invT1b)), g_vertsOrg[row][corner]);
+      mat4 T2b = T(g_bonesRes[2].pos.x-8, g_bonesRes[2].pos.y, g_bonesRes[2].pos.z);
+      mat4 invT2b = InvertMat4(T2b);
 
-      /*
+      mat4 T3b = T(g_bonesRes[3].pos.x-12, g_bonesRes[3].pos.y, g_bonesRes[3].pos.z);
+      mat4 invT3b = InvertMat4(T3b);
+
+
+      //printf("%f, %f, %f\n", g_bonesRes[0].rot.m[0], g_bonesRes[1].rot.m[0], g_bonesRes[2].rot.m[0]);
+
+
+      mat4 tmp0 = Mult(T0b, Mult(g_bonesRes[0].rot, invT0b));
+      g_vertstmp0[row][corner] = MultVec3(tmp0, g_vertsOrg[row][corner]);
+
+      mat4 tmp1 = Mult(tmp0,  Mult(T1b, Mult(g_bonesRes[1].rot, invT1b))  );
+
+      g_vertstmp1[row][corner] = MultVec3(tmp1, g_vertsOrg[row][corner]);
+
+      //g_vertstmp1[row][corner] = MultVec3( Mult(T1b,
+//	Mult(g_bonesRes[1].rot, invT1b)), g_vertsOrg[row][corner]), g_vertstmp0[row][corner]);
+
+      mat4 tmp2 = Mult(tmp1,  Mult(T2b, Mult(g_bonesRes[2].rot, invT2b))  );
+
+      g_vertstmp2[row][corner] = MultVec3(tmp2, g_vertsOrg[row][corner]);
+
+
+      mat4 tmp3 = Mult(tmp2,  Mult(T3b, Mult(g_bonesRes[3].rot, invT3b))  );
+
+      g_vertstmp3[row][corner] = MultVec3(tmp3, g_vertsOrg[row][corner]);
+
+
+      //g_vertstmp2[row][corner] = MultVec3(Mult(T2b,
+	//Mult(g_bonesRes[2].rot, invT2b)), g_vertsOrg[row][corner]);
+
+     // g_vertstmp3[row][corner] = MultVec3(Mult(T3b,
+//	Mult(g_bonesRes[3].rot, invT3b)), g_vertsOrg[row][corner]);
+
+
+
       g_vertsRes[row][corner].x = g_vertstmp0[row][corner].x * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].y = g_vertstmp0[row][corner].y * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].z = g_vertstmp0[row][corner].z * g_boneWeights[row][corner][0];
@@ -300,10 +332,20 @@ void DeformCylinder()
       g_vertsRes[row][corner].x += g_vertstmp1[row][corner].x * g_boneWeights[row][corner][1];
       g_vertsRes[row][corner].y += g_vertstmp1[row][corner].y * g_boneWeights[row][corner][1];
       g_vertsRes[row][corner].z += g_vertstmp1[row][corner].z * g_boneWeights[row][corner][1];
-	*/
+
+      g_vertsRes[row][corner].x += g_vertstmp2[row][corner].x * g_boneWeights[row][corner][2];
+      g_vertsRes[row][corner].y += g_vertstmp2[row][corner].y * g_boneWeights[row][corner][2];
+      g_vertsRes[row][corner].z += g_vertstmp2[row][corner].z * g_boneWeights[row][corner][2];
+
+      g_vertsRes[row][corner].x += g_vertstmp3[row][corner].x * g_boneWeights[row][corner][3];
+      g_vertsRes[row][corner].y += g_vertstmp3[row][corner].y * g_boneWeights[row][corner][3];
+      g_vertsRes[row][corner].z += g_vertstmp3[row][corner].z * g_boneWeights[row][corner][3];
+
+/*
       g_vertsRes[row][corner].x = g_vertstmp0[row][corner].x * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].y = g_vertstmp0[row][corner].y * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].z = g_vertstmp0[row][corner].z * g_boneWeights[row][corner][0];
+*/
       }
 
 	

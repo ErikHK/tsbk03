@@ -209,7 +209,7 @@ void updateWorld()
 				vec3 crossA = CrossProduct(CrossProduct(rA, nA), rA);
 				vec3 crossB = CrossProduct(CrossProduct(rB, nA), rB);
 				float vrel = DotProduct( Normalize(VectorSub(ball[i].v, ball[j].v)), nA);
-				float eps = .9;
+				float eps = .1;
 				
 
 				//float jj = vrel* (-(eps+1))/(1/ball[i].mass + 1/ball[j].mass + DotProduct(nA, VectorAdd(crossA, crossB) ) );
@@ -379,14 +379,14 @@ void init()
 		ball[i].Ji = InvertMat4(ball[i].J);
 	}
 
-	ball[0].mass = 1.0;
+	ball[0].mass = 5.0;
 	ball[0].X = SetVector(0, 0, 0.0);
 	ball[1].X = SetVector(0, 0, 1.5);
 	ball[2].X = SetVector(0.0, 0, 1.0);
 	ball[3].X = SetVector(0, 0, .5);
 	ball[4].X = SetVector(.5, 0, 1.0);
 
-	ball[0].P = SetVector(.5, 0, 1.0);
+	ball[0].P = SetVector(5, 0, 1.0);
 	ball[1].P = SetVector(0, 0, 0.0);
 	ball[2].P = SetVector(0, 0, 0);
 	ball[3].P = SetVector(0, 0, 1.00);
