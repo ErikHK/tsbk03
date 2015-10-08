@@ -1,0 +1,42 @@
+--Farm escape--
+Projektspec i kursen TSBK03
+Av Erik Håkansson Kjellman (eriha181)
+
+Spelet går ut på att man spelar en (kött-)ko som ska rymma från en bondgård, och
+därmed undgå sin annars oundvikliga död. Utspelar sig främst i en hage.
+Hinder kan bestå av bönder som ska försöka stoppa en,
+som man ska kunna stånga och eventuellt spruta ner med mjölk från ens spenar,
+och staket som man måste förstöra eller hoppa över.
+
+
+Krav:
+Skall:
+- Kunna styra kon med piltangenterna
+  - med tillhörande animationer
+- Hage med staket
+- Kunna stånga bönder
+- Kunna "springa" med samma animation som för att gå
+- Andra kor i hagen, som rör sig i fördefinierade mönster
+- Bonde (bönder?) som rör sig mot kon på ett primitivt sätt
+- Ko-modell gjord i 3D-program (3dsmax)
+- Bonde-modell gjord i 3D-program (3dsmax)
+- Olika texturer på kor
+
+Bör:
+- Ragdoll-animation på bönderna som försöker stoppa kon från att fly (när de blir stångade)
+- "Strejfa", dvs gå i sidled med kon, med animationer
+- Gräs i hagen (geometrishader)
+- Andra kor i hagen som rör sig efter en AI-algoritm
+- Kunna springa med speciell spring-animation
+- Kunna förstöra staket som går sönder i fördefinierade mönster
+- Bonde (bönder?) som rör sig efter AI-algoritmer
+- Procedurellt genererade texturer på korna
+- Bondgårdsmodell som man eventuellt kan gå in i
+- Bakgrund i form av skog eller liknande, så det inte bara är en hage på en oändlig gräsplätt
+- Ko-aktiga rörelser (ex. skaka bort flugor) på övriga kor
+
+Eventuellt:
+- Ljudeffekter
+- Spruta ner bönderna med mjölk från ens spenar (partikelsystem?)
+- Kunna förstöra staket som går sönder i voronoi-mönster el likn
+- Kunna stånga andra kor (med ragdoll?)

@@ -141,7 +141,7 @@ while(sp1 != NULL)
       sp2->speed.h = 5*dx/n;
       sp2->speed.v = 5*dy/n;
 
-      printf("%i, %f\n", mouse_y, sp2->position.v);
+      //printf("%i, %f\n", mouse_y, sp2->position.v);
 
       float dist = norm(sp1->position.h - sp2->position.h, sp1->position.v - sp2->position.v);
       if(dist < 100.0)

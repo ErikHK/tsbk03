@@ -249,10 +249,10 @@ void DeformCylinder()
   //float w[kMaxBones];
   int row, corner;
 
-  Point3D g_vertstmp0[kMaxRow][kMaxCorners];
-  Point3D g_vertstmp1[kMaxRow][kMaxCorners];
-  Point3D g_vertstmp2[kMaxRow][kMaxCorners];
-  Point3D g_vertstmp3[kMaxRow][kMaxCorners];
+  Point3D g_vertstmp[kMaxRow][kMaxCorners][kMaxBones];
+  //Point3D g_vertstmp1[kMaxRow][kMaxCorners];
+  //Point3D g_vertstmp2[kMaxRow][kMaxCorners];
+  //Point3D g_vertstmp3[kMaxRow][kMaxCorners];
   
   mat4 bone_matrices[kMaxBones];
   mat4 tmpmat1, tmpmat2;
@@ -280,7 +280,7 @@ void DeformCylinder()
       // g_boneWeights
       // g_vertsOrg
       // g_vertsRes
-
+/*
       mat4 T0b = T(g_bonesRes[0].pos.x, g_bonesRes[0].pos.y, g_bonesRes[0].pos.z);
       mat4 invT0b = InvertMat4(T0b);
 
@@ -292,11 +292,39 @@ void DeformCylinder()
 
       mat4 T3b = T(g_bonesRes[3].pos.x-12, g_bonesRes[3].pos.y, g_bonesRes[3].pos.z);
       mat4 invT3b = InvertMat4(T3b);
-
+*/
 
       //printf("%f, %f, %f\n", g_bonesRes[0].rot.m[0], g_bonesRes[1].rot.m[0], g_bonesRes[2].rot.m[0]);
 
 
+      g_vertsRes[row][corner] = SetVector(0,0,0);
+      mat4 tmptrans = IdentityMatrix();
+      mat4 invtrans = IdentityMatrix();
+      mat4 tmpp = IdentityMatrix();
+
+      int i;
+
+      for(i = 0; i < kMaxBones; i++)
+      {
+        tmptrans = T(g_bonesRes[i].pos.x , g_bonesRes[i].pos.y, g_bonesRes[i].pos.z);
+        tmpp = Mult(tmpp, tmptrans);
+        invtrans = InvertMat4(tmptrans);
+        tmpp = Mult(tmpp, Mult(g_bonesRes[i].rot, invtrans));
+        //lasttrans = tmpp;
+
+        //vec3 tmpvec = SetVector(g_vertsOrg[row][corner].x * g_boneWeights[row][corner][i],
+        //g_vertsOrg[row][corner].y * g_boneWeights[row][corner][i], 
+        //g_vertsOrg[row][corner].z * g_boneWeights[row][corner][i]);
+ 
+        vec3 final = MultVec3(tmpp, g_vertsOrg[row][corner]);
+
+        //g_vertsRes[row][corner] = VectorAdd(g_vertsRes[row][corner], MultVec3(tmpp, tmpvec));
+        g_vertsRes[row][corner].x += final.x * g_boneWeights[row][corner][i];
+        g_vertsRes[row][corner].y += final.y * g_boneWeights[row][corner][i];
+        g_vertsRes[row][corner].z += final.z * g_boneWeights[row][corner][i];
+      }
+
+/*
       mat4 tmp0 = Mult(T0b, Mult(g_bonesRes[0].rot, invT0b));
       g_vertstmp0[row][corner] = MultVec3(tmp0, g_vertsOrg[row][corner]);
 
@@ -315,7 +343,7 @@ void DeformCylinder()
       mat4 tmp3 = Mult(tmp2,  Mult(T3b, Mult(g_bonesRes[3].rot, invT3b))  );
 
       g_vertstmp3[row][corner] = MultVec3(tmp3, g_vertsOrg[row][corner]);
-
+*/
 
       //g_vertstmp2[row][corner] = MultVec3(Mult(T2b,
 	//Mult(g_bonesRes[2].rot, invT2b)), g_vertsOrg[row][corner]);
@@ -324,7 +352,7 @@ void DeformCylinder()
 //	Mult(g_bonesRes[3].rot, invT3b)), g_vertsOrg[row][corner]);
 
 
-
+/*
       g_vertsRes[row][corner].x = g_vertstmp0[row][corner].x * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].y = g_vertstmp0[row][corner].y * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].z = g_vertstmp0[row][corner].z * g_boneWeights[row][corner][0];
@@ -340,7 +368,7 @@ void DeformCylinder()
       g_vertsRes[row][corner].x += g_vertstmp3[row][corner].x * g_boneWeights[row][corner][3];
       g_vertsRes[row][corner].y += g_vertstmp3[row][corner].y * g_boneWeights[row][corner][3];
       g_vertsRes[row][corner].z += g_vertstmp3[row][corner].z * g_boneWeights[row][corner][3];
-
+*/
 /*
       g_vertsRes[row][corner].x = g_vertstmp0[row][corner].x * g_boneWeights[row][corner][0];
       g_vertsRes[row][corner].y = g_vertstmp0[row][corner].y * g_boneWeights[row][corner][0];
