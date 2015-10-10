@@ -15,6 +15,8 @@ uniform float time;
 uniform int draw_cow;
 
 uniform mat4 foot_joint[4];
+uniform mat4 testjoint;
+uniform mat4 testjoint2;
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -54,13 +56,22 @@ void main(void)
     gl_Position = proj_matrix * cam_matrix * mdl_matrix * transpose(translationMatrix(vec3(-30,20,0))) * rotationMatrix(vec3(0,0,5), cos(time*5)/5) * vec4(inPosition + vec3(30,-20,0), 1.0);
   else
 */
+  //leg base joint (animate thigh)
+  if(distance(inPosition, vec3(3.4, 20, 0)) < 6 && draw_cow == 1)
+    gl_Position = proj_matrix * cam_matrix * mdl_matrix * testjoint2 * vec4(inPosition + vec3(0,0,0), 1.0);
+  //knee joint (animate feet/calves)
+  else if(distance(inPosition, vec3(3.4, 0, 0)) < 12 && draw_cow == 1)
+    gl_Position = proj_matrix * cam_matrix * mdl_matrix * testjoint * vec4(inPosition, 1.0);
+  else
     gl_Position = proj_matrix * cam_matrix * mdl_matrix * vec4(inPosition, 1.0);
+     
 
 
 
   //gl_Position = vec4(in_Position, 1.0);
   if(draw_cow == 1)
-    colorr = vec4(shade, shade, shade, .6) + vec4(.2,0,.2,0);
+    colorr = vec4(shade, shade, shade, .6);
+    //colorr = vec4(shade, shade, shade, 1) + vec4(.2,0,.2,0);
   else
     colorr = vec4(1);
     

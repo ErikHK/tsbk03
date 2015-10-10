@@ -65,7 +65,7 @@ void DisplayWindow()
 	  draw_joint(&knee_joint[i], g_shader);
 	  draw_joint(&legbase_joint[i], g_shader);
 	  draw_joint(&tail_joint[i], g_shader);
-	  if(i<3) 
+	  if(i < 3) 
 	    draw_joint(&head_joint[i], g_shader);
 
 	}
@@ -79,10 +79,11 @@ void DisplayWindow()
 void OnTimer(int value)
 {
 
+
 	glutTimerFunc(20, &OnTimer, value);
 
 	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
-	mat4 cam_matrix = lookAt(cam_dist*cos(cam_angle), 5,  cam_dist*sin(cam_angle), 0, 0, 0, 0.0, 1.0, 0.0);
+	mat4 cam_matrix = lookAt(cam_dist*cos(cam_angle), 1,  cam_dist*sin(cam_angle), 0, 0, 0, 0.0, 1.0, 0.0);
 	//mat4 cam_matrix = lookAt(200+200*cos(cam_angle), 0,  200, 0, 8, 0, 0.0, 1.0, 0.0);
 
 	//g_shader = loadShaders("shader.vert" , "shader.frag");
@@ -98,6 +99,49 @@ void OnTimer(int value)
 
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
+
+	mat4 testjoint;
+	mat4 testjoint2;
+
+	testjoint = IdentityMatrix();
+	//testjoint = Mult(
+	//	Mult( T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t)) ),
+	//	T(-4,-8,0));
+
+	//testjoint2 = Mult(InvertMat4(IdentityMatrix()), Mult(
+	//	Mult( T(1,20,0), ArbRotate(SetVector(0,0,1), .9)),
+	//	T(-1,-20,0)));
+
+	mat4 M1_p, M1;
+
+	M1_p = Mult( T(1,20,0), ArbRotate(SetVector(0,0,1), .7*sin(t/2)));
+	M1 = T(1,20,0);
+
+	testjoint2 = Mult(M1_p, InvertMat4(M1));
+
+	mat4 M2_p = Mult(T(-1+4,-20+8,0), ArbRotate(SetVector(0,0,1), sin(t)));
+	//mat4 M2_p = Mult(T(3.4,0,0), ArbRotate(SetVector(0,0,1), .6));
+	//mat4 M2_p = T(4,8,0);
+	mat4 M2 = T(-1+4,-20+8,0);
+
+	//mat4 M1 = Mult(Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t))),
+	//	T(-4,-8,0));
+	//mat4 M1 = Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t)));
+
+	mat4 inverts = Mult(InvertMat4(M2), InvertMat4(M1));
+	mat4 primes = Mult(M1_p, M2_p);
+	testjoint = Mult(primes, inverts);
+
+	//testjoint = Mult(M2_p, InvertMat4(M2));
+
+	//testjoint = Mult(
+	//	Mult(M1, testjoint2), InvertMat4(M1));
+	//testjoint = Mult(testjoint2, restpos);
+
+	//testjoint = testjoint2;
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 1, GL_TRUE, testjoint.m);
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
+
 
 	if(keyIsDown('e'))
 	  cam_angle += .05;
