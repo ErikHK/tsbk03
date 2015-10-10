@@ -102,6 +102,7 @@ void OnTimer(int value)
 
 	mat4 testjoint;
 	mat4 testjoint2;
+	mat4 M1, M2, M1_p, M2_p;
 
 	testjoint = IdentityMatrix();
 	//testjoint = Mult(
@@ -112,17 +113,22 @@ void OnTimer(int value)
 	//	Mult( T(1,20,0), ArbRotate(SetVector(0,0,1), .9)),
 	//	T(-1,-20,0)));
 
-	mat4 M1_p, M1;
+	//mat4 M1_p, M1;
 
 	M1_p = Mult( T(1,20,0), ArbRotate(SetVector(0,0,1), .7*sin(t/2)));
 	M1 = T(1,20,0);
 
 	testjoint2 = Mult(M1_p, InvertMat4(M1));
 
-	mat4 M2_p = Mult(T(-1+4,-20+8,0), ArbRotate(SetVector(0,0,1), sin(t)));
+	//mat4 M2_p = Mult(T(-1+4,-20+8,0), ArbRotate(SetVector(0,0,1), sin(t)));
 	//mat4 M2_p = Mult(T(3.4,0,0), ArbRotate(SetVector(0,0,1), .6));
 	//mat4 M2_p = T(4,8,0);
-	mat4 M2 = T(-1+4,-20+8,0);
+	//mat4 M2 = T(-1+4,-20+8,0);
+	M2 = Mult(T(4,8,0), InvertMat4(M1));
+
+	M2_p = Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t)));
+
+	M2_p = Mult(InvertMat4(M1), M2_p);
 
 	//mat4 M1 = Mult(Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t))),
 	//	T(-4,-8,0));
