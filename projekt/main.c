@@ -36,10 +36,17 @@
 // Ref till shader
 GLuint g_shader;
 
-bone_s * bone;
-cow_s * cow;
+bone_s bone;
+joint_s foot_joint[4];
+joint_s knee_joint[4];
+joint_s legbase_joint[4];
+joint_s tail_joint[4];
+joint_s head_joint[3];
+
+cow_s cow;
 
 float cam_angle = 0;
+float cam_dist = 6;
 
 mat4 modelViewMatrix, projectionMatrix;
 
@@ -48,9 +55,22 @@ void DisplayWindow()
 	glClearColor(0.4, 0.4, 0.2, 1);
 	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
-
+	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
 	draw_cow(&cow, g_shader);
-	draw_bone(&bone, g_shader);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
+	int i;
+	for(i=0; i<4;i++)
+	{
+	  draw_joint(&foot_joint[i], g_shader);
+	  draw_joint(&knee_joint[i], g_shader);
+	  draw_joint(&legbase_joint[i], g_shader);
+	  draw_joint(&tail_joint[i], g_shader);
+	  if(i<3) 
+	    draw_joint(&head_joint[i], g_shader);
+
+	}
+
+	//draw_bone(&bone, g_shader);
 	glutSwapBuffers();
 	//printf("runrunrun\n");
 }
@@ -61,13 +81,12 @@ void OnTimer(int value)
 
 	glutTimerFunc(20, &OnTimer, value);
 
-
-	mat4 proj_matrix = frustum(-1, 1, -1, 1, 2, 1750.0);
-	mat4 cam_matrix = lookAt(100*cos(cam_angle), 0,  100*sin(cam_angle), 0, 0, 0, 0.0, 1.0, 0.0);
+	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
+	mat4 cam_matrix = lookAt(cam_dist*cos(cam_angle), 5,  cam_dist*sin(cam_angle), 0, 0, 0, 0.0, 1.0, 0.0);
 	//mat4 cam_matrix = lookAt(200+200*cos(cam_angle), 0,  200, 0, 8, 0, 0.0, 1.0, 0.0);
 
 	//g_shader = loadShaders("shader.vert" , "shader.frag");
-	glUseProgram(g_shader);
+	//glUseProgram(g_shader);
 
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "proj_matrix"), 1, GL_TRUE, proj_matrix.m);
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "cam_matrix"), 1, GL_TRUE, cam_matrix.m);
@@ -80,10 +99,16 @@ void OnTimer(int value)
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
 
-	if(keyIsDown('a'))
-	  cam_angle += .2;
 	if(keyIsDown('e'))
-	  cam_angle -= .2;
+	  cam_angle += .05;
+	if(keyIsDown('i'))
+	  cam_angle -= .05;
+
+	if(keyIsDown('u'))
+	  cam_dist += .05;
+
+	if(keyIsDown('p'))
+	  cam_dist -= .05;
 
 
 	glutPostRedisplay();
@@ -96,12 +121,6 @@ void keyboardFunc( unsigned char key, int x, int y)
 		exit(-1);
 }
 
-//void init_models()
-//{
-//  cow_model = LoadModelPlus("res/ko_rough.obj");
-//}
-
-
 
 /////////////////////////////////////////
 //		M A I N
@@ -109,27 +128,72 @@ void keyboardFunc( unsigned char key, int x, int y)
 int main(int argc, char **argv)
 {
 
-
-
 	glutInit(&argc, argv);
 	initKeymapManager();
 
+	//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(512, 512);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitContextVersion(3, 2); // Might not be needed in Linux
 	glutCreateWindow("Farm Escape");
-
 	glutDisplayFunc(DisplayWindow);
+
+	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, -.4));
+	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, .4));
+	create_joint(&legbase_joint[2], SetVector(.1, 2, -.4));
+	create_joint(&legbase_joint[3], SetVector(.1, 2, .4));
+
+	create_joint(&knee_joint[0], SetVector(-2.6, .9, -.4));
+	create_joint(&knee_joint[1], SetVector(-2.6, .9, .4));
+	create_joint(&knee_joint[2], SetVector(.4, .9, -.4));
+	create_joint(&knee_joint[3], SetVector(.4, .8, .4));
+
+	create_joint(&foot_joint[0], SetVector(.34, 0, -.4));
+	create_joint(&foot_joint[1], SetVector(.34, 0, .4));
+	create_joint(&foot_joint[2], SetVector(-2.75, 0, -.4));
+	create_joint(&foot_joint[3], SetVector(-2.75, 0, .4));
+
+
+	//SET PARENTS!
+	foot_joint[0].parent = &knee_joint[0];
+	foot_joint[1].parent = &knee_joint[1];
+	foot_joint[2].parent = &knee_joint[2];
+	foot_joint[3].parent = &knee_joint[3];
+
+
+	//TAIL JOINTS
+	create_joint(&tail_joint[0], SetVector(.7, 3.75, 0));
+	create_joint(&tail_joint[1], SetVector(2.2, 3.8, 0));
+	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0));
+	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0));
+
+	//HEAD JOINTS
+	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0));
+	create_joint(&head_joint[1], SetVector(-3.85, 4, 0));
+	create_joint(&head_joint[2], SetVector(-4.7, 3, 0));
+
+
+	create_cow(&cow);
+
+
+	g_shader = loadShaders("shader.vert" , "shader.frag");
+	glUseProgram(g_shader);
+
 	//glutKeyboardFunc( keyboardFunc ); 
 	//glutReshapeFunc(reshape);
 
 	// Set up depth buffer
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
 
 	// initiering
-#ifdef WIN32
-	glewInit();
-#endif
+//#ifdef WIN32
+//	glewInit();
+//#endif
 
 	//mat4 proj_matrix = frustum(-1, 1, -1, 1, 2, 750.0);
 	//mat4 cam_matrix = lookAt(0, 0, -20, 0, 0, 0, 0.0, 1.0, 0.0);
@@ -140,11 +204,7 @@ int main(int argc, char **argv)
 	//glutDisplayFunc(DisplayWindow);
 
 	//init_models();
-	create_cow(&cow);
-	create_bone(&bone, SetVector(0,0,0));
 
-	g_shader = loadShaders("shader.vert" , "shader.frag");
-	glUseProgram(g_shader);
 
 	glutTimerFunc(20, &OnTimer, 0);
 

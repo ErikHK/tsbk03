@@ -12,6 +12,9 @@ uniform mat4 cam_matrix;
 uniform mat4 proj_matrix;
 
 uniform float time;
+uniform int draw_cow;
+
+uniform mat4 foot_joint[4];
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -56,7 +59,11 @@ void main(void)
 
 
   //gl_Position = vec4(in_Position, 1.0);
-  colorr = vec4(shade) + vec4(.2,0,.2,0);
+  if(draw_cow == 1)
+    colorr = vec4(shade, shade, shade, .6) + vec4(.2,0,.2,0);
+  else
+    colorr = vec4(1);
+    
   outTexCoord = inTexCoord;
 }
 

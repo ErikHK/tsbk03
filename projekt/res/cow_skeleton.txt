@@ -2,13 +2,13 @@ tail base:     	 7   0  37.5
 middle tail: 	 22  0  38
 end tail:	 39  0  37
 
-hind leg left:	 3.4  -4  0
-hind leg right:	 3.4   4  0
-front leg left:	 -27.5 -4 0
-front leg right: -27.5 4  0
+hind leg left:	 3.4  -4  0	x
+hind leg right:	 3.4   4  0	x
+front leg left:	 -27.5 -4 0	x
+front leg right: -27.5 4  0	x
 
-front knees:	 -26  +-4 9
-hind knees:	 4    +-4 8
+front knees:	 -26  +-4 9	x
+hind knees:	 4    +-4 8	x
 
 hind leg base:	 1    +-4 20
 front leg base:  -23  +-4 18
