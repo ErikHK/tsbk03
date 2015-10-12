@@ -101,54 +101,33 @@ void OnTimer(int value)
 
 	mat4 tmp, testjoint, testjoint2;
 	testjoint = IdentityMatrix();
-	legbase_joint[3].T = T(.1, 2, 0);
-	legbase_joint[3].M = T(.1, 2, 0);
 
-	knee_joint[3].T = T(.4, .8, 0);
-	knee_joint[3].M = T(.4, .8, 0);
+	joint_s * j = &foot_joint[0];
+	joint_s * jp = &foot_joint[0].parent;
+	joint_s * jpp = &jp->parent;
 
-	knee_joint[3].Minv = InvertMat4(T(.4, .8, 0));
-	legbase_joint[3].Minv = InvertMat4(T(.1, 2, 0));
+	legbase_joint[0].R = ArbRotate(SetVector(0,0,1), sin(t/4));
+	//legbase_joint[0].R = ArbRotate(SetVector(0,0,1), 0);
+	legbase_joint[0].Mp = Mult(legbase_joint[0].T, legbase_joint[0].R);
 
-	legbase_joint[3].R = ArbRotate(SetVector(0,0,1), sin(5*t)/2);
-	legbase_joint[3].Mp = Mult(legbase_joint[3].T, legbase_joint[3].R);
+	testjoint2 = Mult(legbase_joint[0].Mp, legbase_joint[0].Minv);
+	knee_joint[0].R = ArbRotate(SetVector(0,0,1), cos(4*t)*1.2);
+	knee_joint[0].M = Mult(knee_joint[0].T, legbase_joint[0].Minv);
 
-	testjoint2 = Mult(legbase_joint[3].Mp, legbase_joint[3].Minv);
-	knee_joint[3].R = ArbRotate(SetVector(0,0,1), cos(4*t)/2);
-	knee_joint[3].M = Mult(knee_joint[3].T, legbase_joint[3].Minv);
+	knee_joint[0].Mp = Mult(knee_joint[0].T, knee_joint[0].R);
+	knee_joint[0].Mp = Mult(legbase_joint[0].Minv, knee_joint[0].Mp);
+	knee_joint[0].Minv = InvertMat4(knee_joint[0].M);
 
-	knee_joint[3].Mp = Mult(knee_joint[3].T, knee_joint[3].R);
-	knee_joint[3].Mp = Mult(legbase_joint[3].Minv, knee_joint[3].Mp);
-	knee_joint[3].Minv = InvertMat4(knee_joint[3].M);
-	//testjoint = testjoint2;
-	mat4 inverts = Mult(knee_joint[3].Minv, legbase_joint[3].Minv);
-	mat4 primes = Mult(legbase_joint[3].Mp, knee_joint[3].Mp);
+	mat4 inverts = Mult(knee_joint[0].Minv, legbase_joint[0].Minv);
+	mat4 primes = Mult(legbase_joint[0].Mp, knee_joint[0].Mp);
 	testjoint = Mult(primes, inverts);
-	//testjoint = testjoint2;
-	//testjoint = Mult(Mult(legbase_joint[3].Mp, knee_joint[3].Mp),
-	//Mult(knee_joint[3].Minv, legbase_joint[3].Minv));
-
- 	/*
-	mat4 M1, M2, M1_p, M2_p;
-
-	testjoint = IdentityMatrix();
-	M1_p = Mult( T(.1,2.0,0), ArbRotate(SetVector(0,0,1), sin(5*t)/2));
-	M1 = T(.1,2.0,0);
-	testjoint2 = Mult(M1_p, InvertMat4(M1));
-
-
-	M2 = Mult(T(.4,.8,0), InvertMat4(M1));
-	M2_p = Mult(T(.4,.8,0), ArbRotate(SetVector(0,0,1), cos(4*t)/2));
-	M2_p = Mult(InvertMat4(M1), M2_p);
-
-	mat4 inverts = Mult(InvertMat4(M2), InvertMat4(M1));
-	mat4 primes = Mult(M1_p, M2_p);
-	testjoint = Mult(primes, inverts);
-*/
 
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 1, GL_TRUE, testjoint.m);
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
 
+	glUniform3f(glGetUniformLocation(g_shader, "currpos"), 10*legbase_joint[0].pos.x, 10*legbase_joint[0].pos.y, 10*legbase_joint[0].pos.z);
+	glUniform3f(glGetUniformLocation(g_shader, "currpos3"), 10*knee_joint[0].pos.x, 10*knee_joint[0].pos.y, 10*knee_joint[0].pos.z);
+	glUniform3f(glGetUniformLocation(g_shader, "currpos2"), 10*foot_joint[0].pos.x, 10*foot_joint[0].pos.y, 10*foot_joint[0].pos.z);
 
 	if(keyIsDown('e'))
 	  cam_angle += .05;
@@ -189,20 +168,20 @@ int main(int argc, char **argv)
 	glutCreateWindow("Farm Escape");
 	glutDisplayFunc(DisplayWindow);
 
-	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, -.4));
-	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, .4));
+	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, .4));
+	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, -.4));
 	create_joint(&legbase_joint[2], SetVector(.1, 2, -.4));
 	create_joint(&legbase_joint[3], SetVector(.1, 2.0, 0));
 
-	create_joint(&knee_joint[0], SetVector(-2.6, .9, -.4));
-	create_joint(&knee_joint[1], SetVector(-2.6, .9, .4));
+	create_joint(&knee_joint[0], SetVector(-2.6, .9, .4));
+	create_joint(&knee_joint[1], SetVector(-2.6, .9, -.4));
 	create_joint(&knee_joint[2], SetVector(.4, .9, -.4));
 	create_joint(&knee_joint[3], SetVector(.4, .8, 0));
 
-	create_joint(&foot_joint[0], SetVector(.34, 0, -.4));
-	create_joint(&foot_joint[1], SetVector(.34, 0, .4));
-	create_joint(&foot_joint[2], SetVector(-2.75, 0, -.4));
-	create_joint(&foot_joint[3], SetVector(-2.75, 0, .4));
+	create_joint(&foot_joint[0], SetVector(-2.75, 0, .4));
+	create_joint(&foot_joint[1], SetVector(-2.75, 0, -.4));
+	create_joint(&foot_joint[2], SetVector(.34, 0, -.4));
+	create_joint(&foot_joint[3], SetVector(.34, 0, .4));
 
 
 	//SET PARENTS!
