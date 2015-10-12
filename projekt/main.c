@@ -5,8 +5,6 @@
 
 // 2013: Adapted to VectorUtils3 and MicroGlut.
 
-// gcc skinning.c ../common/*.c -lGL -o skinning -I../common
-
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -100,51 +98,54 @@ void OnTimer(int value)
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
 
-	mat4 testjoint;
-	mat4 testjoint2;
+
+	mat4 tmp, testjoint, testjoint2;
+	testjoint = IdentityMatrix();
+	legbase_joint[3].T = T(.1, 2, 0);
+	legbase_joint[3].M = T(.1, 2, 0);
+
+	knee_joint[3].T = T(.4, .8, 0);
+	knee_joint[3].M = T(.4, .8, 0);
+
+	knee_joint[3].Minv = InvertMat4(T(.4, .8, 0));
+	legbase_joint[3].Minv = InvertMat4(T(.1, 2, 0));
+
+	legbase_joint[3].R = ArbRotate(SetVector(0,0,1), sin(5*t)/2);
+	legbase_joint[3].Mp = Mult(legbase_joint[3].T, legbase_joint[3].R);
+
+	testjoint2 = Mult(legbase_joint[3].Mp, legbase_joint[3].Minv);
+	knee_joint[3].R = ArbRotate(SetVector(0,0,1), cos(4*t)/2);
+	knee_joint[3].M = Mult(knee_joint[3].T, legbase_joint[3].Minv);
+
+	knee_joint[3].Mp = Mult(knee_joint[3].T, knee_joint[3].R);
+	knee_joint[3].Mp = Mult(legbase_joint[3].Minv, knee_joint[3].Mp);
+	knee_joint[3].Minv = InvertMat4(knee_joint[3].M);
+	//testjoint = testjoint2;
+	mat4 inverts = Mult(knee_joint[3].Minv, legbase_joint[3].Minv);
+	mat4 primes = Mult(legbase_joint[3].Mp, knee_joint[3].Mp);
+	testjoint = Mult(primes, inverts);
+	//testjoint = testjoint2;
+	//testjoint = Mult(Mult(legbase_joint[3].Mp, knee_joint[3].Mp),
+	//Mult(knee_joint[3].Minv, legbase_joint[3].Minv));
+
+ 	/*
 	mat4 M1, M2, M1_p, M2_p;
 
 	testjoint = IdentityMatrix();
-	//testjoint = Mult(
-	//	Mult( T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t)) ),
-	//	T(-4,-8,0));
-
-	//testjoint2 = Mult(InvertMat4(IdentityMatrix()), Mult(
-	//	Mult( T(1,20,0), ArbRotate(SetVector(0,0,1), .9)),
-	//	T(-1,-20,0)));
-
-	//mat4 M1_p, M1;
-
-	M1_p = Mult( T(1,20,0), ArbRotate(SetVector(0,0,1), .7*sin(t/2)));
-	M1 = T(1,20,0);
-
+	M1_p = Mult( T(.1,2.0,0), ArbRotate(SetVector(0,0,1), sin(5*t)/2));
+	M1 = T(.1,2.0,0);
 	testjoint2 = Mult(M1_p, InvertMat4(M1));
 
-	//mat4 M2_p = Mult(T(-1+4,-20+8,0), ArbRotate(SetVector(0,0,1), sin(t)));
-	//mat4 M2_p = Mult(T(3.4,0,0), ArbRotate(SetVector(0,0,1), .6));
-	//mat4 M2_p = T(4,8,0);
-	//mat4 M2 = T(-1+4,-20+8,0);
-	M2 = Mult(T(4,8,0), InvertMat4(M1));
 
-	M2_p = Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t)));
-
+	M2 = Mult(T(.4,.8,0), InvertMat4(M1));
+	M2_p = Mult(T(.4,.8,0), ArbRotate(SetVector(0,0,1), cos(4*t)/2));
 	M2_p = Mult(InvertMat4(M1), M2_p);
-
-	//mat4 M1 = Mult(Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t))),
-	//	T(-4,-8,0));
-	//mat4 M1 = Mult(T(4,8,0), ArbRotate(SetVector(0,0,1), sin(t)));
 
 	mat4 inverts = Mult(InvertMat4(M2), InvertMat4(M1));
 	mat4 primes = Mult(M1_p, M2_p);
 	testjoint = Mult(primes, inverts);
+*/
 
-	//testjoint = Mult(M2_p, InvertMat4(M2));
-
-	//testjoint = Mult(
-	//	Mult(M1, testjoint2), InvertMat4(M1));
-	//testjoint = Mult(testjoint2, restpos);
-
-	//testjoint = testjoint2;
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 1, GL_TRUE, testjoint.m);
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
 
@@ -191,12 +192,12 @@ int main(int argc, char **argv)
 	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, -.4));
 	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, .4));
 	create_joint(&legbase_joint[2], SetVector(.1, 2, -.4));
-	create_joint(&legbase_joint[3], SetVector(.1, 2, .4));
+	create_joint(&legbase_joint[3], SetVector(.1, 2.0, 0));
 
 	create_joint(&knee_joint[0], SetVector(-2.6, .9, -.4));
 	create_joint(&knee_joint[1], SetVector(-2.6, .9, .4));
 	create_joint(&knee_joint[2], SetVector(.4, .9, -.4));
-	create_joint(&knee_joint[3], SetVector(.4, .8, .4));
+	create_joint(&knee_joint[3], SetVector(.4, .8, 0));
 
 	create_joint(&foot_joint[0], SetVector(.34, 0, -.4));
 	create_joint(&foot_joint[1], SetVector(.34, 0, .4));
@@ -209,6 +210,11 @@ int main(int argc, char **argv)
 	foot_joint[1].parent = &knee_joint[1];
 	foot_joint[2].parent = &knee_joint[2];
 	foot_joint[3].parent = &knee_joint[3];
+
+	knee_joint[0].parent = &legbase_joint[0];
+	knee_joint[1].parent = &legbase_joint[1];
+	knee_joint[2].parent = &legbase_joint[2];
+	knee_joint[3].parent = &legbase_joint[3];
 
 
 	//TAIL JOINTS
@@ -233,10 +239,10 @@ int main(int argc, char **argv)
 	//glutReshapeFunc(reshape);
 
 	// Set up depth buffer
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
 
@@ -244,17 +250,6 @@ int main(int argc, char **argv)
 //#ifdef WIN32
 //	glewInit();
 //#endif
-
-	//mat4 proj_matrix = frustum(-1, 1, -1, 1, 2, 750.0);
-	//mat4 cam_matrix = lookAt(0, 0, -20, 0, 0, 0, 0.0, 1.0, 0.0);
-
-
-	//glUniformMatrix4fv(glGetUniformLocation(g_shader, "proj_matrix"), 1, GL_TRUE, proj_matrix.m);
-	//glUniformMatrix4fv(glGetUniformLocation(g_shader, "cam_matrix"), 1, GL_TRUE, cam_matrix.m);
-	//glutDisplayFunc(DisplayWindow);
-
-	//init_models();
-
 
 	glutTimerFunc(20, &OnTimer, 0);
 

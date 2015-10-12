@@ -48,25 +48,26 @@ void main(void)
 
   float shade = dot(lightv, inNormal);
   //float len = length(inPosition - vec3(0,1,0));
-/*
-  float len = distance(inPosition, vec3(0,8,0));
-  if(len < 11)
-    gl_Position = proj_matrix * cam_matrix * mdl_matrix * transpose(translationMatrix(vec3(0,20,0))) * rotationMatrix(vec3(0,0,5), sin(time*5)/5) * vec4(inPosition + vec3(0,-20,0), 1.0);
-  else if(distance(inPosition, vec3(-30,8,0)) < 11)
-    gl_Position = proj_matrix * cam_matrix * mdl_matrix * transpose(translationMatrix(vec3(-30,20,0))) * rotationMatrix(vec3(0,0,5), cos(time*5)/5) * vec4(inPosition + vec3(30,-20,0), 1.0);
-  else
-*/
-  //leg base joint (animate thigh)
-  if(distance(inPosition, vec3(3.4, 20, 0)) < 6 && draw_cow == 1)
-    gl_Position = proj_matrix * cam_matrix * mdl_matrix * testjoint2 * vec4(inPosition + vec3(0,0,0), 1.0);
-  //knee joint (animate feet/calves)
-  else if(distance(inPosition, vec3(3.4, 0, 0)) < 12 && draw_cow == 1)
-    gl_Position = proj_matrix * cam_matrix * mdl_matrix * testjoint * vec4(inPosition, 1.0);
-  else
-    gl_Position = proj_matrix * cam_matrix * mdl_matrix * vec4(inPosition, 1.0);
-     
 
 
+  if(draw_cow==1)
+  {
+  //calc distance to the two bones
+  float dist, dist2;
+  dist = distance(inPosition, (vec3(1, 20, 4)+vec3(4, 8, 4))/2);
+  dist2 = distance(inPosition, (vec3(3.4, 4, 4)+vec3(4, 8, 4))/2);
+  if(dist < 10)
+    gl_Position = proj_matrix*cam_matrix*testjoint2*mdl_matrix*vec4(inPosition,1);
+  if(dist2 < 10)
+    gl_Position += proj_matrix*cam_matrix*testjoint*mdl_matrix*vec4(inPosition,1);
+  else
+    gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
+   
+  }else
+    gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
+
+
+ 
 
   //gl_Position = vec4(in_Position, 1.0);
   if(draw_cow == 1)
