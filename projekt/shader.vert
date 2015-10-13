@@ -15,10 +15,10 @@ uniform float time;
 uniform int draw_cow;
 
 uniform mat4 foot_joint[4];
-uniform mat4 testjoint;
+uniform mat4 testjoint[4];
 uniform mat4 testjoint2;
 
-uniform vec3 currpos, currpos2, currpos3;
+uniform vec3 currpos[4];
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -49,32 +49,36 @@ void main(void)
   vec3 lightv = vec3(.6, .6, .6);
 
   float shade = dot(lightv, inNormal);
-  //float len = length(inPosition - vec3(0,1,0));
-
 
   if(draw_cow==1)
   {
-  //calc distance to the two bones
+  //calc distance to the bones
   float dist, dist2, len1, len2;
-  len1 = length(currpos-currpos3);
-  len2 = length(-currpos2+currpos3);
 
-  //distance to middle of bone
-  dist = distance(inPosition, (currpos+currpos3)/2);
-  dist2 = distance(inPosition, (currpos2+currpos3)/2);
+  for(int i=0;i<2;i++)
+  {
+    len1 = length(-currpos[i]+currpos[i+1]);
 
-  //dist = distance(inPosition, (vec3(-27, 18, 4)+vec3(-26, 0, 4))/2);
-  //dist2 = distance(inPosition, (vec3(-27, 9, 4)+vec3(-26, 0, 4))/2);
+    //distance to middle of bone
+    //dist = distance(inPosition, (currpos[i]+currpos[i+1])/2);
+    dist = distance(inPosition, currpos[i]);
 
-  if(dist < len1-2)
-    gl_Position = proj_matrix*cam_matrix*testjoint2*mdl_matrix*vec4(inPosition, 1);
-  if(dist2 < len2-2)
-    gl_Position += proj_matrix*cam_matrix*testjoint*mdl_matrix*vec4(inPosition, 1);
+    //if(abs(dist) < abs(len1))
+    if(abs(dist) < 10)
+      gl_Position += proj_matrix*cam_matrix*testjoint[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  }
+
+  else
+    gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
+
+
+  //if(dist2 < len2-2)
+  //  gl_Position += proj_matrix*cam_matrix*testjoint*mdl_matrix*vec4(inPosition, 1);
   //else
   //gl_Position += proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
    
-  }else
-    gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
 
 
  

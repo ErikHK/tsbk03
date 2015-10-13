@@ -113,6 +113,10 @@ void OnTimer(int value)
 	jp->Mp = Mult(jpp->Minv, jp->Mp);
 	jp->Minv = InvertMat4(jp->M);
 */
+	GLfloat Ms[4][4*4];
+	GLfloat test[3*4] = {{0}};
+	GLfloat * Mtmp = Ms;
+	int i=0, ii=0;
 	while(j->parent != NULL)
 	{
 	  jp = j->parent;
@@ -127,12 +131,83 @@ void OnTimer(int value)
 	  
 	  j->Mtot = Mult(Mult(jp->Mp, j->Mp), Mult(j->Minv, jp->Minv));
 	  jp->Mtot = Mult(jp->Mp, jp->Minv);
+	  for(ii=0;ii<16;ii++)
+	    Ms[0][ii] = (jp->Mtot).m[ii];
+	  for(ii=0;ii<16;ii++)
+	    Ms[1][ii] = (j->Mtot).m[ii];
+	  for(ii=0;ii<16;ii++)
+	    Ms[2][ii] = (jp->Mtot).m[ii];
+	  for(ii=0;ii<16;ii++)
+	    Ms[3][ii] = (j->Mtot).m[ii];
+	  /*
+	  *Mtmp = *j->Mtot.m;
+	  Mtmp = (Ms+16);
+	  *Mtmp = *jp->Mtot.m;
+	  Mtmp = (Ms+16*2);
+	  *Mtmp = *j->Mtot.m;
+	  Mtmp = (Ms+16*3);
+	  *Mtmp = *jp->Mtot.m;
+	  */
+	  //Ms[4*4] = &jp->Mtot.m;
+	  //Ms[2*4*4] = &j->Mtot.m;
+	  //Ms[3*4*4] = &jp->Mtot.m;
 
-	  testjoint = j->Mtot;
-	  testjoint2 = jp->Mtot;
+	  //testjoint = j->Mtot;
+	  //testjoint2 = jp->Mtot;
+
+	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 4, GL_TRUE, Ms);
+	  //glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
+
+
+	  test[i*3] = 10*j->pos.x;
+	  test[i*3+1] = 10*j->pos.y;
+	  test[i*3+2] = 10*j->pos.z;
+	  i++;
+	  //GLfloat test[9] = {10*j->pos.x, 10*j->pos.y, 10*j->pos.z, 
+	  //		10*jp->pos.x, 10*jp->pos.y, 10*jp->pos.z,
+	  //		10*jpp->pos.x, 10*jpp->pos.y, 10*jpp->pos.z};
+	  //GLfloat test[6] = {10*knee_joint[0].pos.x, 10*knee_joint[0].pos.y, 10*knee_joint[0].pos.z, 10*legbase_joint[0].pos.x, 10*legbase_joint[0].pos.y, 10*legbase_joint[0].pos.z};
+	  glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 4, test);
+	  //glUniform3f(glGetUniformLocation(g_shader, "currpos"), 10*legbase_joint[0].pos.x, 10*legbase_joint[0].pos.y, 10*legbase_joint[0].pos.z);
+	  //glUniform3f(glGetUniformLocation(g_shader, "currpos3"), 10*knee_joint[0].pos.x, 10*knee_joint[0].pos.y, 10*knee_joint[0].pos.z);
+	  //glUniform3f(glGetUniformLocation(g_shader, "currpos2"), 10*foot_joint[0].pos.x, 10*foot_joint[0].pos.y, 10*foot_joint[0].pos.z);
+
 
 	  j = j->parent;
 	}
+
+	  glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 4, test);
+
+	//test with tail!
+/*
+	//start at the end of the tail
+	j = &tail_joint[3];
+
+	while(j->parent != NULL)
+	{
+	  jp = j->parent;
+	  j->R = ArbRotate(SetVector(0,0,1), cos(4*t)*1.2);
+	  j->M = Mult(j->T, jp->Minv);
+	  j->Mp = Mult(j->T, j->R);
+	  j->Mp = Mult(jp->Minv, j->Mp);
+	  j->Minv = InvertMat4(j->M);
+
+	  jp->R = ArbRotate(SetVector(0,0,1), sin(t/4));
+	  jp->Mp = Mult(jp->T, jp->R);
+
+	  j->Mtot = Mult(Mult(jp->Mp, j->Mp), Mult(j->Minv, jp->Minv));
+	  jp->Mtot = Mult(jp->Mp, jp->Minv);
+
+	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "tailjoint"), 1, GL_TRUE, j->Mtot.m);
+	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "tailjoint2"), 1, GL_TRUE, jp->Mtot.m);
+
+	  glUniform3f(glGetUniformLocation(g_shader, "currtailpos"), 10*legbase_joint[0].pos.x, 10*legbase_joint[0].pos.y, 10*legbase_joint[0].pos.z);
+	  glUniform3f(glGetUniformLocation(g_shader, "currtailpos2"), 10*knee_joint[0].pos.x, 10*knee_joint[0].pos.y, 10*knee_joint[0].pos.z);
+
+	  j = j->parent;
+	}
+
+*/
 
 
 /*
@@ -149,12 +224,6 @@ void OnTimer(int value)
 
 	//testjoint = j->Mtot;
 	//testjoint2 = jp->Mtot;
-	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 1, GL_TRUE, testjoint.m);
-	glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
-
-	glUniform3f(glGetUniformLocation(g_shader, "currpos"), 10*legbase_joint[0].pos.x, 10*legbase_joint[0].pos.y, 10*legbase_joint[0].pos.z);
-	glUniform3f(glGetUniformLocation(g_shader, "currpos3"), 10*knee_joint[0].pos.x, 10*knee_joint[0].pos.y, 10*knee_joint[0].pos.z);
-	glUniform3f(glGetUniformLocation(g_shader, "currpos2"), 10*foot_joint[0].pos.x, 10*foot_joint[0].pos.y, 10*foot_joint[0].pos.z);
 
 	if(keyIsDown('e'))
 	  cam_angle += .05;
@@ -222,10 +291,6 @@ int main(int argc, char **argv)
 	knee_joint[2].parent = &legbase_joint[2];
 	knee_joint[3].parent = &legbase_joint[3];
 
-	legbase_joint[0].parent = NULL;
-	legbase_joint[1].parent = NULL;
-	legbase_joint[2].parent = NULL;
-	legbase_joint[3].parent = NULL;
 
 
 	//TAIL JOINTS
@@ -234,10 +299,22 @@ int main(int argc, char **argv)
 	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0));
 	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0));
 
+	tail_joint[3].parent = &tail_joint[2];
+	tail_joint[2].parent = &tail_joint[1];
+	tail_joint[1].parent = &tail_joint[0];
+	tail_joint[0].parent = NULL;
+
 	//HEAD JOINTS
 	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0));
 	create_joint(&head_joint[1], SetVector(-3.85, 4, 0));
 	create_joint(&head_joint[2], SetVector(-4.7, 3, 0));
+
+	legbase_joint[0].parent = &head_joint[0];
+	legbase_joint[1].parent = &head_joint[0];
+	legbase_joint[2].parent = &head_joint[0];
+	legbase_joint[3].parent = &head_joint[0];
+
+	head_joint[0].parent = NULL;
 
 
 	create_cow(&cow);
