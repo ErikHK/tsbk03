@@ -16,10 +16,14 @@ uniform int draw_cow;
 
 uniform mat4 foot_joint[4];
 uniform mat4 testjoint[8];
+uniform mat4 legtestjoint[8];
 uniform mat4 testjoint2;
 
 uniform vec3 currpos[8];
 uniform vec3 bonepos[8];
+
+uniform vec3 legcurrpos[8];
+uniform vec3 legbonepos[8];
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -58,19 +62,27 @@ void main(void)
 
   for(int i=0;i<4;i++)
   {
+    //length of bone (joint to joint)
     float leng = 2*distance(currpos[i], bonepos[i]);
 
     //distance to middle of bone
     dist = distance(vec3(inPosition), bonepos[i]);
-    //dist = distance(vec3(inPosition), vec3(currpos[i].x, currpos[i].y-4, currpos[i].z));
-    //dist = distance(inPosition, (currpos[i]+currpos[i+1])/2);
-    //dist = distance(inPosition, (vec3(-26,9,0) + vec3(-27.5,4,0))/2);
-    //dist = distance(inPosition, currpos[i]);
-
-    //if(abs(dist) < abs(len1))
 
     if(abs(dist) < leng/2+7)
       gl_Position += proj_matrix*cam_matrix*testjoint[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+  for(int i=0;i<4;i++)
+  {
+    //length of bone (joint to joint)
+    float leng = 2*distance(legcurrpos[i], legbonepos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), legbonepos[i]);
+
+    if(abs(dist) < leng/2+2)
+      gl_Position += proj_matrix*cam_matrix*legtestjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
   }

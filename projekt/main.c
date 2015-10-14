@@ -107,17 +107,13 @@ void OnTimer(int value)
 	joint_s * jcc = jc->child;
 	//joint_s * jp = j->parent;
 	//joint_s * jpp = jp->parent;
-/*
-	jp->R = ArbRotate(SetVector(0,0,1), cos(4*t)*1.2);
-	jp->M = Mult(jp->T, jpp->Minv);
 
-	jp->Mp = Mult(jp->T, jp->R);
-	jp->Mp = Mult(jpp->Minv, jp->Mp);
-	jp->Minv = InvertMat4(jp->M);
-*/
 	float Ms[8][4*4];
+	float legMs[8][4*4];
 	float currpos[8*3] = {{0}};
 	float bonepos[8*3] = {{0}};
+	float legcurrpos[8*3] = {{0}};
+	float legbonepos[8*3] = {{0}};
 	//GLfloat * Mtmp = Ms;
 	int i=0, ii=0;
 	jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
@@ -157,9 +153,53 @@ void OnTimer(int value)
 
 	  j = j->child;
 	}
+
+	j = &legbase_joint[0];
+	jc = j->child;
+	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
+
+	i = 0;
+	tmppp = IdentityMatrix();
+
+	while(j->child != NULL)
+	{
+	  jc = j->child;
+	  //j->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/4);
+	  //j->M = Mult(j->T, jp->Minv);
+	  vec3 tmp_bonepos;
+	  tmptrans = j->T;
+	  tmppp = Mult(tmppp, tmptrans);
+	  invtrans = InvertMat4(tmptrans);
+	  tmppp = Mult(tmppp, Mult(j->R, invtrans));
+
+	  tmp_bonepos = ScalarMult(
+		VectorAdd(j->pos, jc->pos), .5); //middle of bone
+
+
+	  for(ii=0;ii<16;ii++)
+	    legMs[i][ii] = (tmppp).m[ii];
+
+	  legcurrpos[i*3] = 10*j->pos.x;
+	  legcurrpos[i*3+1] = 10*j->pos.y;
+	  legcurrpos[i*3+2] = 10*j->pos.z;
+
+	  legbonepos[i*3] = 10*tmp_bonepos.x;
+	  legbonepos[i*3+1] = 10*tmp_bonepos.y;
+	  legbonepos[i*3+2] = 10*tmp_bonepos.z;
+
+	  i++;
+	  j = j->child;
+	}
+
+
 	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 8, GL_TRUE, Ms);
 	  glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 8, currpos);
 	  glUniform3fv(glGetUniformLocation(g_shader, "bonepos"), 8, bonepos);
+
+	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "legtestjoint"), 8, GL_TRUE, legMs);
+	  glUniform3fv(glGetUniformLocation(g_shader, "legcurrpos"), 8, legcurrpos);
+	  glUniform3fv(glGetUniformLocation(g_shader, "legbonepos"), 8, legbonepos);
 
 	//test with tail!
 /*
