@@ -40,6 +40,7 @@ joint_s knee_joint[4];
 joint_s legbase_joint[4];
 joint_s tail_joint[4];
 joint_s head_joint[3];
+joint_s body_joint[3];
 
 cow_s cow;
 
@@ -64,7 +65,10 @@ void DisplayWindow()
 	  draw_joint(&legbase_joint[i], g_shader);
 	  draw_joint(&tail_joint[i], g_shader);
 	  if(i < 3) 
+	  {
 	    draw_joint(&head_joint[i], g_shader);
+	    draw_joint(&body_joint[i], g_shader);
+	  }
 
 	}
 
@@ -226,7 +230,7 @@ void OnTimer(int value)
 	tmppp = IdentityMatrix();
 	//legbase_joint[0].R = ArbRotate(SetVector(0,0,1), cos(3*t)/2);
 
-
+	//legs
 	calc_bone_transform(&legbase_joint[0], 
 	"legjoint0", "legcurrpos0", "legbonepos0");
 	calc_bone_transform(&legbase_joint[1], 
@@ -235,6 +239,29 @@ void OnTimer(int value)
 	"legjoint2", "legcurrpos2", "legbonepos2");
 	calc_bone_transform(&legbase_joint[3], 
 	"legjoint3", "legcurrpos3", "legbonepos3");
+
+	//tail
+	j = &tail_joint[0];
+	j->R = ArbRotate(SetVector(0,0,1), -M_PI/2.5);
+
+	calc_bone_transform(&tail_joint[0], 
+	"tailjoint", "tailcurrpos", "tailbonepos");
+
+	//head
+	j = &head_joint[0];
+	j->R = ArbRotate(SetVector(0,0,1), -M_PI/8.5);
+
+	calc_bone_transform(&head_joint[0], 
+	"headjoint", "headcurrpos", "headbonepos");
+
+	//body
+	j = &body_joint[0];
+	j->R = ArbRotate(SetVector(0,0,1), 0);
+
+	calc_bone_transform(&body_joint[0], 
+	"bodyjoint", "bodycurrpos", "bodybonepos");
+
+
 
 	//glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 8, GL_TRUE, Ms);
 	//glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 8, currpos);
@@ -301,6 +328,15 @@ int main(int argc, char **argv)
 	create_joint(&foot_joint[2], SetVector(.34, 0, -.4),0);
 	create_joint(&foot_joint[3], SetVector(.34, 0, .4),0);
 
+	create_joint(&body_joint[0], SetVector(-1.8, 3, 0), 0);
+	create_joint(&body_joint[1], SetVector(-1, 2.8, 0), 0);
+	create_joint(&body_joint[2], SetVector(.14, 3, -0),0);
+
+	body_joint[0].child = &body_joint[1];
+	body_joint[1].child = &body_joint[2];
+	body_joint[2].child = NULL;
+
+
 
 	//SET PARENTS!
 	foot_joint[0].parent = &knee_joint[0];
@@ -319,7 +355,7 @@ int main(int argc, char **argv)
 	legbase_joint[3].parent = NULL;
 
 	//TAIL JOINTS
-	create_joint(&tail_joint[0], SetVector(.7, 3.75, 0),0);
+	create_joint(&tail_joint[0], SetVector(.7+.3, 3.75, 0),0);
 	create_joint(&tail_joint[1], SetVector(2.2, 3.8, 0),0);
 	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0),0);
 	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0),0);
