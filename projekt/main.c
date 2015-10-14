@@ -37,6 +37,7 @@ GLuint g_shader;
 bone_s bone;
 joint_s foot_joint[4];
 joint_s knee_joint[4];
+joint_s thigh_joint[4];
 joint_s legbase_joint[4];
 joint_s tail_joint[4];
 joint_s head_joint[3];
@@ -62,6 +63,7 @@ void DisplayWindow()
 	{
 	  draw_joint(&foot_joint[i], g_shader);
 	  draw_joint(&knee_joint[i], g_shader);
+	  draw_joint(&thigh_joint[i], g_shader);
 	  draw_joint(&legbase_joint[i], g_shader);
 	  draw_joint(&tail_joint[i], g_shader);
 	  if(i < 3) 
@@ -204,23 +206,23 @@ void OnTimer(int value)
 	  j = j->child;
 	}
 
-	j = &legbase_joint[0];
+	j = &thigh_joint[0];
 	jc = j->child;
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
 	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 
-	j = &legbase_joint[1];
+	j = &thigh_joint[1];
 	jc = j->child;
 	j->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
 
 
-	j = &legbase_joint[2];
+	j = &thigh_joint[2];
 	jc = j->child;
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
 	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 
-	j = &legbase_joint[3];
+	j = &thigh_joint[3];
 	jc = j->child;
 	j->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
@@ -323,10 +325,15 @@ int main(int argc, char **argv)
 	glutCreateWindow("Farm Escape");
 	glutDisplayFunc(DisplayWindow);
 
-	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, .4), 0);
-	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, -.4), 0);
-	create_joint(&legbase_joint[2], SetVector(.1, 2, -.4), 0);
-	create_joint(&legbase_joint[3], SetVector(.1, 2.0, .4), 0);
+	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .4), 0);
+	create_joint(&legbase_joint[1], SetVector(-2.2, 3.8, -.4), 0);
+	create_joint(&legbase_joint[2], SetVector(.2, 3.8, -.4), 0);
+	create_joint(&legbase_joint[3], SetVector(.2, 3.8, .4), 0);
+
+	create_joint(&thigh_joint[0], SetVector(-2.3, 1.8, .4), 0);
+	create_joint(&thigh_joint[1], SetVector(-2.3, 1.8, -.4), 0);
+	create_joint(&thigh_joint[2], SetVector(.1, 2, -.4), 0);
+	create_joint(&thigh_joint[3], SetVector(.1, 2.0, .4), 0);
 
 	create_joint(&knee_joint[0], SetVector(-2.6, .9, .4), 0);
 	create_joint(&knee_joint[1], SetVector(-2.6, .9, -.4), 0);
@@ -395,7 +402,8 @@ int main(int argc, char **argv)
 	int i;
         for(i=0;i<4;i++)
 	{
-	  legbase_joint[i].child = &knee_joint[i];
+	  legbase_joint[i].child = &thigh_joint[i];
+	  thigh_joint[i].child = &knee_joint[i];
 	  knee_joint[i].child = &foot_joint[i];
 	  foot_joint[i].child = NULL;
 	}
