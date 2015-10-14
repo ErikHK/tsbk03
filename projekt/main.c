@@ -116,10 +116,10 @@ void OnTimer(int value)
 	float legbonepos[8*3] = {{0}};
 	//GLfloat * Mtmp = Ms;
 	int i=0, ii=0;
-	jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
+	//jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
 	//j->R = ArbRotate(SetVector(0,0,1), 0);
 	j->R = ArbRotate(SetVector(0,0,1), sin(4*t/(3+1))/1.2);
-	jcc->R = ArbRotate(SetVector(0,0,1), cos(8*t/(2+1))/4);
+	//jcc->R = ArbRotate(SetVector(0,0,1), cos(8*t/(2+1))/4);
 	mat4 Mpacc, Minvacc, tmptrans, tmppp, invtrans;
 	tmppp = IdentityMatrix();
 

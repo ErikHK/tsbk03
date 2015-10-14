@@ -68,7 +68,7 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), bonepos[i]);
 
-    if(abs(dist) < leng/2+7)
+    if(abs(dist) < leng/2+9)
       gl_Position += proj_matrix*cam_matrix*testjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
@@ -91,19 +91,9 @@ void main(void)
     gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
 
 
-  //if(dist2 < len2-2)
-  //  gl_Position += proj_matrix*cam_matrix*testjoint*mdl_matrix*vec4(inPosition, 1);
-  //else
-  //gl_Position += proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
-   
-
-
- 
-
-  //gl_Position = vec4(in_Position, 1.0);
   if(draw_cow == 1)
-    colorr = vec4(shade, shade, shade, .6);
-    //colorr = vec4(shade, shade, shade, 1) + vec4(.2,0,.2,0);
+    //colorr = vec4(shade, shade, shade, .6);
+    colorr = vec4(shade, shade, shade, 1) + vec4(.4,.2,.4,0);
   else
     colorr = vec4(1);
     
