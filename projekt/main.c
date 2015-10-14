@@ -84,14 +84,14 @@ void calc_bone_transform(joint_s * j, char * Mvar, char * posvar, char * bonepos
   joint_s * jc;
   mat4 tmp, tmptrans, invtrans;
   tmp = IdentityMatrix();
-  float Ms[8][16];
+  GLfloat Ms[8][16];
   int i=0,ii=0;
-  float currpos[8*3] = {{0}};
-  float bonepos[8*3] = {{0}};
+  float currpos[8*3] = {0};
+  float bonepos[8*3] = {0};
 
-  while(j->child != NULL)
+  while(j->child[0] != NULL)
   {
-    jc = j->child;
+    jc = j->child[0];
     vec3 tmp_bonepos;
     tmptrans = j->T;
     tmp = Mult(tmp, tmptrans);
@@ -113,11 +113,11 @@ void calc_bone_transform(joint_s * j, char * Mvar, char * posvar, char * bonepos
     bonepos[i*3+1] = 10*tmp_bonepos.y;
     bonepos[i*3+2] = 10*tmp_bonepos.z;
 
-    j = j->child;
+    j = j->child[0];
     i++;
   }
 
-  glUniformMatrix4fv(glGetUniformLocation(g_shader, Mvar), 4, GL_TRUE, Ms);
+  glUniformMatrix4fv(glGetUniformLocation(g_shader, Mvar), 4, GL_TRUE, Ms[0]);
   glUniform3fv(glGetUniformLocation(g_shader, posvar), 4, currpos);
   glUniform3fv(glGetUniformLocation(g_shader, boneposvar), 4, bonepos);
 
@@ -155,17 +155,17 @@ void OnTimer(int value)
 	testjoint = IdentityMatrix();
 
 	joint_s * j = &head_joint[0];
-	joint_s * jc = j->child;
-	joint_s * jcc = jc->child;
+	joint_s * jc = j->child[0];
+	joint_s * jcc = jc->child[0];
 	//joint_s * jp = j->parent;
 	//joint_s * jpp = jp->parent;
 
 	float Ms[8][4*4];
 	float legMs[8][4*4];
-	float currpos[8*3] = {{0}};
-	float bonepos[8*3] = {{0}};
-	float legcurrpos[8*3] = {{0}};
-	float legbonepos[8*3] = {{0}};
+	float currpos[8*3] = {0};
+	float bonepos[8*3] = {0};
+	float legcurrpos[8*3] = {0};
+	float legbonepos[8*3] = {0};
 	//GLfloat * Mtmp = Ms;
 	int i=0, ii=0;
 	//jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
@@ -175,6 +175,8 @@ void OnTimer(int value)
 	mat4 Mpacc, Minvacc, tmptrans, tmppp, invtrans;
 	tmppp = IdentityMatrix();
 
+
+	/*
 	while(j->child != NULL)
 	{
 	  jc = j->child;
@@ -205,25 +207,26 @@ void OnTimer(int value)
 
 	  j = j->child;
 	}
+	*/
 
 	j = &thigh_joint[0];
-	jc = j->child;
+	jc = j->child[0];
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
 	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 
 	j = &thigh_joint[1];
-	jc = j->child;
+	jc = j->child[0];
 	j->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
 
 
 	j = &thigh_joint[2];
-	jc = j->child;
+	jc = j->child[0];
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
 	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 
 	j = &thigh_joint[3];
-	jc = j->child;
+	jc = j->child[0];
 	j->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
 
@@ -327,8 +330,8 @@ int main(int argc, char **argv)
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .4), 0);
 	create_joint(&legbase_joint[1], SetVector(-2.2, 3.8, -.4), 0);
-	create_joint(&legbase_joint[2], SetVector(.2, 3.8, -.4), 0);
-	create_joint(&legbase_joint[3], SetVector(.2, 3.8, .4), 0);
+	create_joint(&legbase_joint[2], SetVector(.2, 3.8, -.6), 0);
+	create_joint(&legbase_joint[3], SetVector(.2, 3.8, .6), 0);
 
 	create_joint(&thigh_joint[0], SetVector(-2.3, 1.8, .4), 0);
 	create_joint(&thigh_joint[1], SetVector(-2.3, 1.8, -.4), 0);
@@ -345,9 +348,10 @@ int main(int argc, char **argv)
 	create_joint(&foot_joint[2], SetVector(.34, 0, -.4),0);
 	create_joint(&foot_joint[3], SetVector(.34, 0, .4),0);
 
-	create_joint(&body_joint[0], SetVector(-1.8, 3, 0), 0);
-	create_joint(&body_joint[1], SetVector(-1, 2.8, 0), 0);
-	create_joint(&body_joint[2], SetVector(.14, 3, 0), 0);
+	//BODY JOINTS
+	create_joint(&body_joint[0], SetVector(-1.8, 3.5, 0), 0);
+	create_joint(&body_joint[1], SetVector(-1, 3.2, 0), 0);
+	create_joint(&body_joint[2], SetVector(.14, 3.8, 0), 0);
 
 	//TAIL JOINTS
 	create_joint(&tail_joint[0], SetVector(.7+.3, 3.75, 0),0);
@@ -355,67 +359,38 @@ int main(int argc, char **argv)
 	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0),0);
 	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0),0);
 
-
-	//SET PARENTS!
-	foot_joint[0].parent = &knee_joint[0];
-	foot_joint[1].parent = &knee_joint[1];
-	foot_joint[2].parent = &knee_joint[2];
-	foot_joint[3].parent = &knee_joint[3];
-
-	knee_joint[0].parent = &legbase_joint[0];
-	knee_joint[1].parent = &legbase_joint[1];
-	knee_joint[2].parent = &legbase_joint[2];
-	knee_joint[3].parent = &legbase_joint[3];
-
-	legbase_joint[0].parent = NULL;
-	legbase_joint[1].parent = NULL;
-	legbase_joint[2].parent = NULL;
-	legbase_joint[3].parent = NULL;
-
-
-	body_joint[0].child = &body_joint[1];
-	body_joint[1].child = &body_joint[2];
-	body_joint[2].child = &tail_joint[0];
-
-	tail_joint[3].parent = &tail_joint[2];
-	tail_joint[2].parent = &tail_joint[1];
-	tail_joint[1].parent = &tail_joint[0];
-	tail_joint[0].parent = NULL;
-
-
-	tail_joint[0].child = &tail_joint[1];
-	tail_joint[1].child = &tail_joint[2];
-	tail_joint[2].child = &tail_joint[3];
-	tail_joint[3].child = NULL;
-
-
-
 	//HEAD JOINTS
 	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0),0);
 	create_joint(&head_joint[1], SetVector(-3.85, 4, 0),0);
 	create_joint(&head_joint[2], SetVector(-4.7, 3, 0),0);
 
-	head_joint[0].child = &head_joint[1];
-	head_joint[1].child = &head_joint[2];
-	head_joint[2].child = NULL;
+
+	//SET CHILDREN!
+	body_joint[0].child[0] = &body_joint[1];
+	body_joint[1].child[0] = &body_joint[2];
+	body_joint[2].child[0] = &tail_joint[0];
+
+
+	tail_joint[0].child[0] = &tail_joint[1];
+	tail_joint[1].child[0] = &tail_joint[2];
+	tail_joint[2].child[0] = &tail_joint[3];
+	tail_joint[3].child[0] = NULL;
+
+
+
+
+	head_joint[0].child[0] = &head_joint[1];
+	head_joint[1].child[0] = &head_joint[2];
+	head_joint[2].child[0] = NULL;
 	//head_joint[0].child = &legbase_joint[0];
 	int i;
         for(i=0;i<4;i++)
 	{
-	  legbase_joint[i].child = &thigh_joint[i];
-	  thigh_joint[i].child = &knee_joint[i];
-	  knee_joint[i].child = &foot_joint[i];
-	  foot_joint[i].child = NULL;
+	  legbase_joint[i].child[0] = &thigh_joint[i];
+	  thigh_joint[i].child[0] = &knee_joint[i];
+	  knee_joint[i].child[0] = &foot_joint[i];
+	  foot_joint[i].child[0] = NULL;
 	}
-
-	/*
-	legbase_joint[0].parent = &head_joint[0];
-	legbase_joint[1].parent = &head_joint[0];
-	legbase_joint[2].parent = &head_joint[0];
-	legbase_joint[3].parent = &head_joint[0];
-	*/
-	head_joint[0].parent = NULL;
-	//head_joint[0].parent = &head_joint[1];
 
 	create_cow(&cow);
 
@@ -423,10 +398,10 @@ int main(int argc, char **argv)
 	glUseProgram(g_shader);
 
 	// Set up depth buffer
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 
-	//glEnable (GL_BLEND);
-	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// initiering
 //#ifdef WIN32
