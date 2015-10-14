@@ -15,10 +15,11 @@ uniform float time;
 uniform int draw_cow;
 
 uniform mat4 foot_joint[4];
-uniform mat4 testjoint[2];
+uniform mat4 testjoint[8];
 uniform mat4 testjoint2;
 
-uniform vec3 currpos[2];
+uniform vec3 currpos[8];
+uniform vec3 bonepos[8];
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -55,18 +56,20 @@ void main(void)
   //calc distance to the bones
   float dist, dist2, len1, len2;
 
-  for(int i=0;i<2;i++)
+  for(int i=0;i<3;i++)
   {
-    //len1 = length(-currpos[i]+currpos[i+1]);
+    float leng = 2*distance(currpos[i], bonepos[i]);
 
     //distance to middle of bone
-    dist = distance(vec3(inPosition), vec3(currpos[i].x, currpos[i].y-4, currpos[i].z));
+    dist = distance(vec3(inPosition), bonepos[i]);
+    //dist = distance(vec3(inPosition), vec3(currpos[i].x, currpos[i].y-4, currpos[i].z));
     //dist = distance(inPosition, (currpos[i]+currpos[i+1])/2);
     //dist = distance(inPosition, (vec3(-26,9,0) + vec3(-27.5,4,0))/2);
     //dist = distance(inPosition, currpos[i]);
 
     //if(abs(dist) < abs(len1))
-    if(abs(dist) < 7.5)
+
+    if(abs(dist) < leng/2+1)
       gl_Position += proj_matrix*cam_matrix*testjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
 

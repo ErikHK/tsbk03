@@ -102,9 +102,9 @@ void OnTimer(int value)
 	mat4 tmp, testjoint, testjoint2;
 	testjoint = IdentityMatrix();
 
-	joint_s * j = &legbase_joint[0];
+	joint_s * j = &tail_joint[0];
 	joint_s * jc = j->child;
-	//joint_s * jcc = jc->child;
+	joint_s * jcc = jc->child;
 	//joint_s * jp = j->parent;
 	//joint_s * jpp = jp->parent;
 /*
@@ -115,14 +115,15 @@ void OnTimer(int value)
 	jp->Mp = Mult(jpp->Minv, jp->Mp);
 	jp->Minv = InvertMat4(jp->M);
 */
-	GLfloat Ms[2][4*4];
-	GLfloat test[2*3] = {{0}};
-	GLfloat * Mtmp = Ms;
+	float Ms[8][4*4];
+	float currpos[8*3] = {{0}};
+	float bonepos[8*3] = {{0}};
+	//GLfloat * Mtmp = Ms;
 	int i=0, ii=0;
 	j->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/1.5);
 	//j->R = ArbRotate(SetVector(0,0,1), 0);
 	jc->R = ArbRotate(SetVector(0,0,1), sin(4*t/(3+1))/2);
-	//jcc->R = ArbRotate(SetVector(0,0,1), cos(8*t/(2+1))/4);
+	jcc->R = ArbRotate(SetVector(0,0,1), cos(8*t/(2+1))/4);
 	mat4 Mpacc, Minvacc, tmptrans, tmppp, invtrans;
 	Mpacc = IdentityMatrix();
 	Minvacc = IdentityMatrix();
@@ -135,10 +136,15 @@ void OnTimer(int value)
 	  //jp = j->child;
 	  //j->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/4);
 	  //j->M = Mult(j->T, jp->Minv);
+	  vec3 tmp_bonepos;
 	  tmptrans = j->T;
 	  tmppp = Mult(tmppp, tmptrans);
 	  invtrans = InvertMat4(tmptrans);
 	  tmppp = Mult(tmppp, Mult(j->R, invtrans));
+
+	  tmp_bonepos = ScalarMult(
+		VectorAdd(j->pos, jc->pos), .5); //middle of bone
+	  //tmp_bonepos = MultVec3(tmppp, tmp_bonepos);
 	  //j->Mp = Mult(j->T, j->R);
 	  //jp->Mp = Mult(jp->T, jp->R);
 	  //j->Mp = Mult(jp->Minv, j->Mp); //super special?
@@ -170,17 +176,22 @@ void OnTimer(int value)
 	  //glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
 
 
-	  test[i*3] = 10*j->pos.x;
-	  test[i*3+1] = 10*j->pos.y;
-	  test[i*3+2] = 10*j->pos.z;
+	  currpos[i*3] = 10*j->pos.x;
+	  currpos[i*3+1] = 10*j->pos.y;
+	  currpos[i*3+2] = 10*j->pos.z;
+
+	  bonepos[i*3] = 10*tmp_bonepos.x;
+	  bonepos[i*3+1] = 10*tmp_bonepos.y;
+	  bonepos[i*3+2] = 10*tmp_bonepos.z;
 
 	  //printf("%i\n", i);
 	  i++;
 
 	  j = j->child;
 	}
-	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 2, GL_TRUE, Ms);
-	  glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 2, test);
+	  glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 8, GL_TRUE, Ms);
+	  glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 8, currpos);
+	  glUniform3fv(glGetUniformLocation(g_shader, "bonepos"), 8, bonepos);
 
 	//test with tail!
 /*
@@ -319,6 +330,13 @@ int main(int argc, char **argv)
 	tail_joint[2].parent = &tail_joint[1];
 	tail_joint[1].parent = &tail_joint[0];
 	tail_joint[0].parent = NULL;
+
+
+	tail_joint[0].child = &tail_joint[1];
+	tail_joint[1].child = &tail_joint[2];
+	tail_joint[2].child = &tail_joint[3];
+	tail_joint[3].child = NULL;
+
 
 	//HEAD JOINTS
 	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0));
