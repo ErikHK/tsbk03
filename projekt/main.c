@@ -204,26 +204,26 @@ void OnTimer(int value)
 	  j = j->child;
 	}
 
-	j = &legbase_joint[1];
-	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
-
 	j = &legbase_joint[0];
 	jc = j->child;
+	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
+
+	j = &legbase_joint[1];
+	jc = j->child;
 	j->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(4*t/(i+1))/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
 
 
 	j = &legbase_joint[2];
 	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(4*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
 
 	j = &legbase_joint[3];
 	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), cos(6*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
 
 
 	i = 0;
@@ -249,14 +249,14 @@ void OnTimer(int value)
 
 	//head
 	j = &head_joint[0];
-	j->R = ArbRotate(SetVector(0,0,1), -M_PI/8.5);
+	j->R = ArbRotate(SetVector(0,0,1), sin(4*t)/9.5);
 
 	calc_bone_transform(&head_joint[0], 
 	"headjoint", "headcurrpos", "headbonepos");
 
 	//body
 	j = &body_joint[0];
-	j->R = ArbRotate(SetVector(0,0,1), 0);
+	j->R = ArbRotate(SetVector(0,0,1), cos(t*4)/9.5);
 
 	calc_bone_transform(&body_joint[0], 
 	"bodyjoint", "bodycurrpos", "bodybonepos");
