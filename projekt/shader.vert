@@ -56,7 +56,7 @@ void main(void)
   //calc distance to the bones
   float dist, dist2, len1, len2;
 
-  for(int i=0;i<3;i++)
+  for(int i=0;i<4;i++)
   {
     float leng = 2*distance(currpos[i], bonepos[i]);
 

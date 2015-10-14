@@ -125,15 +125,11 @@ void OnTimer(int value)
 	jc->R = ArbRotate(SetVector(0,0,1), sin(4*t/(3+1))/2);
 	jcc->R = ArbRotate(SetVector(0,0,1), cos(8*t/(2+1))/4);
 	mat4 Mpacc, Minvacc, tmptrans, tmppp, invtrans;
-	Mpacc = IdentityMatrix();
-	Minvacc = IdentityMatrix();
 	tmppp = IdentityMatrix();
 
-	//Mpacc = InvertMat4(Mult(j->T, j->R));
-	//Minvacc = InvertMat4(j->Minv);
 	while(j->child != NULL)
 	{
-	  //jp = j->child;
+	  jc = j->child;
 	  //j->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/4);
 	  //j->M = Mult(j->T, jp->Minv);
 	  vec3 tmp_bonepos;
@@ -144,37 +140,9 @@ void OnTimer(int value)
 
 	  tmp_bonepos = ScalarMult(
 		VectorAdd(j->pos, jc->pos), .5); //middle of bone
-	  //tmp_bonepos = MultVec3(tmppp, tmp_bonepos);
-	  //j->Mp = Mult(j->T, j->R);
-	  //jp->Mp = Mult(jp->T, jp->R);
-	  //j->Mp = Mult(jp->Minv, j->Mp); //super special?
-
-	  //jp->R = ArbRotate(SetVector(0,0,1), sin(t*(i+1)/6)/4);
-	  //jp->Mp = Mult(jp->T, jp->R);
-
-	  //j->Mp = Mult(jp->Mp, j->Mp);
-	  //j->Minv = Mult(j->Minv, jp->Minv);
-	  //j->Mp = Mult(Mult(jp->Mp, j->Mp), Mult(j->Minv, jp->Minv));
-	  //Mpacc = Mult(Mpacc, j->Mp);
-	  //Minvacc = Mult(j->Minv, Minvacc);
-	  Mpacc = Mult(Mpacc, j->Mp);
-	  Minvacc = Mult(Minvacc, j->Minv);
-	  //j->Mp = Mult(Mult(jp->Mp, jp->Minv), j->Mp);
-	  //j->Mp = Mult(jp->Mp, jp->Minv);
-	  //j->Mp = Mult(jp->Mp, jp->Minv);
-	  //jp->Mtot = Mult(jp->Mp, jp->Minv);
-	  mat4 tmpp = Mult(Mpacc, Minvacc);
-	  //mat4 tmpp = Mult(j->Mp, j->Minv);
 
 	  for(ii=0;ii<16;ii++)
 	    Ms[i][ii] = (tmppp).m[ii];
-	  //for(ii=0;ii<16;ii++)
-	  //  Ms[1][ii] = (jp->Mp).m[ii];
-	  //for(ii=0;ii<16;ii++)
-	  //  Ms[2][ii] = (jpp->Mtot).m[ii];
-
-	  //glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint2"), 1, GL_TRUE, testjoint2.m);
-
 
 	  currpos[i*3] = 10*j->pos.x;
 	  currpos[i*3+1] = 10*j->pos.y;
