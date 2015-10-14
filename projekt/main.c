@@ -206,24 +206,24 @@ void OnTimer(int value)
 
 	j = &legbase_joint[0];
 	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/1.5);
-	jc->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 
 	j = &legbase_joint[1];
 	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
 
 
 	j = &legbase_joint[2];
 	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/1.5);
-	jc->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
 
 	j = &legbase_joint[3];
 	jc = j->child;
-	j->R = ArbRotate(SetVector(0,0,1), cos(5*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(5*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
 
 
 	i = 0;
@@ -241,8 +241,18 @@ void OnTimer(int value)
 	"legjoint3", "legcurrpos3", "legbonepos3");
 
 	//tail
-	j = &tail_joint[0];
-	j->R = ArbRotate(SetVector(0,0,1), -M_PI/2.5);
+	//j = &tail_joint[0];
+	//j->R = ArbRotate(SetVector(0,0,1), -M_PI/8.5);
+
+	j = &tail_joint[1];
+	j->R = ArbRotate(SetVector(0,0,1), 0);
+
+	j = &tail_joint[2];
+	j->R = ArbRotate(SetVector(0,0,1), 0);
+
+	j = &tail_joint[3];
+	j->R = ArbRotate(SetVector(0,0,1), 0);
+
 
 	calc_bone_transform(&tail_joint[0], 
 	"tailjoint", "tailcurrpos", "tailbonepos");
@@ -255,7 +265,7 @@ void OnTimer(int value)
 	"headjoint", "headcurrpos", "headbonepos");
 
 	//body
-	j = &body_joint[0];
+	j = &body_joint[1];
 	j->R = ArbRotate(SetVector(0,0,1), cos(t*4)/9.5);
 
 	calc_bone_transform(&body_joint[0], 
@@ -330,12 +340,13 @@ int main(int argc, char **argv)
 
 	create_joint(&body_joint[0], SetVector(-1.8, 3, 0), 0);
 	create_joint(&body_joint[1], SetVector(-1, 2.8, 0), 0);
-	create_joint(&body_joint[2], SetVector(.14, 3, -0),0);
+	create_joint(&body_joint[2], SetVector(.14, 3, 0), 0);
 
-	body_joint[0].child = &body_joint[1];
-	body_joint[1].child = &body_joint[2];
-	body_joint[2].child = NULL;
-
+	//TAIL JOINTS
+	create_joint(&tail_joint[0], SetVector(.7+.3, 3.75, 0),0);
+	create_joint(&tail_joint[1], SetVector(2.2, 3.8, 0),0);
+	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0),0);
+	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0),0);
 
 
 	//SET PARENTS!
@@ -354,11 +365,10 @@ int main(int argc, char **argv)
 	legbase_joint[2].parent = NULL;
 	legbase_joint[3].parent = NULL;
 
-	//TAIL JOINTS
-	create_joint(&tail_joint[0], SetVector(.7+.3, 3.75, 0),0);
-	create_joint(&tail_joint[1], SetVector(2.2, 3.8, 0),0);
-	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0),0);
-	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0),0);
+
+	body_joint[0].child = &body_joint[1];
+	body_joint[1].child = &body_joint[2];
+	body_joint[2].child = &tail_joint[0];
 
 	tail_joint[3].parent = &tail_joint[2];
 	tail_joint[2].parent = &tail_joint[1];
@@ -370,6 +380,8 @@ int main(int argc, char **argv)
 	tail_joint[1].child = &tail_joint[2];
 	tail_joint[2].child = &tail_joint[3];
 	tail_joint[3].child = NULL;
+
+
 
 	//HEAD JOINTS
 	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0),0);

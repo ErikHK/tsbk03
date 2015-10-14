@@ -99,7 +99,7 @@ void main(void)
   }
 
   //body
-  for(int i=0;i<4;i++)
+  for(int i=0;i<8;i++)
   {
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(bodycurrpos[i], bodybonepos[i]);
@@ -110,8 +110,12 @@ void main(void)
     if(dist < leng*2.2 && i==0)
       gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
 
-    else if(dist < leng*1.7)
+    else if(dist < leng*1.7 && i<3)
       gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
+
+    else if(dist < leng*2)
+      gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
+
   }
 
   
@@ -169,7 +173,7 @@ void main(void)
       gl_Position += proj_matrix*cam_matrix*legjoint3[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
-  //tail
+/*  //tail
   for(int i=0;i<4;i++)
   {
     //length of bone (joint to joint)
@@ -181,7 +185,7 @@ void main(void)
     if(abs(dist) < leng/2+1.7)
       gl_Position += proj_matrix*cam_matrix*tailjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
-
+*/
 
   }
 
