@@ -69,7 +69,7 @@ void main(void)
 
     //if(abs(dist) < abs(len1))
 
-    if(abs(dist) < leng/2+1)
+    if(abs(dist) < leng/2+7)
       gl_Position += proj_matrix*cam_matrix*testjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
 

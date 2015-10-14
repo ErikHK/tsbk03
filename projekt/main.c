@@ -102,7 +102,7 @@ void OnTimer(int value)
 	mat4 tmp, testjoint, testjoint2;
 	testjoint = IdentityMatrix();
 
-	joint_s * j = &tail_joint[0];
+	joint_s * j = &head_joint[0];
 	joint_s * jc = j->child;
 	joint_s * jcc = jc->child;
 	//joint_s * jp = j->parent;
@@ -120,9 +120,9 @@ void OnTimer(int value)
 	float bonepos[8*3] = {{0}};
 	//GLfloat * Mtmp = Ms;
 	int i=0, ii=0;
-	j->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/2.5);
 	//j->R = ArbRotate(SetVector(0,0,1), 0);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(4*t/(3+1))/2);
+	j->R = ArbRotate(SetVector(0,0,1), sin(4*t/(3+1))/1.2);
 	jcc->R = ArbRotate(SetVector(0,0,1), cos(8*t/(2+1))/4);
 	mat4 Mpacc, Minvacc, tmptrans, tmppp, invtrans;
 	tmppp = IdentityMatrix();
@@ -247,20 +247,20 @@ int main(int argc, char **argv)
 	glutCreateWindow("Farm Escape");
 	glutDisplayFunc(DisplayWindow);
 
-	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, .4));
-	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, -.4));
-	create_joint(&legbase_joint[2], SetVector(.1, 2, -.4));
-	create_joint(&legbase_joint[3], SetVector(.1, 2.0, 0));
+	create_joint(&legbase_joint[0], SetVector(-2.3, 1.8, .4), 0);
+	create_joint(&legbase_joint[1], SetVector(-2.3, 1.8, -.4), 0);
+	create_joint(&legbase_joint[2], SetVector(.1, 2, -.4), 0);
+	create_joint(&legbase_joint[3], SetVector(.1, 2.0, 0), 0);
 
-	create_joint(&knee_joint[0], SetVector(-2.6, .9, .4));
-	create_joint(&knee_joint[1], SetVector(-2.6, .9, -.4));
-	create_joint(&knee_joint[2], SetVector(.4, .9, -.4));
-	create_joint(&knee_joint[3], SetVector(.4, .8, 0));
+	create_joint(&knee_joint[0], SetVector(-2.6, .9, .4), 0);
+	create_joint(&knee_joint[1], SetVector(-2.6, .9, -.4), 0);
+	create_joint(&knee_joint[2], SetVector(.4, .9, -.4), 0);
+	create_joint(&knee_joint[3], SetVector(.4, .8, 0), 0);
 
-	create_joint(&foot_joint[0], SetVector(-2.75, 0, .4));
-	create_joint(&foot_joint[1], SetVector(-2.75, 0, -.4));
-	create_joint(&foot_joint[2], SetVector(.34, 0, -.4));
-	create_joint(&foot_joint[3], SetVector(.34, 0, .4));
+	create_joint(&foot_joint[0], SetVector(-2.75, 0, .4), 0);
+	create_joint(&foot_joint[1], SetVector(-2.75, 0, -.4), 0);
+	create_joint(&foot_joint[2], SetVector(.34, 0, -.4),0);
+	create_joint(&foot_joint[3], SetVector(.34, 0, .4),0);
 
 
 	//SET PARENTS!
@@ -281,18 +281,13 @@ int main(int argc, char **argv)
 	legbase_joint[3].parent = NULL;
 
 
-	head_joint[0].child = &legbase_joint[0];
-	legbase_joint[0].child = &knee_joint[0];
-	knee_joint[0].child = &foot_joint[0];
-	foot_joint[0].child = NULL;
-
 
 
 	//TAIL JOINTS
-	create_joint(&tail_joint[0], SetVector(.7, 3.75, 0));
-	create_joint(&tail_joint[1], SetVector(2.2, 3.8, 0));
-	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0));
-	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0));
+	create_joint(&tail_joint[0], SetVector(.7, 3.75, 0),0);
+	create_joint(&tail_joint[1], SetVector(2.2, 3.8, 0),0);
+	create_joint(&tail_joint[2], SetVector(3.0, 3.75, 0),0);
+	create_joint(&tail_joint[3], SetVector(3.9, 3.65, 0),0);
 
 	tail_joint[3].parent = &tail_joint[2];
 	tail_joint[2].parent = &tail_joint[1];
@@ -307,9 +302,17 @@ int main(int argc, char **argv)
 
 
 	//HEAD JOINTS
-	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0));
-	create_joint(&head_joint[1], SetVector(-3.85, 4, 0));
-	create_joint(&head_joint[2], SetVector(-4.7, 3, 0));
+	create_joint(&head_joint[0], SetVector(-2.9, 3.2, 0),0);
+	create_joint(&head_joint[1], SetVector(-3.85, 4, 0),0);
+	create_joint(&head_joint[2], SetVector(-4.7, 3, 0),0);
+
+	head_joint[0].child = &head_joint[1];
+	head_joint[1].child = &head_joint[2];
+	head_joint[2].child = NULL;
+	//head_joint[0].child = &legbase_joint[0];
+	legbase_joint[0].child = &knee_joint[0];
+	knee_joint[0].child = &foot_joint[0];
+	foot_joint[0].child = NULL;
 
 	
 	legbase_joint[0].parent = &head_joint[0];
