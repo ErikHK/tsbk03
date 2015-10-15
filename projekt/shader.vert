@@ -129,8 +129,11 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), legbonepos0[i]);
 
-    if(abs(dist) < leng/2+1.8)
+    if(abs(dist) < leng/2 && i<2)
       gl_Position += proj_matrix*cam_matrix*legjoint0[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng/1.5)
+      gl_Position += proj_matrix*cam_matrix*legjoint0[i]*mdl_matrix*vec4(inPosition, 1);
+
   }
 
   //leg 1
