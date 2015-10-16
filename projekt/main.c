@@ -63,6 +63,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 	draw_floor(&f, g_shader);
 
+/*
 	int i;
 	for(i=0; i<4;i++)
 	{
@@ -78,7 +79,7 @@ void DisplayWindow()
 	  }
 
 	}
-
+*/
 	//draw_bone(&bone, g_shader);
 	glutSwapBuffers();
 	//printf("runrunrun\n");
@@ -326,14 +327,22 @@ void mouse(int x, int y)
   mouse_x = x;
   mouse_y = y;
 
+  if(m_angle > -.8)
+  {
   if(mouse_x - old_mouse_x > 0)
   {
     m_angle -= .05;
   }
-  else if(mouse_x - old_mouse_x < 0)
+  }
+
+  if(m_angle < .8)
+  {
+  if(mouse_x - old_mouse_x < 0)
   {
     m_angle += .05;
   }
+  }
+  
 
 
 }
