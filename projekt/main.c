@@ -48,6 +48,9 @@ cow_s cow;
 float cam_angle = 0;
 float cam_dist = 6;
 
+float mouse_x, mouse_y, old_mouse_x, old_mouse_y;
+float m_angle;
+
 mat4 modelViewMatrix, projectionMatrix;
 
 void DisplayWindow()
@@ -146,7 +149,7 @@ void OnTimer(int value)
 	glutTimerFunc(20, &OnTimer, value);
 
 	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
-	mat4 cam_matrix = lookAt(cam_dist*cos(cam_angle), 1,  cam_dist*sin(cam_angle), 0, 0, 0, 0.0, 1.0, 0.0);
+	mat4 cam_matrix = lookAt(cam_dist*cos(m_angle), 9,  cam_dist*sin(m_angle), 0, 8.5, 0, 0.0, 1.0, 0.0);
 	//mat4 cam_matrix = lookAt(200+200*cos(cam_angle), 0,  200, 0, 8, 0, 0.0, 1.0, 0.0);
 
 	//g_shader = loadShaders("shader.vert" , "shader.frag");
@@ -277,8 +280,8 @@ void OnTimer(int value)
 	//body
 	j = &body_joint[1];
 	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
-	j->R = ArbRotate(SetVector(0,1,0), M_PI/4);
-	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*8)/8));
+	j->R = ArbRotate(SetVector(0,1,0), 0*M_PI/4);
+	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*7)/9));
 
 	calc_bone_transform(&body_joint[0],0);
 
@@ -337,6 +340,32 @@ void keyboardFunc( unsigned char key, int x, int y)
 		exit(-1);
 }
 
+void mouse(int x, int y)
+{
+
+  old_mouse_x = mouse_x;
+  old_mouse_y = mouse_y;
+  if(x > 700 || x < 100)
+    glutWarpPointer(400,y);
+  if(y > 500 || y < 100)
+    glutWarpPointer(x,300);
+
+
+  mouse_x = x;
+  mouse_y = y;
+
+  if(mouse_x - old_mouse_x > 0)
+  {
+    m_angle -= .05;
+  }
+  else if(mouse_x - old_mouse_x < 0)
+  {
+    m_angle += .05;
+  }
+
+
+}
+
 
 /////////////////////////////////////////
 //		M A I N
@@ -344,12 +373,23 @@ void keyboardFunc( unsigned char key, int x, int y)
 int main(int argc, char **argv)
 {
 
+	mouse_x = 0;
+	old_mouse_x = 0;
+	mouse_y = 0;
+	old_mouse_y = 0;
+
+	m_angle = 0;
+
+	//glutSetCursor(GLUT_CURSOR_NONE);
+
+
 	glutInit(&argc, argv);
 	initKeymapManager();
+	glutPassiveMotionFunc(mouse);
 
 	//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	glutInitWindowSize(512, 512);
+	glutInitWindowSize(800, 600);
 	glutInitContextVersion(3, 2); // Might not be needed in Linux
 	glutCreateWindow("Farm Escape");
 	glutDisplayFunc(DisplayWindow);
