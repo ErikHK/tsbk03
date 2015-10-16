@@ -44,7 +44,7 @@ joint_s head_joint[3];
 joint_s body_joint[3];
 
 cow_s cow;
-
+floor_s f;
 float cam_angle = 0;
 float cam_dist = 8;
 
@@ -61,6 +61,8 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
 	draw_cow(&cow, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
+	draw_floor(&f, g_shader);
+
 	int i;
 	for(i=0; i<4;i++)
 	{
@@ -364,6 +366,7 @@ int main(int argc, char **argv)
 	glutCreateWindow("Farm Escape");
 	glutDisplayFunc(DisplayWindow);
 
+	create_floor(&f);
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .7), 
 	"legjoint0", "legcurrpos0", "legbonepos0", 0);
