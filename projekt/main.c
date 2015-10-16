@@ -268,7 +268,7 @@ void OnTimer(int value)
 	//body
 	j = &body_joint[1];
 	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
-	j->R = ArbRotate(SetVector(0,1,0), m_angle - 0);
+	j->R = ArbRotate(SetVector(0,1,0), m_angle + cow.angle);
 	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*7)/9));
 
 	calc_bone_transform(&body_joint[0],0);
@@ -345,21 +345,21 @@ void mouse(int x, int y)
   mouse_x = x;
   mouse_y = y;
 
-  if(m_angle > -.8)
-  {
+  //if(m_angle > -.8)
+ // {
   if(mouse_x - old_mouse_x > 0)
   {
-    m_angle -= .05;
+    m_angle -= .02;
   }
-  }
+  //}
 
-  if(m_angle < .8)
-  {
+  //if(m_angle < .8)
+  //{
   if(mouse_x - old_mouse_x < 0)
   {
-    m_angle += .05;
+    m_angle += .02;
   }
-  }
+  //}
   
 
 
