@@ -80,6 +80,10 @@ void main(void)
 
   float shade = dot(lightv, inNormal);
 
+  vec3 lightv2 = vec3(-.6, -.6, -.6);
+
+  float shade2 = dot(lightv2, inNormal);
+
   if(draw_cow==1)
   {
   //calc distance to the bones
@@ -99,7 +103,7 @@ void main(void)
   }
 
   //body
-  for(int i=0;i<8;i++)
+  for(int i=0;i<7;i++)
   {
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(bodycurrpos[i], bodybonepos[i]);
@@ -107,15 +111,14 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), bodybonepos[i]);
 
-    if(dist < leng*2.2 && i==0)
+    if(dist < leng*2.2 && i<=1)
       gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
 
-    else if(dist < leng*1.7 && i<3)
+    else if(dist < leng/2 && i<=2)
       gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
 
-    else if(dist < leng*2)
+    else if(dist < leng*1.3 && i>3)
       gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
-
   }
 
   
@@ -129,7 +132,7 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), legbonepos0[i]);
 
-    if(abs(dist) < leng/2 && i<2)
+    if(abs(dist) < leng/1.5 && i<2)
       gl_Position += proj_matrix*cam_matrix*legjoint0[i]*mdl_matrix*vec4(inPosition, 1);
     else if(dist < leng/1.5)
       gl_Position += proj_matrix*cam_matrix*legjoint0[i]*mdl_matrix*vec4(inPosition, 1);
@@ -176,8 +179,8 @@ void main(void)
       gl_Position += proj_matrix*cam_matrix*legjoint3[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
-/*  //tail
-  for(int i=0;i<4;i++)
+  //tail
+  for(int i=0;i<5;i++)
   {
     //length of bone (joint to joint)
     leng = 2*distance(tailcurrpos[i], tailbonepos[i]);
@@ -185,10 +188,10 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), tailbonepos[i]);
 
-    if(abs(dist) < leng/2+1.7)
+    if(dist < leng*2)
       gl_Position += proj_matrix*cam_matrix*tailjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
-*/
+
 
   }
 
@@ -198,7 +201,7 @@ void main(void)
 
   if(draw_cow == 1)
     //colorr = vec4(shade, shade, shade, .6);
-    colorr = vec4(shade, shade, shade, 1) + vec4(.4,.2,.4,0);
+    colorr = (vec4(shade, shade, shade, 1)*.8 + vec4(shade2,shade2,shade2,1)*.4) + vec4(.4,.2,.4,0);
   else
     colorr = vec4(1);
     

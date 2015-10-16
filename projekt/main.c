@@ -130,9 +130,9 @@ void calc_bone_transform(joint_s * j, int acc)
     i++;
   }
 
-  glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 4, GL_TRUE, Ms[0]);
-  glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 4, currpos);
-  glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 4, bonepos);
+  glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
+  glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
+  glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
 
 
 
@@ -262,33 +262,46 @@ void OnTimer(int value)
 	calc_bone_transform(&legbase_joint[2], 0);
 	calc_bone_transform(&legbase_joint[3], 0);
 
-	//tail
-	//j = &tail_joint[0];
-	//j->R = ArbRotate(SetVector(0,0,1), -M_PI/8.5);
-
+	j = &tail_joint[0];
+	j->R = ArbRotate(SetVector(0,0,1), -M_PI/2.5);
 	j = &tail_joint[1];
-	j->R = ArbRotate(SetVector(0,0,1), 0);
+	j->R = ArbRotate(SetVector(0,0,1), -M_PI/8.5);
 
+	//j = &tail_joint[1];
+	//j->R = ArbRotate(SetVector(0,0,1), 0);
 	j = &tail_joint[2];
-	j->R = ArbRotate(SetVector(0,0,1), 0);
-
+	//j->R = ArbRotate(SetVector(0,0,1), 0);
 	j = &tail_joint[3];
 	j->R = ArbRotate(SetVector(0,0,1), 0);
 
-	calc_bone_transform(&tail_joint[0],0);
+	//body
+	j = &body_joint[1];
+	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
+	j->R = ArbRotate(SetVector(0,1,0), M_PI/4);
+	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*8)/8));
+
+	calc_bone_transform(&body_joint[0],0);
+
+	//tail
+	//j = &tail_joint[1];
+	//j->R = ArbRotate(SetVector(0,0,1), -M_PI/2.5);
+
+	//j = &tail_joint[1];
+	//j->R = ArbRotate(SetVector(0,0,1), 0);
+
+	//j = &tail_joint[2];
+	//j->R = ArbRotate(SetVector(0,0,1), 0);
+
+	//j = &tail_joint[3];
+	//j->R = ArbRotate(SetVector(0,0,1), 0);
+
+	//calc_bone_transform(&tail_joint[0],0);
 
 	//head
 	j = &head_joint[0];
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t)/9.5);
 
 	calc_bone_transform(&head_joint[0],0);
-
-	//body
-	j = &body_joint[1];
-	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
-	j->R = ArbRotate(SetVector(0,1,0), M_PI/4);
-
-	calc_bone_transform(&body_joint[0],0);
 
 
 	//glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 8, GL_TRUE, Ms);
@@ -445,10 +458,10 @@ int main(int argc, char **argv)
 	glUseProgram(g_shader);
 
 	// Set up depth buffer
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// initiering
 //#ifdef WIN32
