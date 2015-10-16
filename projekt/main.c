@@ -9,6 +9,9 @@
 #include <math.h>
 #include <stdlib.h>
 #include "common/objects.h"
+#include "SFML/Graphics.h"
+#include <sys/time.h>
+#include "zpr.h"
 #ifdef __APPLE__
 // Mac
 	#include <OpenGL/gl3.h>
@@ -33,6 +36,10 @@
 
 // Ref till shader
 GLuint g_shader;
+
+GLfloat delta_t, old_t, t, current_time;
+
+static double startTime = 0;
 
 bone_s bone;
 joint_s foot_joint[4];
@@ -147,9 +154,21 @@ void calc_bone_transform(joint_s * j, int acc)
 
 void OnTimer(int value)
 {
+	glutTimerFunc(20, &OnTimer, value);
+
+	old_t = t;
+	t = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
+	delta_t = (t - old_t);
+	//printf("%f\n", delta_t);
 
 	turn_cow(&cow, -m_angle);
-	glutTimerFunc(20, &OnTimer, value);
+	move_cow(&cow);
+	update_cow(&cow, delta_t);
+	update_floor(&f, &cow);
+
+	//printf("%f, %f\n", delta_t, old_t);
+	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
+
 
 	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
 	mat4 cam_matrix = lookAt(cam_dist*cos(m_angle), 9,  cam_dist*sin(m_angle), 0, 8.5, 0, 0.0, 1.0, 0.0);
@@ -165,9 +184,8 @@ void OnTimer(int value)
 	//draw_cow(&cow, g_shader);
 	//draw_bone(&bone, g_shader);
 
+	
 
-	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
-	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
 
 
 	mat4 tmp, testjoint, testjoint2;

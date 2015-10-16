@@ -287,7 +287,7 @@ void updateWorld()
 //		L := L + t * dT
 		dL = ScalarMult(ball[i].T, deltaT); // dL := T*dT
 		ball[i].L = VectorAdd(ball[i].L, dL); // L := L + dL
-
+		printf("%f\n", deltaT);
 
 		OrthoNormalizeMatrix(&ball[i].R);
 	}
