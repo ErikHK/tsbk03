@@ -162,7 +162,7 @@ void OnTimer(int value)
 	//printf("%f\n", delta_t);
 
 	turn_cow(&cow, -m_angle);
-	move_cow(&cow);
+	move_cow(&cow, m_angle);
 	update_cow(&cow, delta_t);
 	update_floor(&f, &cow);
 
@@ -268,7 +268,7 @@ void OnTimer(int value)
 	//body
 	j = &body_joint[1];
 	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
-	j->R = ArbRotate(SetVector(0,1,0), m_angle - cow.angle);
+	j->R = ArbRotate(SetVector(0,1,0), m_angle - 0);
 	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*7)/9));
 
 	calc_bone_transform(&body_joint[0],0);
