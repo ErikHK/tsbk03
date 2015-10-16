@@ -46,7 +46,7 @@ joint_s body_joint[3];
 cow_s cow;
 
 float cam_angle = 0;
-float cam_dist = 6;
+float cam_dist = 8;
 
 float mouse_x, mouse_y, old_mouse_x, old_mouse_y;
 float m_angle;
@@ -145,7 +145,7 @@ void calc_bone_transform(joint_s * j, int acc)
 void OnTimer(int value)
 {
 
-
+	turn_cow(&cow, -m_angle);
 	glutTimerFunc(20, &OnTimer, value);
 
 	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
@@ -191,39 +191,6 @@ void OnTimer(int value)
 	mat4 Mpacc, Minvacc, tmptrans, tmppp, invtrans;
 	tmppp = IdentityMatrix();
 
-
-	/*
-	while(j->child != NULL)
-	{
-	  jc = j->child;
-	  //j->R = ArbRotate(SetVector(0,0,1), cos(4*t/(i+1))/4);
-	  //j->M = Mult(j->T, jp->Minv);
-	  vec3 tmp_bonepos;
-	  tmptrans = j->T;
-	  tmppp = Mult(tmppp, tmptrans);
-	  invtrans = InvertMat4(tmptrans);
-	  tmppp = Mult(tmppp, Mult(j->R, invtrans));
-
-	  tmp_bonepos = ScalarMult(
-		VectorAdd(j->pos, jc->pos), .5); //middle of bone
-
-	  for(ii=0;ii<16;ii++)
-	    Ms[i][ii] = (tmppp).m[ii];
-
-	  currpos[i*3] = 10*j->pos.x;
-	  currpos[i*3+1] = 10*j->pos.y;
-	  currpos[i*3+2] = 10*j->pos.z;
-
-	  bonepos[i*3] = 10*tmp_bonepos.x;
-	  bonepos[i*3+1] = 10*tmp_bonepos.y;
-	  bonepos[i*3+2] = 10*tmp_bonepos.z;
-
-	  //printf("%i\n", i);
-	  i++;
-
-	  j = j->child;
-	}
-	*/
 
 	j = &thigh_joint[0];
 	jc = j->child[0];
@@ -280,7 +247,7 @@ void OnTimer(int value)
 	//body
 	j = &body_joint[1];
 	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
-	j->R = ArbRotate(SetVector(0,1,0), 0*M_PI/4);
+	j->R = ArbRotate(SetVector(0,1,0), m_angle - cow.angle);
 	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*7)/9));
 
 	calc_bone_transform(&body_joint[0],0);
@@ -318,6 +285,7 @@ void OnTimer(int value)
 
 	
 
+/*
 	if(keyIsDown('e'))
 	  cam_angle += .05;
 	if(keyIsDown('i'))
@@ -328,6 +296,8 @@ void OnTimer(int value)
 
 	if(keyIsDown('p'))
 	  cam_dist -= .05;
+*/
+
 
 
 	glutPostRedisplay();
