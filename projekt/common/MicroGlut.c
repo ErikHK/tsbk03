@@ -74,6 +74,11 @@ static Atom wmDeleteMessage; // To handle delete msg
 char gKeymap[256];
 char gRunning = 1;
 
+void glutSetCursor(int cursorID)
+{
+  XDefineCursor(dpy, win, None);
+}
+
 void glutInit(int *argc, char *argv[])
 {
 	gettimeofday(&timeStart, NULL);

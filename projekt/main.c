@@ -101,7 +101,8 @@ void calc_bone_transform(joint_s * j, int acc)
   if(acc)
     tmp = j->parent->tmp;
   else
-    tmp = IdentityMatrix();
+    //tmp = IdentityMatrix();
+    tmp = Ry(cow.angle);
 
   GLfloat Ms[8][16];
   int i=0,ii=0, k=0;
@@ -146,8 +147,6 @@ void calc_bone_transform(joint_s * j, int acc)
   glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
-
-
 
 }
 
@@ -379,10 +378,10 @@ int main(int argc, char **argv)
 
 	m_angle = 0;
 
-	//glutSetCursor(GLUT_CURSOR_NONE);
-
 
 	glutInit(&argc, argv);
+
+
 	initKeymapManager();
 	glutPassiveMotionFunc(mouse);
 
@@ -507,6 +506,10 @@ int main(int argc, char **argv)
 //#ifdef WIN32
 //	glewInit();
 //#endif
+
+	glutSetCursor(0);
+
+
 	glutTimerFunc(20, &OnTimer, 0);
 
 	glutMainLoop();

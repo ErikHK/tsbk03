@@ -14,6 +14,9 @@ extern "C" {
 #endif
 
 // Same or similar to old GLUT calls
+//void glutSetCursor(int cursorID);
+
+void glutSetCursor(int cursorID);
 void glutMainLoop();
 void glutCheckLoop();
 void glutInit(int *argcp, char **argv);

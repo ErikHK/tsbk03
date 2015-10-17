@@ -66,16 +66,14 @@ void move_cow(cow_s * c, float angle)
     move_force = VectorAdd(move_force, SetVector(COW_FORCE*sin(angle),0,-COW_FORCE*cos(angle)));
   //}
 
-
-  //if(!keyIsDown('p') && !keyIsDown('u') && !keyIsDown('e') && !keyIsDown('i') && !c->jumping)
-  //{
-    //c->force = SetVector(0,0,0);
+  if(!c->jumping)
+  {
     vec3 moment = SetVector(-c->momentum.x, 0, -c->momentum.z);
     if(Norm(moment) == 0)
       move_force = VectorAdd(move_force, moment);
     else
       move_force = VectorAdd(move_force, ScalarMult(Normalize(SetVector(-c->momentum.x,0,-c->momentum.z)), FLOOR_FRICTION));
-  //}
+  }
 
 
 
@@ -125,7 +123,7 @@ void draw_floor(floor_s * f, GLuint program)
 void turn_cow(cow_s * c, float angle)
 {
   float diff = c->angle - angle;
-  c->matrix = Mult(S(.1,.1,.1), ArbRotate(SetVector(0,1,0), c->angle));
+  //c->matrix = Mult(S(.1,.1,.1), ArbRotate(SetVector(0,1,0), c->angle));
   c->angle -= diff/10;
 
 }
