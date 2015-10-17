@@ -22,6 +22,7 @@ void update_cow(cow_s * c, GLfloat dT)
   vec3 dP, dX;
 
   dP = ScalarMult(c->force, dT);
+
   c->momentum = VectorAdd(c->momentum, dP);
   c->speed = ScalarMult(c->momentum, 1.0/c->mass);
 
@@ -37,38 +38,55 @@ void update_cow(cow_s * c, GLfloat dT)
     c->force.y=0;// = SetVector(c->force.x, 0, c->force.z);
   }
 
-  printf("%f\n", c->pos.y);
-
-
+  //printf("%f\n", c->pos.y);
 
   //c->matrix = Mult(S(.1, .1, .1), T(c->pos.x, c->pos.y, c->pos.z));
 }
 
 void move_cow(cow_s * c, float angle)
 {
+  vec3 move_force = SetVector(0,0,0);
+
   if(keyIsDown(0x20))
   {
     c->momentum.y = 20;
     c->jumping = 1;
   }
 
-  if(keyIsDown('p') && Norm(c->speed) < 15)
-  {
-    c->force = SetVector(-40*cos(angle),0,-40*sin(angle));
-    //printf("wtf");
-  }
-  else if(keyIsDown('u') && Norm(c->speed) < 15)
-    c->force = SetVector(40*cos(angle),0,40*sin(angle));
-  else
-  {
+  //if(Norm(c->speed) < 15)
+  //{
+
+  if(keyIsDown('p'))
+    move_force = VectorAdd(move_force, SetVector(-COW_FORCE*cos(angle),0,-COW_FORCE*sin(angle)));
+  if(keyIsDown('u'))
+    move_force = VectorAdd(move_force, SetVector(COW_FORCE*cos(angle),0,COW_FORCE*sin(angle)));
+  if(keyIsDown('e'))
+    move_force = VectorAdd(move_force, SetVector(-COW_FORCE*sin(angle),0,COW_FORCE*cos(angle)));
+  if(keyIsDown('i'))
+    move_force = VectorAdd(move_force, SetVector(COW_FORCE*sin(angle),0,-COW_FORCE*cos(angle)));
+  //}
+
+
+  //if(!keyIsDown('p') && !keyIsDown('u') && !keyIsDown('e') && !keyIsDown('i') && !c->jumping)
+  //{
     //c->force = SetVector(0,0,0);
-    c->force = SetVector(-c->momentum.x*3,0,-c->momentum.z*3);
-  }
+    vec3 moment = SetVector(-c->momentum.x, 0, -c->momentum.z);
+    if(Norm(moment) == 0)
+      move_force = VectorAdd(move_force, moment);
+    else
+      move_force = VectorAdd(move_force, ScalarMult(Normalize(SetVector(-c->momentum.x,0,-c->momentum.z)), FLOOR_FRICTION));
+  //}
+
+
 
   if(c->pos.y > 0 && c->jumping)
-    c->force = SetVector(0,-40,0);
+    move_force = VectorAdd(move_force, SetVector(0,-40,0));
 
 
+  c->force = move_force;
+
+  //if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > 30)
+  //  c->momentum = ScalarMult(Normalize(c->momentum), 15);
 /*
   if(c->pos.y < 0)
   {
@@ -77,7 +95,7 @@ void move_cow(cow_s * c, float angle)
     c->force.y=0;// = SetVector(c->force.x, 0, c->force.z);
   }
 */
-  printf("%f t\n", c->pos.y);
+  //printf("%f t\n", c->pos.y);
 
   //printf("%f\n", c->speed.x);
 }

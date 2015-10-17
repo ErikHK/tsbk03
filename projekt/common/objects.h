@@ -3,7 +3,11 @@
 #include "GL_utilities.h"
 #include "LoadTGA.h"
 
-#define MAX_CHILDREN	4
+#define MAX_CHILDREN		4
+
+#define COW_FORCE		100
+#define COW_MAX_MOMENTUM	30
+#define FLOOR_FRICTION		50
 
 typedef struct cow_t
 {

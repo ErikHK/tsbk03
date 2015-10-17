@@ -12,5 +12,5 @@ void main(void)
 	if(draw_cow)
 	  fragColor = colorr;
 	else
-	  fragColor = colorr*texture(tex, outTexCoord*10);
+	  fragColor = colorr*texture(tex, outTexCoord*5);
 }
