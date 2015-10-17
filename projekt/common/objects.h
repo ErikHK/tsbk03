@@ -5,9 +5,9 @@
 
 #define MAX_CHILDREN		4
 
-#define COW_FORCE		100
+#define COW_FORCE		120
 #define COW_MAX_MOMENTUM	60
-#define FLOOR_FRICTION		50
+#define FLOOR_FRICTION		60
 
 typedef struct cow_t
 {

@@ -32,10 +32,10 @@ void update_cow(cow_s * c, GLfloat dT)
 
   if(c->pos.y <= 0)
   {
-    c->pos.y=0;// = SetVector(c->pos.x, 0, c->pos.z);
+    c->pos.y=0;
     c->jumping = 0;
     c->momentum.y = 0;
-    c->force.y=0;// = SetVector(c->force.x, 0, c->force.z);
+    c->force.y=0;
   }
 
   //printf("%f\n", c->pos.y);
@@ -46,15 +46,20 @@ void update_cow(cow_s * c, GLfloat dT)
 void move_cow(cow_s * c, float angle)
 {
   vec3 move_force = SetVector(0,0,0);
+  static int jump_timer = 0;
 
   if(keyIsDown(0x20))
   {
+
+    if(jump_timer < 20)
+    {
     c->momentum.y = 20;
     c->jumping = 1;
-  }
+    }
 
-  //if(Norm(c->speed) < 15)
-  //{
+    jump_timer++;
+  }else
+    jump_timer = 0;
 
   if(keyIsDown('p'))
     move_force = VectorAdd(move_force, SetVector(-COW_FORCE*cos(angle),0,-COW_FORCE*sin(angle)));
@@ -64,7 +69,6 @@ void move_cow(cow_s * c, float angle)
     move_force = VectorAdd(move_force, SetVector(-COW_FORCE*sin(angle),0,COW_FORCE*cos(angle)));
   if(keyIsDown('i'))
     move_force = VectorAdd(move_force, SetVector(COW_FORCE*sin(angle),0,-COW_FORCE*cos(angle)));
-  //}
 
   if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > COW_MAX_MOMENTUM )
     move_force = SetVector(0,0,0);
@@ -79,13 +83,12 @@ void move_cow(cow_s * c, float angle)
   }
 
 
-
   if(c->pos.y > 0 && c->jumping)
     move_force = VectorAdd(move_force, SetVector(0,-40,0));
 
   c->force = move_force;
-  //if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > 30)
-  //  c->momentum = ScalarMult(Normalize(c->momentum), 15);
+
+
 /*
   if(c->pos.y < 0)
   {
@@ -94,9 +97,6 @@ void move_cow(cow_s * c, float angle)
     c->force.y=0;// = SetVector(c->force.x, 0, c->force.z);
   }
 */
-  //printf("%f t\n", c->pos.y);
-
-  //printf("%f\n", c->speed.x);
 }
 
 void update_floor(floor_s * f, cow_s * c)
