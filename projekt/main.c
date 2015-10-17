@@ -162,8 +162,8 @@ void OnTimer(int value)
 	//printf("%f\n", delta_t);
 
 	turn_cow(&cow, -m_angle);
-	move_cow(&cow, m_angle);
 	update_cow(&cow, delta_t);
+	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
 
 	//printf("%f, %f\n", delta_t, old_t);
