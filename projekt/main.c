@@ -335,9 +335,9 @@ void mouse(int x, int y)
 
   old_mouse_x = mouse_x;
   old_mouse_y = mouse_y;
-  if(x > 700 || x < 100)
+  if(x > 700 || x < 150)
     glutWarpPointer(400,y);
-  if(y > 500 || y < 100)
+  if(y > 500 || y < 200)
     glutWarpPointer(x,300);
 
 
@@ -348,7 +348,7 @@ void mouse(int x, int y)
  // {
   if(mouse_x - old_mouse_x > 0)
   {
-    m_angle -= .02;
+    m_angle -= .03;
   }
   //}
 
@@ -356,7 +356,7 @@ void mouse(int x, int y)
   //{
   if(mouse_x - old_mouse_x < 0)
   {
-    m_angle += .02;
+    m_angle += .03;
   }
   //}
   
