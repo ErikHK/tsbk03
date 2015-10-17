@@ -1,0 +1,50 @@
+--Farm escape--
+Projektspec i kursen TSBK03 (version 2)
+Av Erik Håkansson Kjellman (eriha181)
+
+Spelet går ut på att man spelar en (kött-)ko som ska rymma från en bondgård
+och därmed undgå sin annars oundvikliga död. Utspelar sig i en hage i form av en labyrint som man ska ta sig ut ur på tid.
+Man kan få en överblick av labyrinten genom att trycka på någon knapp och se var man är och
+var utgången är, och vilka hinder som finns på banan (t.ex. bönder). Labyrinten består främst av stenmurar,
+men lite varstans finns t.ex. trästaket som man kan stånga sönder med viss möda (hp-förlust? Tar lång tid?)
+
+Hinder kan bestå av bönder som ska försöka stoppa en,
+som man ska kunna stånga och eventuellt spruta ner med mjölk från ens spenar,
+och staket som man måste förstöra eller hoppa över.
+
+Milstolpe till mitten av nästa period kan vara att ha en ko med man kan styra i en hage, med
+staket/stenmur runt omkring.
+
+Krav:
+Skall:
+- Kunna styra kon med piltangenterna
+  - med tillhörande animationer
+  - "Strejfa", dvs gå i sidled med kon, med animationer
+- Hage med staket
+- Kunna stånga bönder
+- Kunna "springa" med samma animation som för att gå
+- Andra kor i hagen, som rör sig i fördefinierade mönster
+- Bonde (bönder?) som rör sig mot kon på ett primitivt sätt
+- Ko-modell gjord i 3D-program (3dsmax)
+- Bonde-modell gjord i 3D-program (3dsmax)
+- Olika texturer på kor
+- Ragdoll-animation på bönderna som försöker stoppa kon från att fly (när de blir stångade)
+- Gräs i hagen (geometrishader)
+
+Bör:
+
+- Andra kor i hagen som rör sig efter en AI-algoritm
+- Kunna springa med speciell spring-animation
+- Kunna förstöra staket som går sönder i fördefinierade mönster
+- Bonde (bönder?) som rör sig efter AI-algoritmer
+- Procedurellt genererade texturer på korna
+- Bondgårdsmodell som man eventuellt kan gå in i
+- Bakgrund i form av skog eller liknande, så det inte bara är en hage på en oändlig gräsplätt
+- Ko-aktiga rörelser (ex. skaka bort flugor) på övriga kor
+- Både bönder till fots och på traktorer (och/eller andra fordon?)
+
+Eventuellt:
+- Ljudeffekter
+- Spruta ner bönderna med mjölk från ens spenar (partikelsystem?)
+- Kunna förstöra staket som går sönder i voronoi-mönster el likn
+- Kunna stånga andra kor (med ragdoll?)
