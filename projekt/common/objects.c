@@ -66,6 +66,9 @@ void move_cow(cow_s * c, float angle)
     move_force = VectorAdd(move_force, SetVector(COW_FORCE*sin(angle),0,-COW_FORCE*cos(angle)));
   //}
 
+  if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > COW_MAX_MOMENTUM )
+    move_force = SetVector(0,0,0);
+
   if(!c->jumping)
   {
     vec3 moment = SetVector(-c->momentum.x, 0, -c->momentum.z);
@@ -80,9 +83,7 @@ void move_cow(cow_s * c, float angle)
   if(c->pos.y > 0 && c->jumping)
     move_force = VectorAdd(move_force, SetVector(0,-40,0));
 
-
   c->force = move_force;
-
   //if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > 30)
   //  c->momentum = ScalarMult(Normalize(c->momentum), 15);
 /*
