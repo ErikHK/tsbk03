@@ -88,7 +88,7 @@ void move_cow(cow_s * c, float angle)
 
   c->force = move_force;
 
-  if(Norm(c->momentum) < .2 && !keyIsDown('p') && !keyIsDown('u')
+  if(Norm(c->momentum) < 1 && !keyIsDown('p') && !keyIsDown('u')
      && !keyIsDown('e') && !keyIsDown('i') && !c->jumping)
   {
     c->force = SetVector(0,0,0);

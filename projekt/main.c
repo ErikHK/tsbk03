@@ -62,7 +62,7 @@ mat4 modelViewMatrix, projectionMatrix;
 
 void DisplayWindow()
 {
-	glClearColor(0.4, 0.4, 0.2, 1);
+	glClearColor(0.4, 0.4, 0.8, 1);
 	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
@@ -183,10 +183,6 @@ void OnTimer(int value)
 	//draw_cow(&cow, g_shader);
 	//draw_bone(&bone, g_shader);
 
-	
-
-
-
 	mat4 tmp, testjoint, testjoint2;
 	testjoint = IdentityMatrix();
 
@@ -212,26 +208,34 @@ void OnTimer(int value)
 	tmppp = IdentityMatrix();
 
 
+	float freq = 7;//Norm(cow.speed)/4;
+
+	if(Norm(cow.momentum) < .5)
+	  freq = 0;
+	else if(Norm(cow.momentum) > 5)
+	  freq = 20;
+	//printf("%f\n", freq);
+
 	j = &thigh_joint[0];
 	jc = j->child[0];
-	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
-	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), sin(freq*t)/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(freq*t)/2.5);
 
 	j = &thigh_joint[1];
 	jc = j->child[0];
-	j->R = ArbRotate(SetVector(0,0,1), -cos(7*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), -cos(freq*t)/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), sin(freq*t)/2.5);
 
 
 	j = &thigh_joint[2];
 	jc = j->child[0];
-	j->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/1.5);
-	jc->R = ArbRotate(SetVector(0,0,1), cos(7*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), sin(freq*t)/1.5);
+	jc->R = ArbRotate(SetVector(0,0,1), cos(freq*t)/2.5);
 
 	j = &thigh_joint[3];
 	jc = j->child[0];
-	j->R = ArbRotate(SetVector(0,0,1), -cos(7*t/(i+1))/2.5);
-	jc->R = ArbRotate(SetVector(0,0,1), sin(7*t/(i+1))/2.5);
+	j->R = ArbRotate(SetVector(0,0,1), -cos(freq*t)/2.5);
+	jc->R = ArbRotate(SetVector(0,0,1), sin(freq*t)/2.5);
 
 
 	j = &legbase_joint[0];
@@ -268,7 +272,7 @@ void OnTimer(int value)
 	j = &body_joint[1];
 	//j->R = ArbRotate(SetVector(0,0,1), cos(t*7)/9.5);
 	j->R = ArbRotate(SetVector(0,1,0), m_angle + cow.angle);
-	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(t*7)/9));
+	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(freq*t)/9));
 
 	calc_bone_transform(&body_joint[0],0);
 
