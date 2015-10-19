@@ -199,9 +199,8 @@ void create_ball(ball_s * b, vec3 pos)
   b->acc = SetVector(0,0,0);
   b->force = SetVector(0,0,0);
   b->torque = SetVector(0,0,0);
-  b->momentum = SetVector(.03,0,0);
-  b->mass = .010;
-
+  b->momentum = SetVector(2,0,0);
+  b->mass = 2;
 }
 
 
@@ -227,10 +226,14 @@ void update_ball(ball_s * b, cow_s * c, GLfloat dT)
     c->momentum = VectorAdd(c->momentum, ScalarMult(nA,jj));
     b->momentum = VectorAdd(b->momentum, ScalarMult(nA,-jj));
 
-    c->pos = VectorAdd(c->pos, ScalarMult(Normalize(nA), .1));
-    b->pos = VectorSub(b->pos, ScalarMult(Normalize(nA), .1));
+    c->pos = VectorAdd(c->pos, ScalarMult(Normalize(nA), .05));
+    b->pos = VectorSub(b->pos, ScalarMult(Normalize(nA), .05));
   }
 
+
+    vec3 moment = SetVector(-b->momentum.x, 0, -b->momentum.z);
+    if(Norm(moment) != 0)
+      b->force = ScalarMult(Normalize(SetVector(-b->momentum.x,0,-b->momentum.z)), FLOOR_FRICTION/10);
 
   b->matrix = T(-c->pos.x + b->pos.x, -c->pos.y + b->pos.y, -c->pos.z+b->pos.z);
 
