@@ -10,7 +10,7 @@ uniform int draw_cow;
 void main(void)
 {
 	if(draw_cow)
-	  fragColor = colorr;
+	  fragColor = colorr*texture(tex, outTexCoord);
 	else
 	  fragColor = colorr*texture(tex, outTexCoord*5);
 }

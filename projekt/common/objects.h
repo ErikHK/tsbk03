@@ -25,7 +25,7 @@ typedef struct cow_t
   float angle;
   float d_angle;
   int jumping;
-  GLuint body_tex;
+  GLuint tex;
 
 } cow_s;
 

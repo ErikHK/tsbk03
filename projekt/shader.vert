@@ -201,7 +201,7 @@ void main(void)
 
   if(draw_cow == 1)
     //colorr = vec4(shade, shade, shade, .6);
-    colorr = (vec4(shade, shade, shade, 1)*.8 + vec4(shade2,shade2,shade2,1)*.4) + vec4(.4,.2,.4,0);
+    colorr = vec4(.7,.7,.7,1) + (vec4(shade, shade, shade, 1))*.3;// + vec4(shade2,shade2,shade2,1)*1);
   else
     //colorr = vec4(shade,shade,shade,1)*.6+vec4(shade2,shade2,shade2,1)*.4;
     colorr = vec4(.7,.7,.7,1);

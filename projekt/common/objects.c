@@ -15,6 +15,8 @@ void create_cow(cow_s * c)
   c->angle = 0;
   c->d_angle = 0;
   c->jumping = 0;
+  LoadTGATextureSimple("./res/texture.tga", &(c->tex));
+
 }
 
 void update_cow(cow_s * c, GLfloat dT)
@@ -124,7 +126,7 @@ void draw_floor(floor_s * f, GLuint program)
 {
   //f->matrix = S(2,2,2);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
-  //glBindTexture(GL_TEXTURE_2D, f->tex);
+  glBindTexture(GL_TEXTURE_2D, f->tex);
   DrawModel(f->model, program, "inPosition", "inNormal", "inTexCoord");
 
 }
@@ -173,6 +175,7 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
 void draw_cow(cow_s * c, GLuint program)
 {
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, c->matrix.m);
+  glBindTexture(GL_TEXTURE_2D, c->tex);
   DrawModel(c->main_body, program, "inPosition", "inNormal", "inTexCoord");
 }
 
@@ -221,7 +224,7 @@ void update_ball(ball_s * b, cow_s * c, GLfloat dT)
     p.z = (c->pos.z + b->pos.z)/2;
     vec3 nA = Normalize(VectorSub(c->pos, p));
     float vrel = DotProduct(VectorSub(c->speed, b->speed), nA);
-    float eps = 1;
+    float eps = .1;
     float jj = vrel*(-(eps+1))/(1/c->mass + 1/b->mass);
     c->momentum = VectorAdd(c->momentum, ScalarMult(nA,jj));
     b->momentum = VectorAdd(b->momentum, ScalarMult(nA,-jj));
