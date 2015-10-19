@@ -226,8 +226,12 @@ void update_ball(ball_s * b, cow_s * c, GLfloat dT)
     c->momentum = VectorAdd(c->momentum, ScalarMult(nA,jj));
     b->momentum = VectorAdd(b->momentum, ScalarMult(nA,-jj));
 
-    c->pos = VectorAdd(c->pos, ScalarMult(Normalize(nA), .05));
-    b->pos = VectorSub(b->pos, ScalarMult(Normalize(nA), .05));
+    while(dist < 3)
+    {
+      dist = Norm(VectorSub(b->pos,c->pos));
+      c->pos = VectorAdd(c->pos, ScalarMult(Normalize(nA), .01));
+      b->pos = VectorSub(b->pos, ScalarMult(Normalize(nA), .01));
+    }
   }
 
 
