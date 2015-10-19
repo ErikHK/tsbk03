@@ -52,6 +52,7 @@ joint_s body_joint[3];
 
 cow_s cow;
 floor_s f;
+ball_s ball;
 float cam_angle = 0;
 float cam_dist = 8;
 
@@ -69,6 +70,7 @@ void DisplayWindow()
 	draw_cow(&cow, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 	draw_floor(&f, g_shader);
+	draw_ball(&ball, g_shader);
 
 /*
 	int i;
@@ -164,6 +166,7 @@ void OnTimer(int value)
 	update_cow(&cow, delta_t);
 	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
+	update_ball(&ball, &cow, delta_t);
 
 	//printf("%f, %f\n", delta_t, old_t);
 	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
@@ -397,6 +400,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
+	create_ball(&ball, SetVector(5,0,0));
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .7), 
 	"legjoint0", "legcurrpos0", "legbonepos0", 0);

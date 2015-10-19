@@ -29,6 +29,21 @@ typedef struct cow_t
 
 } cow_s;
 
+typedef struct ball_t
+{
+  Model * model;
+  mat4 matrix;
+  vec3 pos;
+  vec3 speed;
+  vec3 acc;
+  vec3 force;
+  vec3 torque;
+  vec3 momentum;
+  float mass;
+  GLuint tex;
+
+} ball_s;
+
 
 typedef struct floor_t
 {
@@ -80,3 +95,7 @@ void create_bone();
 void draw_bone();
 void create_joint();
 void draw_joint();
+
+void create_ball(ball_s * b, vec3 pos);
+void update_ball(ball_s * b, cow_s * c, GLfloat dT);
+void draw_ball(ball_s * b, GLuint program);

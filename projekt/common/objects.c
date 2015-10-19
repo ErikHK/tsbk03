@@ -73,14 +73,15 @@ void move_cow(cow_s * c, float angle)
   if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > COW_MAX_MOMENTUM )
     move_force = SetVector(0,0,0);
 
-  if(!c->jumping)
-  {
+
+//  if(!c->jumping)
+//  {
     vec3 moment = SetVector(-c->momentum.x, 0, -c->momentum.z);
     if(Norm(moment) == 0)
       move_force = VectorAdd(move_force, moment);
     else
       move_force = VectorAdd(move_force, ScalarMult(Normalize(SetVector(-c->momentum.x,0,-c->momentum.z)), FLOOR_FRICTION));
-  }
+//  }
 
 
   if(c->pos.y > 0 && c->jumping)
@@ -187,4 +188,65 @@ void draw_joint(joint_s *j, GLuint program)
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, j->body_matrix.m);
   DrawModel(j->body, program, "inPosition", "inNormal", "inTexCoord");
   
+}
+
+void create_ball(ball_s * b, vec3 pos)
+{
+  b->model = LoadModelPlus("./res/groundsphere.obj");
+  b->pos = SetVector(pos.x,pos.y,pos.z);
+  b->matrix = T(pos.x, pos.y, pos.z);
+  b->speed = SetVector(0,0,0);
+  b->acc = SetVector(0,0,0);
+  b->force = SetVector(0,0,0);
+  b->torque = SetVector(0,0,0);
+  b->momentum = SetVector(.03,0,0);
+  b->mass = .010;
+
+}
+
+
+void update_ball(ball_s * b, cow_s * c, GLfloat dT)
+{
+  vec3 dP, dX;
+
+  //b->momentum = SetVector(1,0,0);
+
+  float dist = Norm(VectorSub(b->pos,c->pos));
+
+  //if collision between cow and ball
+  if(dist < 3)
+  {
+    vec3 p = {0, 0, 0};
+    //point of impact
+    p.x = (c->pos.x + b->pos.x)/2;
+    p.z = (c->pos.z + b->pos.z)/2;
+    vec3 nA = Normalize(VectorSub(c->pos, p));
+    float vrel = DotProduct(VectorSub(c->speed, b->speed), nA);
+    float eps = 1;
+    float jj = vrel*(-(eps+1))/(1/c->mass + 1/b->mass);
+    c->momentum = VectorAdd(c->momentum, ScalarMult(nA,jj));
+    b->momentum = VectorAdd(b->momentum, ScalarMult(nA,-jj));
+
+    c->pos = VectorAdd(c->pos, ScalarMult(Normalize(nA), .1));
+    b->pos = VectorSub(b->pos, ScalarMult(Normalize(nA), .1));
+  }
+
+
+  b->matrix = T(-c->pos.x + b->pos.x, -c->pos.y + b->pos.y, -c->pos.z+b->pos.z);
+
+  dP = ScalarMult(b->force, dT);
+
+  b->momentum = VectorAdd(b->momentum, dP);
+  b->speed = ScalarMult(b->momentum, 1.0/b->mass);
+  //printf("%f\n", b->mass);
+
+  dX = ScalarMult(b->speed, dT);
+
+  b->pos = VectorAdd(b->pos, dX);
+}
+
+void draw_ball(ball_s * b, GLuint program)
+{
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, b->matrix.m);
+  DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
 }
