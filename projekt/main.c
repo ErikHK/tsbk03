@@ -63,31 +63,85 @@ float m_angle;
 mat4 modelViewMatrix, projectionMatrix;
 Model * terr;
 
+
+void calc_normal(GLfloat * vertexArray, int x, int z, int width, Point3D *normal)
+{
+        Point3D vec1, vec2;
+
+        if(x > 0 && z > 0 && x < width && z < width)
+        {
+                vec1.x = vertexArray[(x-1 + z * width)*3 + 0] - 
+                vertexArray[(x + z * width)*3 + 0];
+
+                vec1.y = vertexArray[(x-1 + z * width)*3 + 1] - 
+                vertexArray[(x + z * width)*3 + 1];
+
+                vec1.z = vertexArray[(x-1 + z * width)*3 + 2] - 
+                vertexArray[(x + z * width)*3 + 2];
+
+
+                vec2.x = vertexArray[(x + (z+1) * width)*3 + 0] - 
+                vertexArray[(x + z * width)*3 + 0];
+
+                vec2.y = vertexArray[(x + (z+1) * width)*3 + 1] - 
+                vertexArray[(x + z * width)*3 + 1];
+
+                vec2.z = vertexArray[(x + (z+1) * width)*3 + 2] - 
+                vertexArray[(x + z * width)*3 + 2];
+
+
+                *normal = Normalize(CrossProduct(vec1, vec2));
+      }
+
+}
+
+
+
 Model * generate_terrain(int size)
 {
-  GLfloat * vertices;
-  GLfloat * normals;
-  GLuint * indices;
-  int i,j, x, z;
+  int i, j, x, z;
   int tri_count = (size-1)*(size-1)*2;
   int count = size*size;
+  Point3D tmp_normal;
 
-  vertices = malloc(sizeof(GLfloat) * 3 * size * size);
-  normals = malloc(sizeof(GLfloat) * 3 * size * size);
-  indices = malloc(sizeof(GLuint) * 3 * tri_count);
+  GLfloat *vertices = malloc(sizeof(GLfloat) * 3 * size * size);
+  GLfloat *normals = malloc(sizeof(GLfloat) * 3 * size * size);
+  GLuint *indices = malloc(sizeof(GLuint) * 3 * tri_count);
 
   for(x=0;x < size; x++)
   {
     for(z = 0;z < size; z++)
     {
       vertices[(x + z*size)*3 + 0] = x;
-      vertices[(x + z*size)*3 + 1] = rand()%2;
+      vertices[(x + z*size)*3 + 1] = rand()%5;
       vertices[(x + z*size)*3 + 2] = z;
 
-      normals[(x + z*size)*3 + 0] = 0;
-      normals[(x + z*size)*3 + 1] = 1;
-      normals[(x + z*size)*3 + 2] = 0;
+
+
+    }
+  }
+
+
+  for(x=0;x < size; x++)
+  {
+    for(z = 0;z < size; z++)
+    {
+      calc_normal(vertices, x, z, size, &tmp_normal);
+
+      normals[(x + z*size)*3 + 0] = tmp_normal.x;
+      normals[(x + z*size)*3 + 1] = tmp_normal.y;
+      normals[(x + z*size)*3 + 2] = tmp_normal.z;
       
+
+    }
+
+  }
+
+  for(x=0;x < size-1; x++)
+  {
+    for(z = 0;z < size-1; z++)
+    {
+
       indices[(x + z*(size-1))*6 + 0] = x + z*size;
       indices[(x + z*(size-1))*6 + 1] = x + (z+1)*size;
       indices[(x + z*(size-1))*6 + 2] = x + 1 + z*size;
@@ -95,10 +149,9 @@ Model * generate_terrain(int size)
       indices[(x + z*(size-1))*6 + 3] = x + 1 + z*size;
       indices[(x + z*(size-1))*6 + 4] = x + (z+1)*size;
       indices[(x + z*(size-1))*6 + 5] = x + 1 + (z+1)*size;
-
-
     }
   }
+
 
   Model * m = LoadDataToModel(
 	vertices,
