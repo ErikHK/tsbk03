@@ -7,6 +7,7 @@ in vec2 inTexCoord;
 
 out vec4 colorr;
 out vec2 outTexCoord;
+out vec4 inPos;
 uniform mat4 mdl_matrix;
 uniform mat4 cam_matrix;
 uniform mat4 proj_matrix;
@@ -208,5 +209,6 @@ void main(void)
 
     
   outTexCoord = inTexCoord;
+  inPos = vec4(inPosition,1);
 }
 

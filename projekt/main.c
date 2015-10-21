@@ -11,6 +11,7 @@
 #include "common/objects.h"
 #include "SFML/Graphics.h"
 #include <sys/time.h>
+#include <time.h>
 #include "zpr.h"
 #ifdef __APPLE__
 // Mac
@@ -60,6 +61,57 @@ float mouse_x, mouse_y, old_mouse_x, old_mouse_y;
 float m_angle;
 
 mat4 modelViewMatrix, projectionMatrix;
+Model * terr;
+
+Model * generate_terrain(int size)
+{
+  GLfloat * vertices;
+  GLfloat * normals;
+  GLuint * indices;
+  int i,j, x, z;
+  int tri_count = (size-1)*(size-1)*2;
+  int count = size*size;
+
+  vertices = malloc(sizeof(GLfloat) * 3 * size * size);
+  normals = malloc(sizeof(GLfloat) * 3 * size * size);
+  indices = malloc(sizeof(GLuint) * 3 * tri_count);
+
+  for(x=0;x < size; x++)
+  {
+    for(z = 0;z < size; z++)
+    {
+      vertices[(x + z*size)*3 + 0] = x;
+      vertices[(x + z*size)*3 + 1] = rand()%2;
+      vertices[(x + z*size)*3 + 2] = z;
+
+      normals[(x + z*size)*3 + 0] = 0;
+      normals[(x + z*size)*3 + 1] = 1;
+      normals[(x + z*size)*3 + 2] = 0;
+      
+      indices[(x + z*(size-1))*6 + 0] = x + z*size;
+      indices[(x + z*(size-1))*6 + 1] = x + (z+1)*size;
+      indices[(x + z*(size-1))*6 + 2] = x + 1 + z*size;
+
+      indices[(x + z*(size-1))*6 + 3] = x + 1 + z*size;
+      indices[(x + z*(size-1))*6 + 4] = x + (z+1)*size;
+      indices[(x + z*(size-1))*6 + 5] = x + 1 + (z+1)*size;
+
+
+    }
+  }
+
+  Model * m = LoadDataToModel(
+	vertices,
+	normals,
+	NULL,
+	NULL,
+	indices,
+	size*size,
+	(size-1)*(size-1)*2);
+
+
+  return m;
+}
 
 void DisplayWindow()
 {
@@ -161,6 +213,10 @@ void OnTimer(int value)
 	t = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 	delta_t = (t - old_t);
 	//printf("%f\n", delta_t);
+
+	GLfloat tmpppp[3] = {cow.pos.x, cow.pos.y, cow.pos.z};
+	glUniform3fv(glGetUniformLocation(g_shader, "cow_pos"), 1, tmpppp);
+
 
 	turn_cow(&cow, -m_angle);
 	update_cow(&cow, delta_t);
@@ -377,7 +433,7 @@ void mouse(int x, int y)
 //
 int main(int argc, char **argv)
 {
-
+	srand(time(NULL));
 	mouse_x = 0;
 	old_mouse_x = 0;
 	mouse_y = 0;
@@ -400,6 +456,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
+	f.model = generate_terrain(512);
 	create_ball(&ball, SetVector(5,0,0));
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .7), 
@@ -515,7 +572,9 @@ int main(int argc, char **argv)
 //	glewInit();
 //#endif
 
-	glutSetCursor(0);
+	//glutSetCursor(0);
+
+	//terr = generate_terrain(512);
 
 
 	glutTimerFunc(20, &OnTimer, 0);

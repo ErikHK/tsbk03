@@ -63,6 +63,8 @@ void move_cow(cow_s * c, float angle)
   }else
     jump_timer = 0;
 
+  if(!c->jumping)
+  {
   if(keyIsDown('p'))
     move_force = VectorAdd(move_force, SetVector(-COW_FORCE*cos(angle),0,-COW_FORCE*sin(angle)));
   if(keyIsDown('u'))
@@ -71,19 +73,20 @@ void move_cow(cow_s * c, float angle)
     move_force = VectorAdd(move_force, SetVector(-COW_FORCE*sin(angle),0,COW_FORCE*cos(angle)));
   if(keyIsDown('i'))
     move_force = VectorAdd(move_force, SetVector(COW_FORCE*sin(angle),0,-COW_FORCE*cos(angle)));
+  }
 
   if(Norm(SetVector(c->momentum.x, 0, c->momentum.z)) > COW_MAX_MOMENTUM )
     move_force = SetVector(0,0,0);
 
 
-//  if(!c->jumping)
-//  {
+  if(!c->jumping)
+  {
     vec3 moment = SetVector(-c->momentum.x, 0, -c->momentum.z);
     if(Norm(moment) == 0)
       move_force = VectorAdd(move_force, moment);
     else
       move_force = VectorAdd(move_force, ScalarMult(Normalize(SetVector(-c->momentum.x,0,-c->momentum.z)), FLOOR_FRICTION));
-//  }
+  }
 
 
   if(c->pos.y > 0 && c->jumping)
