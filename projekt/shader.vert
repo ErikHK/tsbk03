@@ -52,6 +52,10 @@ uniform vec3 bodycurrpos[8];
 uniform vec3 bodybonepos[8];
 uniform mat4 bodyjoint[8];
 
+uniform vec3 rightearcurrpos[8];
+uniform vec3 rightearbonepos[8];
+uniform mat4 rightearjoint[8];
+
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -194,6 +198,22 @@ void main(void)
     if(dist < leng*2)
       gl_Position += proj_matrix*cam_matrix*tailjoint[i]*mdl_matrix*vec4(inPosition, 1);
   }
+
+
+
+  //right ear
+  for(int i=0;i<2;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(rightearcurrpos[i], rightearbonepos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), rightearbonepos[i]);
+
+    if(dist < leng*3)
+      gl_Position += proj_matrix*cam_matrix*rightearjoint[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
 
 
   }

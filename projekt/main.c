@@ -50,7 +50,8 @@ joint_s legbase_joint[4];
 joint_s tail_joint[4];
 joint_s head_joint[3];
 joint_s body_joint[3];
-
+joint_s left_ear_joint[3];
+joint_s right_ear_joint[3];
 cow_s cow;
 floor_s f;
 ball_s ball;
@@ -350,11 +351,13 @@ void calc_bone_transform(joint_s * j, int acc)
 
   while(j->child[0] != NULL)
   {
+
     for(k=1; k<MAX_CHILDREN; k++)
     {
       if(j->child[k] != NULL)
         calc_bone_transform(j->child[k], 1);
     }
+
     jc = j->child[0];
     vec3 tmp_bonepos;
     tmptrans = j->T;
@@ -386,6 +389,7 @@ void calc_bone_transform(joint_s * j, int acc)
   glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
+
 
 }
 
@@ -542,32 +546,6 @@ void OnTimer(int value)
 	calc_bone_transform(&head_joint[0],0);
 
 
-	//glUniformMatrix4fv(glGetUniformLocation(g_shader, "testjoint"), 8, GL_TRUE, Ms);
-	//glUniform3fv(glGetUniformLocation(g_shader, "currpos"), 8, currpos);
-	//glUniform3fv(glGetUniformLocation(g_shader, "bonepos"), 8, bonepos);
-
-	//glUniformMatrix4fv(glGetUniformLocation(g_shader, "legtestjoint"), 8, GL_TRUE, legMs);
-	//glUniform3fv(glGetUniformLocation(g_shader, "legcurrpos"), 8, legcurrpos);
-	//glUniform3fv(glGetUniformLocation(g_shader, "legbonepos"), 8, legbonepos);
-
-
-	
-
-/*
-	if(keyIsDown('e'))
-	  cam_angle += .05;
-	if(keyIsDown('i'))
-	  cam_angle -= .05;
-
-	if(keyIsDown('u'))
-	  cam_dist += .05;
-
-	if(keyIsDown('p'))
-	  cam_dist -= .05;
-*/
-
-
-
 	glutPostRedisplay();
 }
 
@@ -707,6 +685,24 @@ int main(int argc, char **argv)
 	create_joint(&head_joint[2], SetVector(-4.7, 3, 0),
 	NULL, NULL, NULL, 0);
 
+	//EAR JOINTS
+	//create_joint(&left_ear_joint[0], SetVector(-2.9, 3.2, -.4),
+	//"leftearjoint", "leftearcurrpos", "leftearbonepos", 0);
+	create_joint(&left_ear_joint[0], SetVector(-2.9, 3.2, .6),
+	NULL, NULL, NULL, 0);
+	create_joint(&right_ear_joint[0], SetVector(-2.9, 3.2, -.6),
+	NULL, NULL, NULL, 0);
+	//create_joint(&left_ear_joint[1], SetVector(-2.9, 3.2, .6),
+	//NULL, NULL, NULL, 0);
+	//create_joint(&right_ear_joint[1], SetVector(-2.9, 3.2, -.6),
+	//NULL, NULL, NULL, 0);
+
+	//create_joint(&right_ear_joint[0], SetVector(-2.9, 3.2, -.6),
+	//"rightearjoint", "rightearcurrpos", "rightearbonepos", 0);
+
+	//create_joint(&right_ear_joint[1], SetVector(-2.9, 3.2, -.8),
+	//"rightearjoint", "rightearcurrpos", "rightearbonepos", 0);
+
 
 	//SET CHILDREN!
 	body_joint[0].child[0] = &body_joint[1];
@@ -715,16 +711,23 @@ int main(int argc, char **argv)
 	body_joint[2].child[1] = &legbase_joint[2];
 	body_joint[2].child[2] = &legbase_joint[3];
 
-
 	tail_joint[0].child[0] = &tail_joint[1];
 	tail_joint[1].child[0] = &tail_joint[2];
 	tail_joint[2].child[0] = &tail_joint[3];
 	tail_joint[3].child[0] = NULL;
 
-
 	head_joint[0].child[0] = &head_joint[1];
 	head_joint[1].child[0] = &head_joint[2];
-	head_joint[2].child[0] = NULL;
+	//head_joint[2].child[0] = NULL;
+	head_joint[2].child[0] = &right_ear_joint[1];
+	head_joint[2].child[1] = &left_ear_joint[0];
+	head_joint[2].child[2] = &right_ear_joint[0];
+
+	//left_ear_joint[0].child[0] = &left_ear_joint[1];
+	//right_ear_joint[0].child[0] = &right_ear_joint[1];
+
+	//left_ear_joint[1].child[0] = NULL;
+	//right_ear_joint[1].child[0] = NULL;
 
 	//head_joint[0].child = &legbase_joint[0];
 	int i;
@@ -739,6 +742,12 @@ int main(int argc, char **argv)
 	//SET PARENTS
 	legbase_joint[2].parent = &body_joint[2];
 	legbase_joint[3].parent = &body_joint[2];
+
+	//left_ear_joint[1].parent = &left_ear_joint[0];
+	left_ear_joint[0].parent = &head_joint[2];
+
+	//right_ear_joint[1].parent = &right_ear_joint[0];
+	right_ear_joint[0].parent = &head_joint[2];
 
 
 	create_cow(&cow);
