@@ -14,6 +14,8 @@ uniform mat4 proj_matrix;
 
 uniform float time;
 uniform int draw_cow;
+uniform int draw_floor;
+uniform int draw_ball;
 
 uniform mat4 foot_joint[4];
 uniform mat4 testjoint[8];
@@ -203,9 +205,11 @@ void main(void)
   if(draw_cow == 1)
     //colorr = vec4(shade, shade, shade, .6);
     colorr = vec4(.7,.7,.7,1) + (vec4(shade, shade, shade, 1))*.3;// + vec4(shade2,shade2,shade2,1)*1);
-  else
+  else if(draw_ball == 1)
     //colorr = vec4(shade,shade,shade,1)*.6+vec4(shade2,shade2,shade2,1)*.4;
     colorr = vec4(shade,shade,shade,1)*.6;
+  else if(draw_floor == 1)
+    colorr = vec4(50*sin(inPosition.x*200), 40*cos(inPosition.y*400), 20*sin(inPosition.z*250), 1);
 
     
   outTexCoord = inTexCoord;

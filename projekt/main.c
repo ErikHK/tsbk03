@@ -63,6 +63,120 @@ float m_angle;
 mat4 modelViewMatrix, projectionMatrix;
 Model * terr;
 
+void filter(GLfloat * Xre, GLfloat * Xim, int size)
+{
+  int i,j;
+
+  for(i=0;i < size;i++)
+  {
+    for(j=0;j < size;j++)
+    {
+      Xre[j + i*size] *= -(i+j)*.7/size;
+      Xim[j + i*size] *= -(i+j)*.7/size;
+
+    }
+
+  }
+}
+
+void fft(GLfloat * vertices, int size, GLfloat * Xre, GLfloat * Xim)
+{
+  int n,m,k,l,z=1;
+  GLfloat xn=0;
+  //GLfloat Xre[size][size];
+  //GLfloat Xim[size][size];
+
+  //Xre = malloc(sizeof(GLfloat)*size*size);
+  //Xim = malloc(sizeof(GLfloat)*size*size);
+
+  for(m=0;m < size; m++)
+  {
+  for(n=0;n < size; n++)
+  {
+    Xim[n + m*size] = 0;
+    Xre[n + m*size] = 0;
+    for(k=0;k < size; k++)
+    {
+    for(l=0;l < size; l++)
+    {
+      xn = vertices[(n + (m)*size)*3 + 1];
+      Xre[l + size*k] += xn*cos(2*M_PI*(k*m+l*n)/size)/(size);
+      Xim[l + size*k] -= xn*sin(2*M_PI*(k*m+l*n)/size)/(size);
+    }
+    }
+  }
+  }
+
+}
+
+void ifft(GLfloat * vertices, int size, GLfloat * Xre, GLfloat * Xim)
+{
+  int n,m,k,l,z=1;
+  GLfloat xn=0, xn2=0;
+  //GLfloat Xre[size][size];
+  //GLfloat Xim[size][size];
+
+  //Xre = malloc(sizeof(GLfloat)*size*size);
+  //Xim = malloc(sizeof(GLfloat)*size*size);
+
+  for(m=0;m < size; m++)
+  {
+  for(n=0;n < size; n++)
+  {
+
+    for(k=0;k < size; k++)
+    {
+    for(l=0;l < size; l++)
+    {
+      //xn = vertices[(n + (m)*size)*3 + 1];
+      xn = Xre[n+size*m] + Xim[n + size*m];
+      //xn = Xre[n + size*m];
+      //xn2 = Xim[n + size*m];
+      Xre[l + size*k] += xn*cos(2*M_PI*(k*m+l*n)/size)/size;
+      Xim[l + size*k] += xn*sin(2*M_PI*(k*m+l*n)/size)/size;
+      //vertices[(k + size*l)*3 + 1] = Xre[k + size*l] + Xim[k + size*l];
+
+    }
+    }
+
+    vertices[(n + size*m)*3 + 1] = Xre[n + size*m] + Xim[n + size*m];
+
+  }
+  }
+
+  
+}
+
+
+float random()
+{
+  return (float)rand() / (float)RAND_MAX;
+
+}
+
+void spatial_smooth(GLfloat * vertices, int size)
+{
+  int x,z;
+  for(x=0;x < size; x++)
+  {
+    for(z = 0;z < size; z++)
+    {
+      if(x > 1 && z > 1 && x < size-1 && z < size-1)
+        vertices[(x + z*size)*3 + 1] += vertices[(x+1 + z*size)*3 + 1] +
+        vertices[(x + (z+1)*size)*3 + 1] + 
+        vertices[(x+1 + (z-1)*size)*3 + 1] +
+        vertices[(x + (z+1)*size)*3 + 1] +
+        vertices[(x + (z-1)*size)*3 + 1] +
+        vertices[(x-1 + (z-1)*size)*3 + 1] +
+        vertices[(x-1 + (z+1)*size)*3 + 1] +
+        vertices[(x+1 + (z+1)*size)*3 + 1];
+
+
+        vertices[(x + (z)*size)*3 + 1] /= 9;
+    }
+  }
+}
+
 
 void calc_normal(GLfloat * vertexArray, int x, int z, int width, Point3D *normal)
 {
@@ -112,9 +226,9 @@ Model * generate_terrain(int size)
   {
     for(z = 0;z < size; z++)
     {
-      vertices[(x + z*size)*3 + 0] = x;
-      vertices[(x + z*size)*3 + 1] = rand()%5;
-      vertices[(x + z*size)*3 + 2] = z;
+      vertices[(z + x*size)*3 + 0] = x*6;
+      vertices[(z + x*size)*3 + 1] = 0*(random()-.5);
+      vertices[(z + x*size)*3 + 2] = z*6;
 
 
 
@@ -128,10 +242,9 @@ Model * generate_terrain(int size)
     {
       calc_normal(vertices, x, z, size, &tmp_normal);
 
-      normals[(x + z*size)*3 + 0] = tmp_normal.x;
-      normals[(x + z*size)*3 + 1] = tmp_normal.y;
-      normals[(x + z*size)*3 + 2] = tmp_normal.z;
-      
+      normals[(z + x*size)*3 + 0] = tmp_normal.x;
+      normals[(z + x*size)*3 + 1] = tmp_normal.y;
+      normals[(z + x*size)*3 + 2] = tmp_normal.z;
 
     }
 
@@ -152,6 +265,21 @@ Model * generate_terrain(int size)
     }
   }
 
+  //int j=0;
+  //for(j=0;j < 30;j++)
+  //  spatial_smooth(vertices, size);
+
+  GLfloat Xre[size*size*6*6];
+  GLfloat Xim[size*size*6*6];
+
+  //Xre = malloc(sizeof(GLfloat)*size*size);
+  //Xim = malloc(sizeof(GLfloat)*size*size);
+
+  fft(vertices, size, Xre, Xim);
+  filter(Xre, Xim, size);
+  ifft(vertices, size, Xre, Xim);
+
+  //printf("%f\n", Xre[0][0]);
 
   Model * m = LoadDataToModel(
 	vertices,
@@ -160,8 +288,7 @@ Model * generate_terrain(int size)
 	NULL,
 	indices,
 	size*size,
-	(size-1)*(size-1)*2);
-
+	(size-1)*(size-1)*2*3);
 
   return m;
 }
@@ -174,8 +301,13 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
 	draw_cow(&cow, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
 	draw_floor(&f, g_shader);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
 	draw_ball(&ball, g_shader);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
+
 
 /*
 	int i;
@@ -502,14 +634,14 @@ int main(int argc, char **argv)
 	glutPassiveMotionFunc(mouse);
 
 	//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GL_MULTISAMPLE);
 	glutInitWindowSize(800, 600);
 	glutInitContextVersion(3, 2); // Might not be needed in Linux
 	glutCreateWindow("Farm Escape");
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
-	f.model = generate_terrain(512);
+	f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .7), 
