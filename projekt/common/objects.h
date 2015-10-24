@@ -112,6 +112,14 @@ typedef struct wall_t
   mat4 R;
   mat4 matrix;
   mat4 orig_matrix;
+  vec3 speed;
+  vec3 acc;
+  vec3 force;
+  vec3 torque;
+  vec3 momentum;
+  vec3 angular_momentum;
+  vec3 omega;
+  float mass;
 
   struct bounding_box_t bb;
 
@@ -130,6 +138,7 @@ void draw_joint();
 
 void create_ball(ball_s * b, vec3 pos);
 void update_ball(ball_s * b, cow_s * c, GLfloat dT);
+void update_wall(wall_s * w, cow_s * c, GLfloat dT);
 void draw_ball(ball_s * b, GLuint program);
 void create_bb(bounding_box_s * bb, vec3 pos, vec3 size);
 void create_wall();

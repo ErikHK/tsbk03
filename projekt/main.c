@@ -413,12 +413,16 @@ void OnTimer(int value)
 	update_cow(&cow, delta_t);
 	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
-	update_wall(&wall, &cow);
+	update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
 
 	if(check_collision(&cow.bb, &wall.bb))
+	{
 	  //printf("yey\n");
 	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 1);
+	  //cow.momentum = SetVector(-cow.momentum.x, cow.momentum.y, -cow.momentum.z);
+	  //wall_collision(wall, cow);
+	}
 	else
 	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 0);
 
