@@ -19,7 +19,7 @@ void main(void)
 	else if(draw_floor)
 	  //fragColor = colorr*texture(tex, outTexCoord*5)*.1 + vec4(.4,.6,.4,1);
 	  fragColor = vec4(sin(inPos.x), sin(inPos.y), sin(inPos.z), 1);
-	else if(draw_ball)
+	else
 	  fragColor = colorr;
 
 	if(length(vec3(inPos)-cow_pos) < 2.5)

@@ -1,6 +1,21 @@
 #include "objects.h"
 #include <stdlib.h>
 
+int check_collision(bounding_box_s * b1, bounding_box_s * b2)
+{
+  if(abs(b1->pos.x - b2->pos.x) < b1->size.x + b2->size.x)
+  {
+    if(abs(b1->pos.y - b2->pos.y) < b1->size.y + b2->size.y)
+    {
+      if(abs(b1->pos.z - b2->pos.z) < b1->size.z + b2->size.z)
+      {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 void create_wall(wall_s * w, vec3 pos, vec3 size)
 {
   w->pos = pos;
@@ -24,6 +39,11 @@ void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
   bb->size = size;
 }
 
+void update_bb(bounding_box_s * bb, vec3 pos)
+{
+  bb->pos = pos;
+}
+
 void create_cow(cow_s * c)
 {
   c->main_body = LoadModelPlus("./res/ko_fine.obj");
@@ -40,7 +60,7 @@ void create_cow(cow_s * c)
   c->jumping = 0;
   LoadTGATextureSimple("./res/texture.tga", &(c->tex));
 
-  create_bb(&c->bb, c->pos, SetVector(2,1,1));
+  create_bb(&c->bb, c->pos, SetVector(2,1,1.5));
 
 }
 
@@ -68,6 +88,7 @@ void update_cow(cow_s * c, GLfloat dT)
   //printf("%f\n", c->pos.y);
 
   //c->matrix = Mult(S(.1, .1, .1), T(c->pos.x, c->pos.y, c->pos.z));
+  update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-4));
 }
 
 void move_cow(cow_s * c, float angle)
@@ -148,6 +169,8 @@ void update_wall(wall_s * w, cow_s * c)
 {
   w->matrix = Mult(w->orig_matrix, T(-c->pos.x/w->size.x, -c->pos.y/w->size.y, -c->pos.z/w->size.z));
   //w->matrix = Mult(w->orig_matrix, T(-c->pos.x, -c->pos.y, -c->pos.z));
+  update_bb(&w->bb, w->pos);
+
 }
 
 void create_floor(floor_s * f)

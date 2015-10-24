@@ -16,6 +16,7 @@ uniform float time;
 uniform int draw_cow;
 uniform int draw_floor;
 uniform int draw_ball;
+uniform int collision;
 
 uniform mat4 foot_joint[4];
 uniform mat4 testjoint[8];
@@ -230,7 +231,10 @@ void main(void)
     colorr = vec4(shade,shade,shade,1)*.6;
   else if(draw_floor == 1)
     colorr = vec4(50*sin(inPosition.x*200), 40*cos(inPosition.y*400), 20*sin(inPosition.z*250), 1);
-
+  else if(collision == 1)
+    colorr = vec4(shade, shade, shade, 1) + vec4(.6,.3,.3,0);
+  else
+    colorr = vec4(shade, shade, shade, 1);
     
   outTexCoord = inTexCoord;
   inPos = vec4(inPosition,1);

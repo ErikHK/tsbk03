@@ -416,6 +416,14 @@ void OnTimer(int value)
 	update_wall(&wall, &cow);
 	update_ball(&ball, &cow, delta_t);
 
+	if(check_collision(&cow.bb, &wall.bb))
+	  //printf("yey\n");
+	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 1);
+	else
+	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 0);
+
+
+
 	//printf("%f, %f\n", delta_t, old_t);
 	glUniform1f(glGetUniformLocation(g_shader, "time"), t);
 
