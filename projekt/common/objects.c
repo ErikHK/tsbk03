@@ -1,6 +1,29 @@
 #include "objects.h"
 #include <stdlib.h>
 
+void create_wall(wall_s * w, vec3 pos, vec3 size)
+{
+  w->pos = pos;
+  w->size = size;
+  w->wall_model = LoadModelPlus("./res/cube.obj");
+  w->orig_matrix = Mult(S(size.x, size.y, size.z), T(pos.x, pos.y, pos.z));
+  w->matrix = Mult(S(size.x, size.y, size.z), T(pos.x, pos.y, pos.z));
+  create_bb(&w->bb, w->pos, w->size);
+}
+
+void draw_wall(wall_s * w, GLuint program)
+{
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, w->matrix.m);
+  //glBindTexture(GL_TEXTURE_2D, f->tex);
+  DrawModel(w->wall_model, program, "inPosition", "inNormal", "inTexCoord");
+}
+
+void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
+{
+  bb->pos = pos;
+  bb->size = size;
+}
+
 void create_cow(cow_s * c)
 {
   c->main_body = LoadModelPlus("./res/ko_fine.obj");
@@ -16,6 +39,8 @@ void create_cow(cow_s * c)
   c->d_angle = 0;
   c->jumping = 0;
   LoadTGATextureSimple("./res/texture.tga", &(c->tex));
+
+  create_bb(&c->bb, c->pos, SetVector(2,1,1));
 
 }
 
@@ -90,7 +115,7 @@ void move_cow(cow_s * c, float angle)
 
 
   if(c->pos.y > 0 && c->jumping)
-    move_force = VectorAdd(move_force, SetVector(0,-40,0));
+    move_force = VectorAdd(move_force, SetVector(0,COW_GRAVITY,0));
 
   c->force = move_force;
 
@@ -117,6 +142,12 @@ void update_floor(floor_s * f, cow_s * c)
   f->matrix = T(-c->pos.x, -c->pos.y, -c->pos.z);
 //                   ArbRotate(SetVector(0,1,0), c->angle));
 
+}
+
+void update_wall(wall_s * w, cow_s * c)
+{
+  w->matrix = Mult(w->orig_matrix, T(-c->pos.x/w->size.x, -c->pos.y/w->size.y, -c->pos.z/w->size.z));
+  //w->matrix = Mult(w->orig_matrix, T(-c->pos.x, -c->pos.y, -c->pos.z));
 }
 
 void create_floor(floor_s * f)

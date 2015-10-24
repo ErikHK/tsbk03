@@ -5,9 +5,19 @@
 
 #define MAX_CHILDREN		4
 
-#define COW_FORCE		120
+#define COW_FORCE		140
 #define COW_MAX_MOMENTUM	60
-#define FLOOR_FRICTION		60
+#define FLOOR_FRICTION		80
+#define COW_GRAVITY		-80
+
+
+typedef struct bounding_box_t
+{
+  vec3 pos;
+  vec3 size;
+} bounding_box_s;
+
+
 
 typedef struct cow_t
 {
@@ -26,6 +36,7 @@ typedef struct cow_t
   float d_angle;
   int jumping;
   GLuint tex;
+  struct bounding_box_t bb;
 
 } cow_s;
 
@@ -85,6 +96,27 @@ typedef struct joint_t
 } joint_s;
 
 
+typedef struct ragdoll_t
+{
+  Model * joint_model;
+
+
+} ragdoll_s;
+
+typedef struct wall_t
+{
+  Model * wall_model;
+  vec3 pos;
+  vec3 size;
+  mat4 T;
+  mat4 R;
+  mat4 matrix;
+  mat4 orig_matrix;
+
+  struct bounding_box_t bb;
+
+} wall_s;
+
 void create_cow();
 void draw_cow();
 void turn_cow(cow_s * c, float angle);
@@ -99,3 +131,5 @@ void draw_joint();
 void create_ball(ball_s * b, vec3 pos);
 void update_ball(ball_s * b, cow_s * c, GLfloat dT);
 void draw_ball(ball_s * b, GLuint program);
+void create_bb(bounding_box_s * bb, vec3 pos, vec3 size);
+void create_wall();

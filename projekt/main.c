@@ -55,6 +55,7 @@ joint_s right_ear_joint[3];
 cow_s cow;
 floor_s f;
 ball_s ball;
+wall_s wall;
 float cam_angle = 0;
 float cam_dist = 8;
 
@@ -308,6 +309,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
 	draw_ball(&ball, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
+	draw_wall(&wall, g_shader);
 
 
 /*
@@ -411,6 +413,7 @@ void OnTimer(int value)
 	update_cow(&cow, delta_t);
 	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
+	update_wall(&wall, &cow);
 	update_ball(&ball, &cow, delta_t);
 
 	//printf("%f, %f\n", delta_t, old_t);
@@ -621,6 +624,7 @@ int main(int argc, char **argv)
 	create_floor(&f);
 	f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
+	create_wall(&wall, SetVector(5,1,3), SetVector(1,4,2));
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .7), 
 	"legjoint0", "legcurrpos0", "legbonepos0", 0);
@@ -718,8 +722,8 @@ int main(int argc, char **argv)
 
 	head_joint[0].child[0] = &head_joint[1];
 	head_joint[1].child[0] = &head_joint[2];
-	//head_joint[2].child[0] = NULL;
-	head_joint[2].child[0] = &right_ear_joint[1];
+	head_joint[2].child[0] = NULL;
+	//head_joint[2].child[0] = &right_ear_joint[1];
 	head_joint[2].child[1] = &left_ear_joint[0];
 	head_joint[2].child[2] = &right_ear_joint[0];
 
