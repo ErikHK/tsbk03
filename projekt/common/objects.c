@@ -29,9 +29,11 @@ void create_wall(wall_s * w, vec3 pos, vec3 size)
   w->mass = 2;
   w->omega = SetVector(0,0,0);
 
-  w->wall_model = LoadModelPlus("./res/cube.obj");
-  w->orig_matrix = S(w->size.x, w->size.y, w->size.z);
-  w->matrix = Mult(S(size.x, size.y, size.z), T(pos.x, pos.y, pos.z));
+  w->wall_model = LoadModelPlus("./res/cube_2.obj");
+  //w->orig_matrix = S(w->size.x, w->size.y, w->size.z);
+  w->orig_matrix = T(0,0,0);
+  //w->matrix = Mult(S(size.x, size.y, size.z), T(pos.x, pos.y, pos.z));
+  w->matrix = T(pos.x, pos.y, pos.z);
   create_bb(&w->bb, w->pos, w->size);
 }
 
@@ -188,12 +190,24 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
 
   w->angular_momentum = VectorAdd(w->angular_momentum, dL);
 
+  //set friction force
+  if(Norm(w->momentum) > 1)
+  {
+    w->force = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), 2);
+    w->torque = ScalarMult(
+    CrossProduct(SetVector(0, w->size.y/2, 0), w->momentum ), .05);
+  }
+  else
+  {
+    w->force = SetVector(0,0,0);
+  }
+
   dX = ScalarMult(w->speed, dT);
 
   w->pos = VectorAdd(w->pos, dX);
   w->R = ArbRotate(w->omega, Norm(w->omega));
 
-  w->matrix = Mult(Mult(w->orig_matrix, T(-c->pos.x/w->size.x+w->pos.x, -c->pos.y/w->size.y+w->pos.y, -c->pos.z/w->size.z+w->pos.z)), w->R);
+  w->matrix = Mult(Mult(w->orig_matrix, T(-c->pos.x+w->pos.x, -c->pos.y+w->pos.y, (-c->pos.z+w->pos.z))), w->R);
 
   //w->orig_matrix = Mult(w->orig_matrix, T(w->pos.x, w->pos.y, w->pos.z));
 
@@ -209,11 +223,13 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
     vec3 r2 = SetVector(0, w->pos.y+.5, 0);
     vec3 r = VectorSub(r1,r2);
     //w->angular_momentum = CrossProduct(r, w->momentum);
-    w->torque = ScalarMult(CrossProduct(r, c->momentum), .05);
+    //w->torque = ScalarMult(CrossProduct(r, c->momentum), .05);
     //w->torque = ScalarMult(c->momentum, 1000);
-    w->force = ScalarMult(c->momentum, .5);
+    //w->force = ScalarMult(c->momentum, .5);
 
+    w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
     c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
+
     //w->torque
   }
 

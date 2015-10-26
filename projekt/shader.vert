@@ -5,9 +5,10 @@ in vec3 inPosition;
 in vec3 inNormal;
 in vec2 inTexCoord;
 
-out vec4 colorr;
+//out vec4 colorr;
 out vec2 outTexCoord;
 out vec4 inPos;
+out vec3 ex_normal;
 uniform mat4 mdl_matrix;
 uniform mat4 cam_matrix;
 uniform mat4 proj_matrix;
@@ -57,6 +58,9 @@ uniform vec3 rightearcurrpos[8];
 uniform vec3 rightearbonepos[8];
 uniform mat4 rightearjoint[8];
 
+mat3 normal_matrix = mat3(cam_matrix * mdl_matrix);
+vec3 transformed_normal = normal_matrix * inNormal;
+
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -84,6 +88,8 @@ return mat4(1,0,0,pos.x,
 
 void main(void)
 {
+  ex_normal = transformed_normal;
+
   vec3 lightv = vec3(.6, .6, .6);
 
   float shade = dot(lightv, inNormal);
@@ -222,7 +228,7 @@ void main(void)
   else
     gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
 
-
+  /*
   if(draw_cow == 1)
     //colorr = vec4(shade, shade, shade, .6);
     colorr = vec4(.7,.7,.7,1) + (vec4(shade, shade, shade, 1))*.3;// + vec4(shade2,shade2,shade2,1)*1);
@@ -235,6 +241,7 @@ void main(void)
     colorr = vec4(shade, shade, shade, 1) + vec4(.6,.3,.3,0);
   else
     colorr = vec4(shade, shade, shade, 1);
+  */
     
   outTexCoord = inTexCoord;
   inPos = vec4(inPosition,1);
