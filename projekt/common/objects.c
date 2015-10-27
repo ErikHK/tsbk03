@@ -16,6 +16,86 @@ int check_collision(bounding_box_s * b1, bounding_box_s * b2)
   return 0;
 }
 
+int sign(float x)
+{
+  if(x > 0)
+    return 1;
+  else if(x <= 0)
+    return -1;
+  return 0;
+}
+
+int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
+{
+  //check 6 different planes on one box, against 8 points on the other
+  //6 normals to the planes
+  vec3 n[6];
+  //6 points on the planes
+  vec3 p[6];
+  vec3 tmp1, tmp2;
+
+  tmp1 = SetVector(b1->size.x, 0, 0);
+  tmp2 = SetVector(0, b1->size.y, 0);
+  n[0] = CrossProduct(tmp2, tmp1);  //-z
+  p[0] = b1->pos;
+
+  //tmp1 = SetVector(0, 0, b1->size.z);
+  //tmp2 = SetVector(0, b1->size.y, 0);
+  //n[1] = CrossProduct(tmp1, tmp2); //-x
+  n[1] = SetVector(-b1->size.x, 0, 0); //-x
+  p[1] = b1->pos;
+
+  tmp1 = SetVector(b1->size.x, 0, 0);
+  tmp2 = SetVector(0, 0, b1->size.z);
+  n[2] = CrossProduct(tmp1, tmp2); //-y
+  p[2] = b1->pos;
+
+//(x0+sx, y0, z0+sz) - (x0+sx, y0+sy, z0+sz) = (0, -sy, 0)
+//(x0, y0+sy, z0+sz) - (x0+sx, y0+sy, z0+sz) = (-sx, 0, 0)
+  tmp1 = SetVector(0, -b1->size.y, 0);
+  tmp2 = SetVector(-b1->size.x, 0, 0);
+  n[3] = CrossProduct(tmp2, tmp1); //z
+  p[3] = VectorAdd(b1->pos, b1->size);
+
+  n[4] = SetVector(b1->size.x, 0, 0); //x
+  p[4] = VectorAdd(b1->pos, b1->size);
+
+  n[5] = SetVector(0, b1->size.y, 0); //y
+  p[5] = VectorAdd(b1->pos, b1->size);
+
+  vec3 v1, v2;
+  int i;
+  for(i=0;i < 8;i++)
+  {
+    v1 = VectorSub(b2->vertices[i], p[0]);
+    float res1 = DotProduct(v1, n[0]);
+
+    v2 = VectorSub(b2->vertices[i], p[3]);
+    float res2 = DotProduct(v2, n[3]);
+
+    //if(sign(res1) == sign(res2) && b2->vertices[i].z > b1->pos.z && b2->vertices[i].z < b1->pos.z + b1->size.z)
+    if(sign(res1) == sign(res2))
+    {
+      v1 = VectorSub(b2->vertices[i], p[1]);
+      res1 = DotProduct(v1, n[1]);
+
+      v2 = VectorSub(b2->vertices[i], p[4]);
+      res2 = DotProduct(v2, n[4]);
+
+
+      //if(sign(res1) == sign(res2) && b2->vertices[i].x > b1->pos.x && b2->vertices[i].x < b1->pos.x + b1->size.x)
+      if(sign(res1) == sign(res2))
+
+      //printf("wooh\n");
+        return 1;
+
+    }
+
+  }
+
+  return 0;
+}
+
 void create_wall(wall_s * w, vec3 pos, vec3 size)
 {
   w->pos = pos;
@@ -44,15 +124,58 @@ void draw_wall(wall_s * w, GLuint program)
   DrawModel(w->wall_model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
+void update_vertices(bounding_box_s * bb)
+{
+  //000
+  bb->vertices[0] = bb->pos;
+  //001
+  bb->vertices[1] = SetVector(bb->pos.x, bb->pos.y, bb->pos.z+bb->size.z);
+  //010
+  bb->vertices[2] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z);
+  //011
+  bb->vertices[3] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
+  //100
+  bb->vertices[4] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z);
+  //101
+  bb->vertices[5] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z+bb->size.z);
+  //110
+  bb->vertices[6] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z);
+  //111
+  bb->vertices[7] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
+
+  //printf("%f %f %f \n", bb->vertices[7].x, bb->vertices[7].y, bb->vertices[7].z);
+}
+
 void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
 {
   bb->pos = pos;
   bb->size = size;
+
+  update_vertices(bb);
+/*
+  //000
+  bb->vertices[0] = bb->pos;
+  //001
+  bb->vertices[1] = SetVector(bb->pos.x, bb->pos.y, bb->pos.z+bb->size.z);
+  //010
+  bb->vertices[2] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z);
+  //011
+  bb->vertices[3] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
+  //100
+  bb->vertices[4] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z);
+  //101
+  bb->vertices[5] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z+bb->size.z);
+  //110
+  bb->vertices[6] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z);
+  //111
+  bb->vertices[7] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
+*/
 }
 
 void update_bb(bounding_box_s * bb, vec3 pos)
 {
   bb->pos = pos;
+  update_vertices(bb);
 }
 
 void create_cow(cow_s * c)
@@ -71,7 +194,7 @@ void create_cow(cow_s * c)
   c->jumping = 0;
   LoadTGATextureSimple("./res/texture.tga", &(c->tex));
 
-  create_bb(&c->bb, c->pos, SetVector(2,1,1.5));
+  create_bb(&c->bb, c->pos, SetVector(2,1,2));
 
 }
 
@@ -99,7 +222,8 @@ void update_cow(cow_s * c, GLfloat dT)
   //printf("%f\n", c->pos.y);
 
   //c->matrix = Mult(S(.1, .1, .1), T(c->pos.x, c->pos.y, c->pos.z));
-  update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-4));
+  //update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-4));
+  update_bb(&c->bb, c->pos);
 }
 
 void move_cow(cow_s * c, float angle)
@@ -157,6 +281,8 @@ void move_cow(cow_s * c, float angle)
     c->force = SetVector(0,0,0);
     c->momentum = SetVector(0,0,0);
   }
+
+//c->matrix = Mult(T(c->pos.x, c->pos.y, c->pos.z), S(.1,.1,.1));
 
 
 /*
@@ -217,7 +343,7 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   w->omega = MultVec3(S(1,1,1), w->angular_momentum);
 
 
-  if(check_collision(&w->bb, &c->bb))
+  if(check_collision_2(&w->bb, &c->bb))
   {
     vec3 r1 = SetVector(0, c->pos.y, 0);
     vec3 r2 = SetVector(0, w->pos.y+.5, 0);

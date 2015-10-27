@@ -636,7 +636,7 @@ int main(int argc, char **argv)
 	create_floor(&f);
 	f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
-	create_wall(&wall, SetVector(5,1,3), SetVector(1,5,1));
+	create_wall(&wall, SetVector(5,1,5), SetVector(1,5,1));
 
 	create_joint(&legbase_joint[0], SetVector(-2.2, 3.8, .7), 
 	"legjoint0", "legcurrpos0", "legbonepos0", 0);
