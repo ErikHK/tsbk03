@@ -311,6 +311,8 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
 	draw_wall(&wall, g_shader);
 
+	draw_debug_sphere(&ball, wall.pos, g_shader);
+
 
 /*
 	int i;
@@ -344,7 +346,7 @@ void calc_bone_transform(joint_s * j, int acc)
     tmp = j->parent->tmp;
   else
     //tmp = IdentityMatrix();
-    tmp = Ry(cow.angle);
+    tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
 
   GLfloat Ms[8][16];
   int i=0,ii=0, k=0;
@@ -433,7 +435,7 @@ void OnTimer(int value)
 
 
 	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
-	mat4 cam_matrix = lookAt(cam_dist*cos(m_angle), 9,  cam_dist*sin(m_angle), 0, 8.5, 0, 0.0, 1.0, 0.0);
+	mat4 cam_matrix = lookAt(cam_dist*cos(m_angle)+cow.pos.x, 9+cow.pos.y,  cam_dist*sin(m_angle)+cow.pos.z, cow.pos.x, 8.5+cow.pos.y, cow.pos.z, 0.0, 1.0, 0.0);
 	//mat4 cam_matrix = lookAt(200+200*cos(cam_angle), 0,  200, 0, 8, 0, 0.0, 1.0, 0.0);
 
 	//g_shader = loadShaders("shader.vert" , "shader.frag");

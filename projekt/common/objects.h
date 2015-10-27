@@ -147,3 +147,4 @@ void update_vertices(bounding_box_s * bb);
 int check_collision(bounding_box_s * b1, bounding_box_s * b2);
 int check_collision_2(bounding_box_s * b1, bounding_box_s * b2);
 int sign(float x);
+void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program);

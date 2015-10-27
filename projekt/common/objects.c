@@ -124,6 +124,14 @@ void draw_wall(wall_s * w, GLuint program)
   DrawModel(w->wall_model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
+void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program)
+{
+  mat4 mat = Mult(T(pos.x, pos.y, pos.z), S(.4,20.4,.4));
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, mat.m);
+  //glBindTexture(GL_TEXTURE_2D, f->tex);
+  DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
+}
+
 void update_vertices(bounding_box_s * bb)
 {
   //000
@@ -297,7 +305,8 @@ void move_cow(cow_s * c, float angle)
 
 void update_floor(floor_s * f, cow_s * c)
 {
-  f->matrix = T(-c->pos.x, -c->pos.y, -c->pos.z);
+  //f->matrix = T(-c->pos.x, -c->pos.y, -c->pos.z);
+  f->matrix = T(0,0,0);
 //                   ArbRotate(SetVector(0,1,0), c->angle));
 
 }
@@ -333,7 +342,8 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   w->pos = VectorAdd(w->pos, dX);
   w->R = ArbRotate(w->omega, Norm(w->omega));
 
-  w->matrix = Mult(Mult(w->orig_matrix, T(-c->pos.x+w->pos.x, -c->pos.y+w->pos.y, (-c->pos.z+w->pos.z))), w->R);
+  //w->matrix = Mult(Mult(w->orig_matrix, T(-c->pos.x+w->pos.x, -c->pos.y+w->pos.y, (-c->pos.z+w->pos.z))), w->R);
+  w->matrix = Mult(Mult(w->orig_matrix, T(w->pos.x, w->pos.y, (w->pos.z))), w->R);
 
   //w->orig_matrix = Mult(w->orig_matrix, T(w->pos.x, w->pos.y, w->pos.z));
 
@@ -487,7 +497,8 @@ void update_ball(ball_s * b, cow_s * c, GLfloat dT)
     if(Norm(moment) != 0)
       b->force = ScalarMult(Normalize(SetVector(-b->momentum.x,0,-b->momentum.z)), FLOOR_FRICTION/10);
 
-  b->matrix = T(-c->pos.x + b->pos.x, -c->pos.y + b->pos.y, -c->pos.z+b->pos.z);
+  //b->matrix = T(-c->pos.x + b->pos.x, -c->pos.y + b->pos.y, -c->pos.z+b->pos.z);
+  b->matrix = T(b->pos.x, b->pos.y, b->pos.z);
 
   dP = ScalarMult(b->force, dT);
 
