@@ -34,34 +34,49 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
   vec3 p[6];
   vec3 tmp1, tmp2;
 
-  tmp1 = SetVector(b1->size.x, 0, 0);
-  tmp2 = SetVector(0, b1->size.y, 0);
-  n[0] = CrossProduct(tmp2, tmp1);  //-z
-  p[0] = b1->pos;
-
   //tmp1 = SetVector(0, 0, b1->size.z);
   //tmp2 = SetVector(0, b1->size.y, 0);
   //n[1] = CrossProduct(tmp1, tmp2); //-x
-  n[1] = SetVector(-b1->size.x, 0, 0); //-x
+  tmp1 = VectorSub(b1->vertices[4], b1->vertices[0]); //size.x
+  tmp2 = VectorSub(b1->vertices[2], b1->vertices[0]); //size.y
+  //n[1] = SetVector(-b1->size.x, 0, 0); //-x
+  n[0] = CrossProduct(tmp2, tmp1); //-z
+  p[0] = b1->pos;
+
+  //tmp1 = SetVector(b1->size.x, 0, 0);
+  //tmp2 = SetVector(0, b1->size.y, 0);
+  tmp1 =  VectorSub(b1->vertices[1], b1->vertices[0]); //size.z
+  tmp2 =  VectorSub(b1->vertices[2], b1->vertices[0]); //size.y
+  n[1] = CrossProduct(tmp1, tmp2);  //-x
   p[1] = b1->pos;
 
-  tmp1 = SetVector(b1->size.x, 0, 0);
-  tmp2 = SetVector(0, 0, b1->size.z);
+  //tmp1 = SetVector(b1->size.x, 0, 0);
+  //tmp2 = SetVector(0, 0, b1->size.z);
+  tmp1 = VectorSub(b1->vertices[4], b1->vertices[0]); //size.x
+  tmp2 = VectorSub(b1->vertices[1], b1->vertices[0]); //size.z
   n[2] = CrossProduct(tmp1, tmp2); //-y
   p[2] = b1->pos;
 
 //(x0+sx, y0, z0+sz) - (x0+sx, y0+sy, z0+sz) = (0, -sy, 0)
 //(x0, y0+sy, z0+sz) - (x0+sx, y0+sy, z0+sz) = (-sx, 0, 0)
-  tmp1 = SetVector(0, -b1->size.y, 0);
-  tmp2 = SetVector(-b1->size.x, 0, 0);
-  n[3] = CrossProduct(tmp2, tmp1); //z
-  p[3] = VectorAdd(b1->pos, b1->size);
+  //tmp1 = SetVector(0, -b1->size.y, 0);
+  //tmp2 = SetVector(-b1->size.x, 0, 0);
+  //tmp1 = VectorSub(b1->vertices[0], )
+  //n[3] = CrossProduct(tmp2, tmp1); //z
+  //p[3] = VectorAdd(b1->pos, b1->size);
+  n[3] = ScalarMult(n[0], -1);
+  p[3] = b1->vertices[7];
 
-  n[4] = SetVector(b1->size.x, 0, 0); //x
-  p[4] = VectorAdd(b1->pos, b1->size);
+  //n[4] = SetVector(b1->size.x, 0, 0); //x
+  //p[4] = VectorAdd(b1->pos, b1->size);
+  n[4] = ScalarMult(n[1], -1);
+  p[4] = b1->vertices[7];
 
-  n[5] = SetVector(0, b1->size.y, 0); //y
-  p[5] = VectorAdd(b1->pos, b1->size);
+  //n[5] = SetVector(0, b1->size.y, 0); //y
+  //p[5] = VectorAdd(b1->pos, b1->size);
+  n[5] = ScalarMult(n[2], -1);
+  p[5] = b1->vertices[7];
+
 
   vec3 v1, v2;
   int i;
