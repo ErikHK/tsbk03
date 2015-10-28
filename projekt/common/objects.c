@@ -41,21 +41,25 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
   tmp2 = VectorSub(b1->vertices[2], b1->vertices[0]); //size.y
   //n[1] = SetVector(-b1->size.x, 0, 0); //-x
   n[0] = CrossProduct(tmp2, tmp1); //-z
-  p[0] = b1->pos;
+  //p[0] = b1->pos;
+  p[0] = b1->vertices[0];
 
   //tmp1 = SetVector(b1->size.x, 0, 0);
   //tmp2 = SetVector(0, b1->size.y, 0);
   tmp1 =  VectorSub(b1->vertices[1], b1->vertices[0]); //size.z
   tmp2 =  VectorSub(b1->vertices[2], b1->vertices[0]); //size.y
   n[1] = CrossProduct(tmp1, tmp2);  //-x
-  p[1] = b1->pos;
+  //p[1] = b1->pos;
+  p[1] = b1->vertices[0];
 
   //tmp1 = SetVector(b1->size.x, 0, 0);
   //tmp2 = SetVector(0, 0, b1->size.z);
   tmp1 = VectorSub(b1->vertices[4], b1->vertices[0]); //size.x
   tmp2 = VectorSub(b1->vertices[1], b1->vertices[0]); //size.z
   n[2] = CrossProduct(tmp1, tmp2); //-y
-  p[2] = b1->pos;
+  //p[2] = b1->pos;
+  p[2] = b1->vertices[0];
+
 
 //(x0+sx, y0, z0+sz) - (x0+sx, y0+sy, z0+sz) = (0, -sy, 0)
 //(x0, y0+sy, z0+sz) - (x0+sx, y0+sy, z0+sz) = (-sx, 0, 0)
@@ -64,17 +68,17 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
   //tmp1 = VectorSub(b1->vertices[0], )
   //n[3] = CrossProduct(tmp2, tmp1); //z
   //p[3] = VectorAdd(b1->pos, b1->size);
-  n[3] = ScalarMult(n[0], -1);
+  n[3] = ScalarMult(n[0], -1); //z
   p[3] = b1->vertices[7];
 
   //n[4] = SetVector(b1->size.x, 0, 0); //x
   //p[4] = VectorAdd(b1->pos, b1->size);
-  n[4] = ScalarMult(n[1], -1);
+  n[4] = ScalarMult(n[1], -1); //x
   p[4] = b1->vertices[7];
 
   //n[5] = SetVector(0, b1->size.y, 0); //y
   //p[5] = VectorAdd(b1->pos, b1->size);
-  n[5] = ScalarMult(n[2], -1);
+  n[5] = ScalarMult(n[2], -1); //y
   p[5] = b1->vertices[7];
 
 
@@ -100,9 +104,17 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
 
       //if(sign(res1) == sign(res2) && b2->vertices[i].x > b1->pos.x && b2->vertices[i].x < b1->pos.x + b1->size.x)
       if(sign(res1) == sign(res2))
+      {
 
-      //printf("wooh\n");
-        return 1;
+      v1 = VectorSub(b2->vertices[i], p[2]);
+      res1 = DotProduct(v1, n[2]);
+
+      v2 = VectorSub(b2->vertices[i], p[5]);
+      res2 = DotProduct(v2, n[5]);
+
+        if(sign(res1) == sign(res2))
+          return 1;
+      }
 
     }
 
@@ -368,8 +380,8 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
     //w->torque = ScalarMult(c->momentum, 1000);
     //w->force = ScalarMult(c->momentum, .5);
 
-    w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
-    c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
+    //w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
+    //c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
 
     //w->torque
   }

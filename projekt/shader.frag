@@ -10,6 +10,7 @@ out vec4 fragColor;
 uniform int draw_cow;
 uniform int draw_floor;
 uniform int draw_ball;
+uniform int collision;
 
 uniform vec3 cow_pos;
 uniform mat4 cam_matrix;
@@ -48,4 +49,8 @@ void main(void)
     fragColor += vec4(-.2, -.2, -.2, 0);
 
   //fragColor = vec4(colors,1);
+
+  if(collision==1 && draw_cow==1)
+    fragColor = vec4(.5,0,.5,1);
+
 }
