@@ -132,9 +132,9 @@ void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program)
   DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
-void update_vertices(bounding_box_s * bb, vec3 angle)
+void update_vertices(bounding_box_s * bb, vec3 pos, vec3 angle)
 {
-  mat4 R = Mult(T(bb->pos.x, bb->pos.y, bb->pos.z) ,Mult(ArbRotate(angle, Norm(angle)), T(-bb->pos.x, -bb->pos.y, -bb->pos.z)));
+  mat4 R = Mult(T(pos.x, pos.y, pos.z) ,Mult(ArbRotate(angle, Norm(angle)), T(-pos.x, -pos.y, -pos.z)));
   //000
   bb->vertices[0] = MultVec3(R, bb->pos);
   //001
@@ -160,7 +160,7 @@ void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
   bb->pos = pos;
   bb->size = size;
 
-  update_vertices(bb, SetVector(0,0,0));
+  update_vertices(bb, pos, SetVector(0,0,0));
 }
 
 void update_bb(bounding_box_s * bb, vec3 pos, vec3 angle)
@@ -169,7 +169,7 @@ void update_bb(bounding_box_s * bb, vec3 pos, vec3 angle)
   //mat4 R = ArbRotate(angle, Norm(angle));
   //bb->pos = MultVec3(R,pos);
   bb->pos = pos;
-  update_vertices(bb, angle);
+  //update_vertices(bb, angle);
 }
 
 void create_cow(cow_s * c)
@@ -218,7 +218,8 @@ void update_cow(cow_s * c, GLfloat dT)
 
   //c->matrix = Mult(S(.1, .1, .1), T(c->pos.x, c->pos.y, c->pos.z));
   //update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-4));
-  update_bb(&c->bb, SetVector(c->pos.x, c->pos.y, c->pos.z), SetVector(0,c->angle,0));
+  update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-1), SetVector(0,c->angle,0));
+  update_vertices(&c->bb, c->pos, SetVector(0,c->angle, 0));
   //update_bb(&c->bb, c->pos, SetVector(0,-c->angle,0));
 }
 
@@ -336,7 +337,8 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   //w->orig_matrix = Mult(w->orig_matrix, T(w->pos.x, w->pos.y, w->pos.z));
 
   //w->matrix = Mult(w->orig_matrix, T(-c->pos.x, -c->pos.y, -c->pos.z));
-  update_bb(&w->bb, w->pos, w->omega);
+  update_bb(&w->bb, SetVector(w->pos.x-1, w->pos.y, w->pos.z-1), w->omega);
+  update_vertices(&w->bb, w->pos, w->omega);
 
   w->omega = MultVec3(S(1,1,1), w->angular_momentum);
 
