@@ -126,30 +126,31 @@ void draw_wall(wall_s * w, GLuint program)
 
 void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program)
 {
-  mat4 mat = Mult(T(pos.x, pos.y, pos.z), S(.4,20.4,.4));
+  mat4 mat = Mult(T(pos.x, pos.y, pos.z), S(.4,.4,.4));
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, mat.m);
   //glBindTexture(GL_TEXTURE_2D, f->tex);
   DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
-void update_vertices(bounding_box_s * bb)
+void update_vertices(bounding_box_s * bb, vec3 angle)
 {
+  mat4 R = Mult(T(bb->pos.x, bb->pos.y, bb->pos.z) ,Mult(ArbRotate(angle, Norm(angle)), T(-bb->pos.x, -bb->pos.y, -bb->pos.z)));
   //000
-  bb->vertices[0] = bb->pos;
+  bb->vertices[0] = MultVec3(R, bb->pos);
   //001
-  bb->vertices[1] = SetVector(bb->pos.x, bb->pos.y, bb->pos.z+bb->size.z);
+  bb->vertices[1] = MultVec3(R, SetVector(bb->pos.x, bb->pos.y, bb->pos.z+bb->size.z));
   //010
-  bb->vertices[2] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z);
+  bb->vertices[2] = MultVec3(R, SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z));
   //011
-  bb->vertices[3] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
+  bb->vertices[3] = MultVec3(R, SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z));
   //100
-  bb->vertices[4] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z);
+  bb->vertices[4] = MultVec3(R, SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z));
   //101
-  bb->vertices[5] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z+bb->size.z);
+  bb->vertices[5] = MultVec3(R, SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z+bb->size.z));
   //110
-  bb->vertices[6] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z);
+  bb->vertices[6] = MultVec3(R, SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z));
   //111
-  bb->vertices[7] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
+  bb->vertices[7] = MultVec3(R, SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z));
 
   //printf("%f %f %f \n", bb->vertices[7].x, bb->vertices[7].y, bb->vertices[7].z);
 }
@@ -159,31 +160,16 @@ void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
   bb->pos = pos;
   bb->size = size;
 
-  update_vertices(bb);
-/*
-  //000
-  bb->vertices[0] = bb->pos;
-  //001
-  bb->vertices[1] = SetVector(bb->pos.x, bb->pos.y, bb->pos.z+bb->size.z);
-  //010
-  bb->vertices[2] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z);
-  //011
-  bb->vertices[3] = SetVector(bb->pos.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
-  //100
-  bb->vertices[4] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z);
-  //101
-  bb->vertices[5] = SetVector(bb->pos.x+bb->size.x, bb->pos.y, bb->pos.z+bb->size.z);
-  //110
-  bb->vertices[6] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z);
-  //111
-  bb->vertices[7] = SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z);
-*/
+  update_vertices(bb, SetVector(0,0,0));
 }
 
-void update_bb(bounding_box_s * bb, vec3 pos)
+void update_bb(bounding_box_s * bb, vec3 pos, vec3 angle)
 {
+  //mat4 R = Mult(ArbRotate(angle, Norm(angle)), InvertMat4(T(pos.x, pos.y, pos.z)));
+  //mat4 R = ArbRotate(angle, Norm(angle));
+  //bb->pos = MultVec3(R,pos);
   bb->pos = pos;
-  update_vertices(bb);
+  update_vertices(bb, angle);
 }
 
 void create_cow(cow_s * c)
@@ -202,7 +188,8 @@ void create_cow(cow_s * c)
   c->jumping = 0;
   LoadTGATextureSimple("./res/texture.tga", &(c->tex));
 
-  create_bb(&c->bb, c->pos, SetVector(2,1,2));
+  create_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-1), SetVector(2,4,2));
+
 
 }
 
@@ -231,7 +218,8 @@ void update_cow(cow_s * c, GLfloat dT)
 
   //c->matrix = Mult(S(.1, .1, .1), T(c->pos.x, c->pos.y, c->pos.z));
   //update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-4));
-  update_bb(&c->bb, c->pos);
+  update_bb(&c->bb, SetVector(c->pos.x, c->pos.y, c->pos.z), SetVector(0,c->angle,0));
+  //update_bb(&c->bb, c->pos, SetVector(0,-c->angle,0));
 }
 
 void move_cow(cow_s * c, float angle)
@@ -348,7 +336,7 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   //w->orig_matrix = Mult(w->orig_matrix, T(w->pos.x, w->pos.y, w->pos.z));
 
   //w->matrix = Mult(w->orig_matrix, T(-c->pos.x, -c->pos.y, -c->pos.z));
-  update_bb(&w->bb, w->pos);
+  update_bb(&w->bb, w->pos, w->omega);
 
   w->omega = MultVec3(S(1,1,1), w->angular_momentum);
 

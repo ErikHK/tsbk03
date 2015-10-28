@@ -34,6 +34,7 @@ typedef struct cow_t
   vec3 momentum;
   float mass;
   float angle;
+  vec3 omega;
   float d_angle;
   int jumping;
   GLuint tex;
@@ -143,7 +144,7 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT);
 void draw_ball(ball_s * b, GLuint program);
 void create_bb(bounding_box_s * bb, vec3 pos, vec3 size);
 void create_wall();
-void update_vertices(bounding_box_s * bb);
+void update_vertices(bounding_box_s * bb, vec3 angle);
 int check_collision(bounding_box_s * b1, bounding_box_s * b2);
 int check_collision_2(bounding_box_s * b1, bounding_box_s * b2);
 int sign(float x);

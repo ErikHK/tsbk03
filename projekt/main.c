@@ -311,7 +311,16 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
 	draw_wall(&wall, g_shader);
 
-	draw_debug_sphere(&ball, wall.pos, g_shader);
+	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
+
+	//draw_debug_sphere(&ball, cow.bb.pos, g_shader);
+	int i;
+	for(i=0;i < 8;i++)
+	{
+	  draw_debug_sphere(&ball, cow.bb.vertices[i], g_shader);
+	  draw_debug_sphere(&ball, wall.bb.vertices[i], g_shader);
+	}
+	//draw_debug_sphere(&ball, VectorAdd(cow.bb.pos, cow.bb.size), g_shader);
 
 
 /*
