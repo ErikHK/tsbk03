@@ -325,6 +325,23 @@ void update_floor(floor_s * f, cow_s * c)
 
 }
 
+int index_of_lowest_vertex(vec3 * list)
+{
+  int i, lowest=0, lowestnum=0;
+  vec3 tmp = {0,10000,0};
+  lowest = tmp.y;
+  for(i=0;i<8;i++)
+  {
+    if(list[i].y < lowest)
+    {
+      lowest=list[i].y;
+      lowestnum = i;
+    }
+  }
+
+  return lowestnum;
+}
+
 void update_wall(wall_s * w, cow_s * c, GLfloat dT)
 {
   vec3 dP, dX, dL, dO;
@@ -333,6 +350,7 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   vec3 force_tmp = {0,0,0};
   vec3 curr_r = SetVector(w->bb.pos.x,0,w->bb.pos.z);
   int no_under = 1;
+
 
   force_tmp = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), 2);
   int i;
@@ -345,7 +363,7 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
     torque_tmp = VectorAdd(torque_tmp, ScalarMult(
     CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .001));
 
-    if(w->bb.vertices[i].y <= 0)
+    if(w->bb.vertices[i].y < 0)
     {
       no_under = 0;
       vec3 rr = VectorSub(w->bb.vertices[i], w->bb.center);
@@ -353,19 +371,30 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
 
       curr_r = w->bb.vertices[i];
 
-      //w->pos.y += .03;
+      //w->momentum.y *= -1;
+      //w->bb.vertices[i].y += 2;
     }
-
-    //if(no_under)
-    //  force_tmp = VectorAdd(force_tmp, SetVector(0,-4,0));
-    //else
-    //  force_tmp.y=4;// = SetVector(0,4,0);
+    if(no_under)
+      force_tmp = VectorAdd(force_tmp, SetVector(0,-4,0));
 
     //add gravity to all vertices
     vec3 r = VectorSub(w->bb.vertices[i], curr_r);
     vec3 F = SetVector(0,-.1,0); //gravity
 
     //torque_tmp = VectorAdd(torque_tmp, CrossProduct(r, F));
+  }
+
+  if(!no_under)
+  {
+    w->momentum.y *= -.5;
+
+    int ind = index_of_lowest_vertex(w->bb.vertices);
+    w->pos.y += -w->bb.vertices[ind].y+.001;
+    update_vertices(&w->bb, w->pos, w->R);
+
+    //printf("%i\n", test);
+    //printf("%f\n", w->bb.vertices[ind].y);
+
   }
 
   w->torque = torque_tmp;
@@ -388,7 +417,8 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   Rd = Mult(Rd, w->R);
   w->R = Mult(T(0, 2.5, 0), Mult(MatrixAdd(w->R, Rd), T(0, -2.5, 0)));
 
-  w->pos = VectorAdd(w->pos, dX);
+  if(no_under)
+    w->pos = VectorAdd(w->pos, dX);
   //w->R = ArbRotate(w->omega, Norm(w->omega));
 
   w->matrix = Mult(Mult(w->orig_matrix, T(w->pos.x, w->pos.y, (w->pos.z))), w->R);
