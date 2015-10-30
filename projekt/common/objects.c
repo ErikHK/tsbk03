@@ -149,9 +149,9 @@ void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program)
   DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
-void update_vertices(bounding_box_s * bb, vec3 pos, vec3 angle)
+void update_vertices(bounding_box_s * bb, vec3 pos, mat4 RR)
 {
-  mat4 R = Mult(T(pos.x, pos.y, pos.z) ,Mult(ArbRotate(angle, Norm(angle)), T(-pos.x, -pos.y, -pos.z)));
+  mat4 R = Mult(T(pos.x, pos.y, pos.z) ,Mult(RR, T(-pos.x, -pos.y, -pos.z)));
   //000
   bb->vertices[0] = MultVec3(R, bb->pos);
   //001
@@ -181,7 +181,8 @@ void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
   bb->size = size;
   bb->center = VectorAdd(bb->pos, ScalarMult(bb->size, .5));
 
-  update_vertices(bb, pos, SetVector(0,0,0));
+  //update_vertices(bb, pos, SetVector(0,0,0));
+  update_vertices(bb, pos, IdentityMatrix());
 }
 
 void update_bb(bounding_box_s * bb, vec3 pos, vec3 angle)
@@ -197,7 +198,7 @@ void create_cow(cow_s * c)
 {
   c->main_body = LoadModelPlus("./res/ko_fine.obj");
   c->matrix = S(.1,.1,.1); //makes it roughly 5 high
-  c->pos = SetVector(0,0,0);
+  c->pos = SetVector(5,0,5);
   c->speed = SetVector(0,0,0);
   c->acc = SetVector(0,0,0);
   c->force = SetVector(0,0,0);
@@ -240,7 +241,10 @@ void update_cow(cow_s * c, GLfloat dT)
   //c->matrix = Mult(S(.1, .1, .1), T(c->pos.x, c->pos.y, c->pos.z));
   //update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-4));
   update_bb(&c->bb, SetVector(c->pos.x-2, c->pos.y, c->pos.z-1), SetVector(0,c->angle,0));
-  update_vertices(&c->bb, c->pos, SetVector(0,c->angle, 0));
+  //update_vertices(&c->bb, c->pos, SetVector(0,c->angle, 0));
+  c->R = ArbRotate(SetVector(0, -c->angle, 0), -c->angle);
+
+  update_vertices(&c->bb, c->pos, c->R);
   //update_bb(&c->bb, c->pos, SetVector(0,-c->angle,0));
 }
 
@@ -323,104 +327,84 @@ void update_floor(floor_s * f, cow_s * c)
 
 void update_wall(wall_s * w, cow_s * c, GLfloat dT)
 {
-  vec3 dP, dX, dL;
+  vec3 dP, dX, dL, dO;
+  mat4 Rd;
   vec3 torque_tmp = {0,0,0};
   vec3 force_tmp = {0,0,0};
-  vec3 curr_r = SetVector(w->bb.pos.x+1,0,w->bb.pos.z+1);
+  vec3 curr_r = SetVector(w->bb.pos.x,0,w->bb.pos.z);
   int no_under = 1;
 
-
-  //set friction force
-  //if(Norm(w->momentum) > 1)
-  //{
   force_tmp = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), 2);
-  //}
-  //else
-  //{
-    //force_tmp = SetVector(0,0,0);
-  //}
-
-
-  //printf("%f %f %f\n", curr_r.x, curr_r.y, curr_r.z);
-
   int i;
+
+  //torque_tmp = SetVector(0,.01,0);
   for(i=0;i<8;i++)
   {
 
     //torque from sliding over the floor
-    torque_tmp = ScalarMult(
-    CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .01);
+    torque_tmp = VectorAdd(torque_tmp, ScalarMult(
+    CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .001));
 
     if(w->bb.vertices[i].y <= 0)
     {
       no_under = 0;
       vec3 rr = VectorSub(w->bb.vertices[i], w->bb.center);
       vec3 FF = SetVector(0,.02,0);
-      //torque_tmp = VectorAdd(torque_tmp, CrossProduct(rr,FF));
-      //force_tmp = VectorAdd(force_tmp, SetVector(0,-w->bb.vertices[i].y,0));
-      //w->momentum.y = 0;
-      //w->omega = VectorAdd(w->omega, CrossProduct(rr,FF));
-      //w->omega = CrossProduct(rr,FF);
 
       curr_r = w->bb.vertices[i];
 
-      //force_tmp.y += 4;
-      w->pos.y += .03;
+      //w->pos.y += .03;
     }
-    
-    if(no_under)
-      force_tmp = VectorAdd(force_tmp, SetVector(0,-4,0));
-    else
-      force_tmp.y=4;// = SetVector(0,4,0);
+
+    //if(no_under)
+    //  force_tmp = VectorAdd(force_tmp, SetVector(0,-4,0));
+    //else
+    //  force_tmp.y=4;// = SetVector(0,4,0);
 
     //add gravity to all vertices
-    //float cdist = Norm(VectorSub(
-    //   SetVector(w->bb.vertices[i].x, 0, w->bb.vertices[i].z),
-    //   SetVector(w->bb.center.x, 0, w->bb.center.z) ));
     vec3 r = VectorSub(w->bb.vertices[i], curr_r);
     vec3 F = SetVector(0,-.1,0); //gravity
-    //if(w->bb.vertices[i].y > w->bb.center.y)
-      torque_tmp = VectorAdd(torque_tmp, CrossProduct(r, F));
-  }
 
-  dP = ScalarMult(w->force, dT);
-  dL = ScalarMult(w->torque, dT);
+    //torque_tmp = VectorAdd(torque_tmp, CrossProduct(r, F));
+  }
 
   w->torque = torque_tmp;
   w->force = force_tmp;
+
+  dP = ScalarMult(w->force, dT);
+  dL = ScalarMult(w->torque, dT);
+  dX = ScalarMult(w->speed, dT);
 
   w->momentum = VectorAdd(w->momentum, dP);
   w->speed = ScalarMult(w->momentum, 1.0/w->mass);
 
   w->angular_momentum = VectorAdd(w->angular_momentum, dL);
+  //w->angular_momentum = ScalarMult(w->angular_momentum, .99);
+  w->omega = MultVec3(S(1,1,1), w->angular_momentum);
+  //w->omega = VectorAdd(w->omega, w->angular_momentum);
 
-  dX = ScalarMult(w->speed, dT);
+  dO = ScalarMult(w->omega, dT);
+  Rd = CrossMatrix(dO);
+  Rd = Mult(Rd, w->R);
+  w->R = Mult(T(0, 2.5, 0), Mult(MatrixAdd(w->R, Rd), T(0, -2.5, 0)));
 
   w->pos = VectorAdd(w->pos, dX);
-  w->R = ArbRotate(w->omega, Norm(w->omega));
+  //w->R = ArbRotate(w->omega, Norm(w->omega));
 
-  //w->matrix = Mult(Mult(w->orig_matrix, T(-c->pos.x+w->pos.x, -c->pos.y+w->pos.y, (-c->pos.z+w->pos.z))), w->R);
   w->matrix = Mult(Mult(w->orig_matrix, T(w->pos.x, w->pos.y, (w->pos.z))), w->R);
 
   update_bb(&w->bb, SetVector(w->pos.x-1, w->pos.y, w->pos.z-1), w->omega);
-  update_vertices(&w->bb, w->pos, w->omega);
+  //update_vertices(&w->bb, w->pos, w->omega);
+  update_vertices(&w->bb, w->pos, w->R);
+  OrthoNormalizeMatrix(&w->R);
 
-  w->omega = MultVec3(S(1,1,1), w->angular_momentum);
-
+  
   if(check_collision_2(&w->bb, &c->bb))
   {
-    vec3 r1 = SetVector(0, c->pos.y, 0);
-    vec3 r2 = SetVector(0, w->pos.y+.5, 0);
-    vec3 r = VectorSub(r1,r2);
-    //w->angular_momentum = CrossProduct(r, w->momentum);
-    //w->torque = ScalarMult(CrossProduct(r, c->momentum), .05);
-    //w->torque = ScalarMult(c->momentum, 1000);
-    //w->force = ScalarMult(c->momentum, .5);
-
     w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
     c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
-    //w->torque
   }
+  
 
 }
 
