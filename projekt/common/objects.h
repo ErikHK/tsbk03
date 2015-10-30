@@ -16,6 +16,7 @@ typedef struct bounding_box_t
   vec3 pos;
   vec3 size;
   vec3 vertices[8];
+  vec3 center;
 } bounding_box_s;
 
 

@@ -33,53 +33,43 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
   //6 points on the planes
   vec3 p[6];
   vec3 tmp1, tmp2;
+  //projection vectors for SAT
+  vec3 sat[3];
 
-  //tmp1 = SetVector(0, 0, b1->size.z);
-  //tmp2 = SetVector(0, b1->size.y, 0);
-  //n[1] = CrossProduct(tmp1, tmp2); //-x
   tmp1 = VectorSub(b1->vertices[4], b1->vertices[0]); //size.x
   tmp2 = VectorSub(b1->vertices[2], b1->vertices[0]); //size.y
-  //n[1] = SetVector(-b1->size.x, 0, 0); //-x
+  sat[0] = tmp1;
+  sat[1] = tmp2;
   n[0] = CrossProduct(tmp2, tmp1); //-z
-  //p[0] = b1->pos;
   p[0] = b1->vertices[0];
 
-  //tmp1 = SetVector(b1->size.x, 0, 0);
-  //tmp2 = SetVector(0, b1->size.y, 0);
   tmp1 =  VectorSub(b1->vertices[1], b1->vertices[0]); //size.z
+  sat[2] = tmp1;
   tmp2 =  VectorSub(b1->vertices[2], b1->vertices[0]); //size.y
   n[1] = CrossProduct(tmp1, tmp2);  //-x
-  //p[1] = b1->pos;
   p[1] = b1->vertices[0];
 
-  //tmp1 = SetVector(b1->size.x, 0, 0);
-  //tmp2 = SetVector(0, 0, b1->size.z);
   tmp1 = VectorSub(b1->vertices[4], b1->vertices[0]); //size.x
   tmp2 = VectorSub(b1->vertices[1], b1->vertices[0]); //size.z
   n[2] = CrossProduct(tmp1, tmp2); //-y
-  //p[2] = b1->pos;
   p[2] = b1->vertices[0];
 
 
-//(x0+sx, y0, z0+sz) - (x0+sx, y0+sy, z0+sz) = (0, -sy, 0)
-//(x0, y0+sy, z0+sz) - (x0+sx, y0+sy, z0+sz) = (-sx, 0, 0)
-  //tmp1 = SetVector(0, -b1->size.y, 0);
-  //tmp2 = SetVector(-b1->size.x, 0, 0);
-  //tmp1 = VectorSub(b1->vertices[0], )
-  //n[3] = CrossProduct(tmp2, tmp1); //z
-  //p[3] = VectorAdd(b1->pos, b1->size);
   n[3] = ScalarMult(n[0], -1); //z
   p[3] = b1->vertices[7];
 
-  //n[4] = SetVector(b1->size.x, 0, 0); //x
-  //p[4] = VectorAdd(b1->pos, b1->size);
   n[4] = ScalarMult(n[1], -1); //x
   p[4] = b1->vertices[7];
 
-  //n[5] = SetVector(0, b1->size.y, 0); //y
-  //p[5] = VectorAdd(b1->pos, b1->size);
   n[5] = ScalarMult(n[2], -1); //y
   p[5] = b1->vertices[7];
+
+  //distance between centers
+  float dist = Norm(VectorSub(b2->center, b1->center));
+  //printf("%f\n", dist);
+
+  //project b2 to sat[]
+  
 
 
   vec3 v1, v2;
@@ -179,6 +169,9 @@ void update_vertices(bounding_box_s * bb, vec3 pos, vec3 angle)
   //111
   bb->vertices[7] = MultVec3(R, SetVector(bb->pos.x+bb->size.x, bb->pos.y+bb->size.y, bb->pos.z+bb->size.z));
 
+  bb->center = MultVec3(R, VectorAdd(bb->pos, ScalarMult(bb->size, .5)));
+
+
   //printf("%f %f %f \n", bb->vertices[7].x, bb->vertices[7].y, bb->vertices[7].z);
 }
 
@@ -186,6 +179,7 @@ void create_bb(bounding_box_s * bb, vec3 pos, vec3 size)
 {
   bb->pos = pos;
   bb->size = size;
+  bb->center = VectorAdd(bb->pos, ScalarMult(bb->size, .5));
 
   update_vertices(bb, pos, SetVector(0,0,0));
 }
@@ -330,28 +324,75 @@ void update_floor(floor_s * f, cow_s * c)
 void update_wall(wall_s * w, cow_s * c, GLfloat dT)
 {
   vec3 dP, dX, dL;
+  vec3 torque_tmp = {0,0,0};
+  vec3 force_tmp = {0,0,0};
+  vec3 curr_r = SetVector(w->bb.pos.x+1,0,w->bb.pos.z+1);
+  int no_under = 1;
+
+
+  //set friction force
+  //if(Norm(w->momentum) > 1)
+  //{
+  force_tmp = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), 2);
+  //}
+  //else
+  //{
+    //force_tmp = SetVector(0,0,0);
+  //}
+
+
+  //printf("%f %f %f\n", curr_r.x, curr_r.y, curr_r.z);
+
+  int i;
+  for(i=0;i<8;i++)
+  {
+
+    //torque from sliding over the floor
+    torque_tmp = ScalarMult(
+    CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .01);
+
+    if(w->bb.vertices[i].y <= 0)
+    {
+      no_under = 0;
+      vec3 rr = VectorSub(w->bb.vertices[i], w->bb.center);
+      vec3 FF = SetVector(0,.02,0);
+      //torque_tmp = VectorAdd(torque_tmp, CrossProduct(rr,FF));
+      //force_tmp = VectorAdd(force_tmp, SetVector(0,-w->bb.vertices[i].y,0));
+      //w->momentum.y = 0;
+      //w->omega = VectorAdd(w->omega, CrossProduct(rr,FF));
+      //w->omega = CrossProduct(rr,FF);
+
+      curr_r = w->bb.vertices[i];
+
+      //force_tmp.y += 4;
+      w->pos.y += .03;
+    }
+    
+    if(no_under)
+      force_tmp = VectorAdd(force_tmp, SetVector(0,-4,0));
+    else
+      force_tmp.y=4;// = SetVector(0,4,0);
+
+    //add gravity to all vertices
+    //float cdist = Norm(VectorSub(
+    //   SetVector(w->bb.vertices[i].x, 0, w->bb.vertices[i].z),
+    //   SetVector(w->bb.center.x, 0, w->bb.center.z) ));
+    vec3 r = VectorSub(w->bb.vertices[i], curr_r);
+    vec3 F = SetVector(0,-.1,0); //gravity
+    //if(w->bb.vertices[i].y > w->bb.center.y)
+      torque_tmp = VectorAdd(torque_tmp, CrossProduct(r, F));
+  }
 
   dP = ScalarMult(w->force, dT);
   dL = ScalarMult(w->torque, dT);
 
-  //printf("%f %f %f\n", dL.x, dL.y, dL.z);
+  w->torque = torque_tmp;
+  w->force = force_tmp;
 
   w->momentum = VectorAdd(w->momentum, dP);
   w->speed = ScalarMult(w->momentum, 1.0/w->mass);
 
   w->angular_momentum = VectorAdd(w->angular_momentum, dL);
-
-  //set friction force
-  if(Norm(w->momentum) > 1)
-  {
-    w->force = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), 2);
-    w->torque = ScalarMult(
-    CrossProduct(SetVector(0, w->size.y/2, 0), w->momentum ), .05);
-  }
-  else
-  {
-    w->force = SetVector(0,0,0);
-  }
 
   dX = ScalarMult(w->speed, dT);
 
@@ -361,14 +402,10 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   //w->matrix = Mult(Mult(w->orig_matrix, T(-c->pos.x+w->pos.x, -c->pos.y+w->pos.y, (-c->pos.z+w->pos.z))), w->R);
   w->matrix = Mult(Mult(w->orig_matrix, T(w->pos.x, w->pos.y, (w->pos.z))), w->R);
 
-  //w->orig_matrix = Mult(w->orig_matrix, T(w->pos.x, w->pos.y, w->pos.z));
-
-  //w->matrix = Mult(w->orig_matrix, T(-c->pos.x, -c->pos.y, -c->pos.z));
   update_bb(&w->bb, SetVector(w->pos.x-1, w->pos.y, w->pos.z-1), w->omega);
   update_vertices(&w->bb, w->pos, w->omega);
 
   w->omega = MultVec3(S(1,1,1), w->angular_momentum);
-
 
   if(check_collision_2(&w->bb, &c->bb))
   {
@@ -380,9 +417,8 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
     //w->torque = ScalarMult(c->momentum, 1000);
     //w->force = ScalarMult(c->momentum, .5);
 
-    //w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
-    //c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
-
+    w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
+    c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
     //w->torque
   }
 
