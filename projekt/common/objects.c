@@ -534,7 +534,7 @@ void create_ragdoll(ragdoll_s * r)
   create_ragdoll_joint(&r->joints[0], SetVector(0,10,0));
   create_ragdoll_joint(&r->joints[1], SetVector(0,8,0));
   create_ragdoll_joint(&r->joints[2], SetVector(0,6,0));
-  create_ragdoll_joint(&r->joints[3], SetVector(0,5,0));
+  create_ragdoll_joint(&r->joints[3], SetVector(0,4,0));
 
   r->joints[0].parent = NULL;
   r->joints[1].parent = &r->joints[0];
@@ -546,11 +546,24 @@ void create_ragdoll(ragdoll_s * r)
   r->joints[3].dist_to_parent = 2;
 
   //set a force on the head
-  //r->joints[0].force = SetVector(0,0,.1);
+  r->joints[0].force = SetVector(0,0,.2);
 }
 
 void update_ragdoll(ragdoll_s * r, GLfloat dT)
 {
+  if(keyIsDown('a'))
+    r->joints[1].speed.z = 20;
+  else if(keyIsDown('o'))
+    r->joints[1].speed.z = -20;
+  else if(keyIsDown('.'))
+    r->joints[1].speed.y = -20;
+  else
+  {
+    //r->joints[1].speed.z = 0;
+    //r->joints[1].speed.y = 0;
+  }
+
+
   vec3 dP, dX, calculated_force = {0,0,0};
   vec3 n;
   vec3 real_dist;
@@ -565,15 +578,16 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       float dist_diff = (Norm(real_dist)-r->joints[i].dist_to_parent);
       vec3 speed_diff = VectorSub(r->joints[i].speed, parent->speed);
       //if(dist_diff > r->joints[i].dist_to_parent)
-        calculated_force = VectorSub(ScalarMult(n, -dist_diff*1), speed_diff);
+        calculated_force = VectorSub(ScalarMult(n, -dist_diff*20), 
+         ScalarMult(speed_diff, 4));
       //else
       //  calculated_force = ScalarMult(n, dist_diff*dist_diff*(-1));
 
-      printf("%f\n", calculated_force.y);
+      //printf("%f\n", calculated_force.y);
     }
-    //if(i>0)
-    //  dP = ScalarMult(VectorAdd(SetVector(0,-.06,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
-    //else
+    if(i>0)
+      dP = ScalarMult(VectorAdd(SetVector(0,-10,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
+    else
       dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
 
     r->joints[i].speed = VectorAdd(r->joints[i].speed, dP);
