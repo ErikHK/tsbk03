@@ -141,6 +141,18 @@ void draw_wall(wall_s * w, GLuint program)
   DrawModel(w->wall_model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
+void draw_ragdoll(ragdoll_s * r, GLuint program)
+{
+  int i;
+  for(i=0;i<4;i++)
+  {
+    glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, r->joints[i].T.m);
+    DrawModel(r->joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
+  }
+}
+
+
+
 void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program)
 {
   mat4 mat = Mult(T(pos.x, pos.y, pos.z), S(.4,.4,.4));
@@ -352,16 +364,22 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   int no_under = 1;
 
 
-  force_tmp = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), 2);
+  force_tmp = ScalarMult(SetVector(-w->momentum.x, 0, -w->momentum.z), .2);
   int i;
 
   //torque_tmp = SetVector(0,.01,0);
   for(i=0;i<8;i++)
   {
 
-    //torque from sliding over the floor
-    torque_tmp = VectorAdd(torque_tmp, ScalarMult(
-    CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .001));
+    if(w->bb.vertices[i].y > 1)
+    {
+      //torque from sliding over the floor
+      //torque_tmp = VectorAdd(torque_tmp, ScalarMult(
+      //CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .0005));
+      //torque_tmp = ScalarMult(
+      //CrossProduct(VectorSub(w->bb.vertices[i], curr_r), SetVector(w->momentum.x, 0, w->momentum.z) ), .0005);
+    }
+
 
     if(w->bb.vertices[i].y < 0)
     {
@@ -370,6 +388,8 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
       vec3 FF = SetVector(0,.02,0);
 
       curr_r = w->bb.vertices[i];
+
+
 
       //w->momentum.y *= -1;
       //w->bb.vertices[i].y += 2;
@@ -408,33 +428,40 @@ void update_wall(wall_s * w, cow_s * c, GLfloat dT)
   w->speed = ScalarMult(w->momentum, 1.0/w->mass);
 
   w->angular_momentum = VectorAdd(w->angular_momentum, dL);
-  //w->angular_momentum = ScalarMult(w->angular_momentum, .99);
-  w->omega = MultVec3(S(1,1,1), w->angular_momentum);
-  //w->omega = VectorAdd(w->omega, w->angular_momentum);
+  //w->omega = MultVec3(S(1,1,1), w->angular_momentum);
 
   dO = ScalarMult(w->omega, dT);
   Rd = CrossMatrix(dO);
   Rd = Mult(Rd, w->R);
   w->R = Mult(T(0, 2.5, 0), Mult(MatrixAdd(w->R, Rd), T(0, -2.5, 0)));
 
-  if(no_under)
-    w->pos = VectorAdd(w->pos, dX);
+  //if(no_under)
+  w->pos = VectorAdd(w->pos, dX);
   //w->R = ArbRotate(w->omega, Norm(w->omega));
 
   w->matrix = Mult(Mult(w->orig_matrix, T(w->pos.x, w->pos.y, (w->pos.z))), w->R);
 
   update_bb(&w->bb, SetVector(w->pos.x-1, w->pos.y, w->pos.z-1), w->omega);
-  //update_vertices(&w->bb, w->pos, w->omega);
   update_vertices(&w->bb, w->pos, w->R);
   OrthoNormalizeMatrix(&w->R);
 
-  
   if(check_collision_2(&w->bb, &c->bb))
   {
     w->momentum = SetVector(c->momentum.x, 0, c->momentum.z);
     c->momentum = SetVector(-c->momentum.x, c->momentum.y, -c->momentum.z);
+
+    vec3 n = SetVector(1,0,0);
+    vec3 r = VectorSub(c->bb.center, w->bb.center);
+    w->omega = VectorSub(w->omega, MultVec3(IdentityMatrix(), CrossProduct(r,n)));
+
+    while(check_collision_2(&w->bb, &c->bb))
+    {
+      w->pos = VectorSub(w->pos, ScalarMult(Normalize(r), .05));
+      update_bb(&w->bb, SetVector(w->pos.x-1, w->pos.y, w->pos.z-1), w->omega);
+      update_vertices(&w->bb, w->pos, w->R);
+
+    }
   }
-  
 
 }
 
@@ -492,6 +519,71 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   j->R = T(0,0,0);
   //j->body_matrix = S(.1, .1, .1);
   //j->body_matrix = IdentityMatrix();
+}
+
+void create_ragdoll_joint(joint_s * j, vec3 pos)
+{
+  j->pos = pos;
+  j->body = LoadModelPlus("./res/groundsphere.obj");
+  j->body_matrix = Mult(T(pos.x, pos.y, pos.z), S(.1, .1, .1));
+  j->T = T(pos.x, pos.y, pos.z);
+}
+
+void create_ragdoll(ragdoll_s * r)
+{
+  create_ragdoll_joint(&r->joints[0], SetVector(0,10,0));
+  create_ragdoll_joint(&r->joints[1], SetVector(0,8,0));
+  create_ragdoll_joint(&r->joints[2], SetVector(0,6,0));
+  create_ragdoll_joint(&r->joints[3], SetVector(0,5,0));
+
+  r->joints[0].parent = NULL;
+  r->joints[1].parent = &r->joints[0];
+  r->joints[2].parent = &r->joints[1];
+  r->joints[3].parent = &r->joints[2];
+
+  r->joints[1].dist_to_parent = 2;
+  r->joints[2].dist_to_parent = 2;
+  r->joints[3].dist_to_parent = 2;
+
+  //set a force on the head
+  //r->joints[0].force = SetVector(0,0,.1);
+}
+
+void update_ragdoll(ragdoll_s * r, GLfloat dT)
+{
+  vec3 dP, dX, calculated_force = {0,0,0};
+  vec3 n;
+  vec3 real_dist;
+  int i;
+  for(i=0; i<4; i++)
+  {
+    joint_s * parent = r->joints[i].parent;
+    if(parent != NULL)
+    {
+      real_dist = VectorSub(r->joints[i].pos, parent->pos);
+      n = Normalize(real_dist);
+      float dist_diff = (Norm(real_dist)-r->joints[i].dist_to_parent);
+      vec3 speed_diff = VectorSub(r->joints[i].speed, parent->speed);
+      //if(dist_diff > r->joints[i].dist_to_parent)
+        calculated_force = VectorSub(ScalarMult(n, -dist_diff*1), speed_diff);
+      //else
+      //  calculated_force = ScalarMult(n, dist_diff*dist_diff*(-1));
+
+      printf("%f\n", calculated_force.y);
+    }
+    //if(i>0)
+    //  dP = ScalarMult(VectorAdd(SetVector(0,-.06,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
+    //else
+      dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
+
+    r->joints[i].speed = VectorAdd(r->joints[i].speed, dP);
+    //r->joints[i].speed = SetVector(0,.1,0);
+
+    dX = ScalarMult(r->joints[i].speed, dT);
+
+    r->joints[i].pos = VectorAdd(r->joints[i].pos, dX);
+    r->joints[i].T = T(r->joints[i].pos.x, r->joints[i].pos.y, r->joints[i].pos.z);
+  }
 }
 
 void draw_cow(cow_s * c, GLuint program)

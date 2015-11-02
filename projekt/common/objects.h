@@ -81,6 +81,7 @@ typedef struct joint_t
   Model * body;
   vec3 orig_pos;
   vec3 pos;
+  vec3 speed;
   mat4 body_matrix;
   mat4 T;
   mat4 R;
@@ -92,6 +93,8 @@ typedef struct joint_t
   int id;
   struct joint_t *parent;
   struct joint_t *child[MAX_CHILDREN];
+  float dist_to_parent;
+  vec3 force;
   char * Mvar;
   char * posvar;
   char * boneposvar;
@@ -102,8 +105,8 @@ typedef struct joint_t
 
 typedef struct ragdoll_t
 {
-  Model * joint_model;
-
+  //Model * joint_model;
+  joint_s joints[6];
 
 } ragdoll_s;
 
@@ -151,3 +154,6 @@ int check_collision(bounding_box_s * b1, bounding_box_s * b2);
 int check_collision_2(bounding_box_s * b1, bounding_box_s * b2);
 int sign(float x);
 void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program);
+void create_ragdoll(ragdoll_s * r);
+void create_ragdoll_joint(joint_s * j, vec3 pos);
+void update_ragdoll(ragdoll_s * r, GLfloat dT);

@@ -56,6 +56,7 @@ cow_s cow;
 floor_s f;
 ball_s ball;
 wall_s wall;
+ragdoll_s ragdoll;
 float cam_angle = 0;
 float cam_dist = 8;
 
@@ -311,6 +312,8 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
 	draw_wall(&wall, g_shader);
 
+	draw_ragdoll(&ragdoll, g_shader);
+
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
 
 	//draw_debug_sphere(&ball, cow.bb.pos, g_shader);
@@ -426,6 +429,7 @@ void OnTimer(int value)
 	update_floor(&f, &cow);
 	update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
+	update_ragdoll(&ragdoll, delta_t);
 
 	if(check_collision_2(&cow.bb, &wall.bb))
 	{
@@ -778,6 +782,8 @@ int main(int argc, char **argv)
 
 
 	create_cow(&cow);
+
+	create_ragdoll(&ragdoll);
 
 	g_shader = loadShaders("shader.vert" , "shader.frag");
 	glUseProgram(g_shader);
