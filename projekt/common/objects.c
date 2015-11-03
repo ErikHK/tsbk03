@@ -542,7 +542,7 @@ void create_ragdoll(ragdoll_s * r)
   r->joints[3].parent = &r->joints[2];
 
   r->joints[1].dist_to_parent = 2;
-  r->joints[2].dist_to_parent = 2;
+  r->joints[2].dist_to_parent = 4;
   r->joints[3].dist_to_parent = 2;
 
   //set a force on the head
@@ -580,6 +580,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       //if(dist_diff > r->joints[i].dist_to_parent)
         calculated_force = VectorSub(ScalarMult(n, -dist_diff*40), 
          ScalarMult(speed_diff, 5));
+        r->joints[i].pos = VectorSub(r->joints[i].pos, ScalarMult(n, dist_diff));
       //else
       //  calculated_force = ScalarMult(n, dist_diff*dist_diff*(-1));
 
