@@ -546,21 +546,21 @@ void create_ragdoll(ragdoll_s * r)
   r->joints[3].dist_to_parent = 2;
 
   //set a force on the head
-  r->joints[0].force = SetVector(0,0,.2);
+  r->joints[0].force = SetVector(0,0,.1);
 }
 
 void update_ragdoll(ragdoll_s * r, GLfloat dT)
 {
   if(keyIsDown('a'))
-    r->joints[0].speed.z = 40;
+    r->joints[0].force.z = 20;
   else if(keyIsDown('o'))
-    r->joints[0].speed.z = -40;
+    r->joints[0].force.z = -20;
   else if(keyIsDown('.'))
-    r->joints[0].speed.y = -40;
+    r->joints[0].force.y = 40;
   else
   {
-    r->joints[0].speed.z = 0;
-    r->joints[0].speed.y = 0;
+    r->joints[0].force.z = 0;
+    r->joints[0].force.y = 0;
   }
 
 
@@ -570,6 +570,12 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   int i;
   for(i=0; i<4; i++)
   {
+
+    if(r->joints[i].pos.y <= 0)
+    {
+      r->joints[i].pos.y = .05;
+      r->joints[i].speed.y *= -.6;
+    }
     joint_s * parent = r->joints[i].parent;
     if(parent != NULL)
     {
@@ -586,7 +592,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
       //printf("%f\n", calculated_force.y);
     }
-    if(i>0)
+    if(i>=0)
       dP = ScalarMult(VectorAdd(SetVector(0,-40,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
     else
       dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
