@@ -106,7 +106,7 @@ typedef struct joint_t
 typedef struct ragdoll_t
 {
   //Model * joint_model;
-  joint_s joints[6];
+  joint_s joints[20];
 
 } ragdoll_s;
 
@@ -143,6 +143,8 @@ void draw_bone();
 void create_joint();
 void draw_joint();
 
+void create_floor(floor_s * f);
+
 void create_ball(ball_s * b, vec3 pos);
 void update_ball(ball_s * b, cow_s * c, GLfloat dT);
 void update_wall(wall_s * w, cow_s * c, GLfloat dT);
@@ -154,6 +156,8 @@ int check_collision(bounding_box_s * b1, bounding_box_s * b2);
 int check_collision_2(bounding_box_s * b1, bounding_box_s * b2);
 int sign(float x);
 void draw_debug_sphere(ball_s * b, vec3 pos, GLuint program);
+void draw_floor(floor_s * f, GLuint program);
 void create_ragdoll(ragdoll_s * r);
 void create_ragdoll_joint(joint_s * j, vec3 pos);
 void update_ragdoll(ragdoll_s * r, GLfloat dT);
+void draw_ragdoll(ragdoll_s * r, GLuint program);

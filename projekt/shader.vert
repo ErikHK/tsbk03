@@ -235,8 +235,8 @@ void main(void)
   else if(draw_ball == 1)
     //colorr = vec4(shade,shade,shade,1)*.6+vec4(shade2,shade2,shade2,1)*.4;
     colorr = vec4(shade,shade,shade,1)*.6;
-  else if(draw_floor == 1)
-    colorr = vec4(50*sin(inPosition.x*200), 40*cos(inPosition.y*400), 20*sin(inPosition.z*250), 1);
+  //else if(draw_floor == 1)
+  //  colorr = vec4(50*sin(inPosition.x*200), 40*cos(inPosition.y*400), 20*sin(inPosition.z*250), 1);
   else if(collision == 1)
     colorr = vec4(shade, shade, shade, 1) + vec4(.6,.3,.3,0);
   else

@@ -307,11 +307,12 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
 	draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
+	/*
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
 	draw_ball(&ball, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
 	draw_wall(&wall, g_shader);
-
+	*/
 	draw_ragdoll(&ragdoll, g_shader);
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
@@ -429,6 +430,7 @@ void OnTimer(int value)
 	update_floor(&f, &cow);
 	update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
+        if(keyIsDown('k'))
 	update_ragdoll(&ragdoll, delta_t);
 
 	if(check_collision_2(&cow.bb, &wall.bb))
@@ -649,7 +651,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
-	f.model = generate_terrain(32);
+	//f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));
 
