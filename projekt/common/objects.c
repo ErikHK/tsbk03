@@ -599,7 +599,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   else if(keyIsDown('o'))
     r->joints[0].force.z = -20;
   else if(keyIsDown('.'))
-    r->joints[0].force.y = 8;
+    r->joints[0].force.y = 20;
   else
   {
     r->joints[0].force.z = 0;
@@ -608,30 +608,35 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   }
 
 
-  vec3 dP, dX, calculated_force = {0,0,0};
+  vec3 dP, dX, calculated_force = {0,0,0}, calculated_force_parent;
   vec3 n;
   vec3 real_dist;
   int i;
   for(i=0; i < 14; i++)
   {
 
+    joint_s * parent = r->joints[i].parent;
+
     if(r->joints[i].pos.y <= 0)
     {
       r->joints[i].pos.y = .05;
-      //r->joints[i].force.y = .5;
+      //r->joints[i].force.y = 5;
+      //if(parent != NULL)
+      //  r->joints[i].parent->force.y = 5;
       r->joints[i].speed.y *= -.6;
     }
 
-    joint_s * parent = r->joints[i].parent;
     if(parent != NULL)
     {
       real_dist = VectorSub(r->joints[i].pos, parent->pos);
       n = Normalize(real_dist);
       float dist_diff = (Norm(real_dist)-r->joints[i].dist_to_parent);
       vec3 speed_diff = VectorSub(r->joints[i].speed, parent->speed);
-      calculated_force = VectorSub(ScalarMult(n, -dist_diff*40), 
-      ScalarMult(speed_diff, 5));
+      calculated_force = VectorSub(ScalarMult(n, -dist_diff*20), 
+      ScalarMult(speed_diff, 2.5));
+      calculated_force_parent = VectorAdd(ScalarMult(calculated_force, -1), parent->force);
       calculated_force = VectorAdd(calculated_force, r->joints[i].force);
+      //printf("%f %f %f\n", calculated_force.x, calculated_force.y, calculated_force.z);
       r->joints[i].pos = VectorSub(r->joints[i].pos, ScalarMult(n, dist_diff));
 
       //fixate legs
@@ -682,10 +687,6 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
     }
 
-    if(i>=0)
-      dP = ScalarMult(VectorAdd(SetVector(0,-5,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
-    else
-      dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
 
     vec3 n = SetVector(0,1,0);
     vec3 leg = Normalize(VectorSub(r->joints[10].pos, r->joints[12].pos));
@@ -697,6 +698,8 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       //calculated_force = SetVector(0,42,0);
       r->joints[12].pos = VectorAdd(r->joints[12].pos, 
        ScalarMult(dir, .03));
+   if(r->joints[12].parent != NULL)
+     r->joints[12].parent->force = SetVector(0,6,0);
 
     leg = Normalize(VectorSub(r->joints[10].pos, r->joints[8].pos));
     dot = DotProduct(n, leg);
@@ -709,6 +712,23 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
 
 
+    if(i>=0)
+    {
+      dP = ScalarMult(VectorAdd(SetVector(0,-5,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
+      //if(parent != NULL)
+      //  dP = VectorAdd(dP, ScalarMult(VectorAdd(parent->force, calculated_force_parent), dT));
+
+    }
+    else
+    {
+      dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
+      
+      
+    }
+
+
+
+
     r->joints[i].speed = VectorAdd(r->joints[i].speed, dP);
     //r->joints[i].speed = SetVector(0,.1,0);
 
@@ -716,6 +736,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
     r->joints[i].pos = VectorAdd(r->joints[i].pos, dX);
     r->joints[i].T = Mult(T(r->joints[i].pos.x, r->joints[i].pos.y, r->joints[i].pos.z), S(.5,.5,.5));
+
   }
 }
 
