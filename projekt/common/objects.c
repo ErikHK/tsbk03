@@ -113,6 +113,29 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
   return 0;
 }
 
+void create_farmer(farmer_s * f, vec3 pos)
+{
+  f->body = LoadModelPlus("./res/farmergirl1.obj");
+  LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
+  f->pos = pos;
+  
+
+}
+
+void update_farmer(farmer_s * f)
+{
+  f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), S(.05, .05, .05));
+}
+
+void draw_farmer(farmer_s * f, GLuint program)
+{
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
+  glBindTexture(GL_TEXTURE_2D, f->tex);
+  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+
+}
+
+
 void create_wall(wall_s * w, vec3 pos, vec3 size)
 {
   w->pos = pos;

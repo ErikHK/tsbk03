@@ -11,6 +11,25 @@
 #define COW_GRAVITY		-80
 
 
+typedef struct farmer_t
+{
+  Model * body;
+  mat4 matrix;
+
+  vec3 pos;
+  vec3 speed;
+  vec3 acc;
+  vec3 force;
+  vec3 torque;
+  vec3 momentum;
+  mat4 R;
+  float mass;
+  vec3 omega;
+  GLuint tex;
+
+} farmer_s;
+
+
 typedef struct bounding_box_t
 {
   vec3 pos;
@@ -162,3 +181,7 @@ void create_ragdoll(ragdoll_s * r);
 void create_ragdoll_joint(joint_s * j, vec3 pos);
 void update_ragdoll(ragdoll_s * r, GLfloat dT);
 void draw_ragdoll(ragdoll_s * r, GLuint program);
+
+void create_farmer(farmer_s * f, vec3 pos);
+void draw_farmer(farmer_s * f, GLuint program);
+void update_farmer(farmer_s * f);

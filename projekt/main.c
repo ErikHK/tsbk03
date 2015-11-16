@@ -52,11 +52,14 @@ joint_s head_joint[3];
 joint_s body_joint[3];
 joint_s left_ear_joint[3];
 joint_s right_ear_joint[3];
+
 cow_s cow;
 floor_s f;
 ball_s ball;
 wall_s wall;
 ragdoll_s ragdoll;
+farmer_s farmer;
+
 float cam_angle = 0;
 float cam_dist = 8;
 
@@ -314,6 +317,7 @@ void DisplayWindow()
 	draw_wall(&wall, g_shader);
 	*/
 	draw_ragdoll(&ragdoll, g_shader);
+	draw_farmer(&farmer, g_shader);
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
 
@@ -430,6 +434,7 @@ void OnTimer(int value)
 	update_floor(&f, &cow);
 	update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
+	update_farmer(&farmer);
         if(keyIsDown('k'))
 	update_ragdoll(&ragdoll, delta_t);
 
@@ -784,6 +789,7 @@ int main(int argc, char **argv)
 
 
 	create_cow(&cow);
+	create_farmer(&farmer, SetVector(5,0,10));
 
 	create_ragdoll(&ragdoll);
 
