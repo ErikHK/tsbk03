@@ -317,7 +317,14 @@ void DisplayWindow()
 	draw_wall(&wall, g_shader);
 	*/
 	draw_ragdoll(&ragdoll, g_shader);
+
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+
 	draw_farmer(&farmer, g_shader);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
 

@@ -11,24 +11,6 @@
 #define COW_GRAVITY		-80
 
 
-typedef struct farmer_t
-{
-  Model * body;
-  mat4 matrix;
-
-  vec3 pos;
-  vec3 speed;
-  vec3 acc;
-  vec3 force;
-  vec3 torque;
-  vec3 momentum;
-  mat4 R;
-  float mass;
-  vec3 omega;
-  GLuint tex;
-
-} farmer_s;
-
 
 typedef struct bounding_box_t
 {
@@ -121,6 +103,31 @@ typedef struct joint_t
   int isnull;
 
 } joint_s;
+
+typedef struct skeleton_t
+{
+  joint_s joints[20];
+  float distances[20];
+} skeleton_s;
+
+typedef struct farmer_t
+{
+  Model * body;
+  mat4 matrix;
+  struct skeleton_t skeleton;
+
+  vec3 pos;
+  vec3 speed;
+  vec3 acc;
+  vec3 force;
+  vec3 torque;
+  vec3 momentum;
+  mat4 R;
+  float mass;
+  vec3 omega;
+  GLuint tex;
+
+} farmer_s;
 
 
 typedef struct ragdoll_t

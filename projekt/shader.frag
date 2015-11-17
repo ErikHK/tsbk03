@@ -44,7 +44,7 @@ void main(void)
     fragColor = texture(tex, outTexCoord*1);
     //fragColor = vec4(sin(inPos.x)+.4, sin(inPos.y)+.4, sin(inPos.z)+.4, 1);
   else
-    fragColor = texture(tex, outTexCoord)*vec4(colors, 1)*1.3;
+    fragColor = texture(tex, outTexCoord)*vec4(colors+.4, 1);
 
   if(length(vec3(inPos)-cow_pos) < 2.5)
     fragColor += vec4(-.2, -.2, -.2, 0);

@@ -118,7 +118,44 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->body = LoadModelPlus("./res/farmergirl1.obj");
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
-  
+
+  create_joint(&f->skeleton.joints[0], 
+	VectorAdd(f->pos, SetVector(0,5,0)), 
+	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
+  create_joint(&f->skeleton.joints[1], 
+  	VectorAdd(f->pos, SetVector(0, 3.5, 0)), 
+	NULL, NULL, NULL, 0);
+
+
+  create_joint(&f->skeleton.joints[2], 
+	VectorAdd(f->pos, SetVector(0, 3.5, .6)), 
+	NULL, NULL, NULL, 0);
+  create_joint(&f->skeleton.joints[3], 
+	VectorAdd(f->pos, SetVector(0, 3.5, -.6)), 
+	NULL, NULL, NULL, 0);
+
+
+  create_joint(&f->skeleton.joints[4], 
+	VectorAdd(f->pos, SetVector(0, 3.5, 1.5)), 
+	NULL, NULL, NULL, 0);
+  create_joint(&f->skeleton.joints[5], 
+	VectorAdd(f->pos, SetVector(0, 3.5, -1.5)), 
+	NULL, NULL, NULL, 0);
+
+
+  create_joint(&f->skeleton.joints[6], 
+	VectorAdd(f->pos, SetVector(0, 3.5, 2.8)), 
+	NULL, NULL, NULL, 0);
+  create_joint(&f->skeleton.joints[7], 
+	VectorAdd(f->pos, SetVector(0, 3.5, -2.8)), 
+	NULL, NULL, NULL, 0);
+
+
+  create_joint(&f->skeleton.joints[8], 
+	VectorAdd(f->pos, SetVector(0, 2, 0)), 
+	NULL, NULL, NULL, 0);
+
+
 
 }
 
@@ -132,6 +169,14 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
   DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+
+  int i;
+  for(i=0;i<9;i++)
+  {
+    mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
+    glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
+    DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
+  }
 
 }
 
