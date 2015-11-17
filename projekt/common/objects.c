@@ -182,9 +182,53 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 0, -.3)), 
 	NULL, NULL, NULL, 0);
 
+  //set children
 
+  //head
+  f->skeleton.joints[0].child[0] = &f->skeleton.joints[1];
+  //neck
+  f->skeleton.joints[1].child[0] = &f->skeleton.joints[2];
+  f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
+  f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
+  //shoulders
+  f->skeleton.joints[2].child[0] = &f->skeleton.joints[4];
+  f->skeleton.joints[3].child[0] = &f->skeleton.joints[5];
+  //elbows
+  f->skeleton.joints[4].child[0] = &f->skeleton.joints[6];
+  f->skeleton.joints[5].child[0] = &f->skeleton.joints[7];
+  //groin
+  f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
+  f->skeleton.joints[8].child[1] = &f->skeleton.joints[10];
+  //hips
+  f->skeleton.joints[9].child[0] = &f->skeleton.joints[11];
+  f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
+  //knees
+  f->skeleton.joints[11].child[0] = &f->skeleton.joints[13];
+  f->skeleton.joints[12].child[0] = &f->skeleton.joints[14];
 
-
+  //set parents
+  f->skeleton.joints[0].parent = NULL;
+  f->skeleton.joints[1].parent = &f->skeleton.joints[0];
+  //shoulders
+  f->skeleton.joints[2].parent = &f->skeleton.joints[1];
+  f->skeleton.joints[3].parent = &f->skeleton.joints[1];
+  //elbows
+  f->skeleton.joints[4].parent = &f->skeleton.joints[2];
+  f->skeleton.joints[5].parent = &f->skeleton.joints[2];
+  //hands
+  f->skeleton.joints[6].parent = &f->skeleton.joints[4];
+  f->skeleton.joints[7].parent = &f->skeleton.joints[5];
+  //groin
+  f->skeleton.joints[8].parent = &f->skeleton.joints[1];
+  //hips
+  f->skeleton.joints[9].parent = &f->skeleton.joints[8];
+  f->skeleton.joints[10].parent = &f->skeleton.joints[8];
+  //knees
+  f->skeleton.joints[11].parent = &f->skeleton.joints[9];
+  f->skeleton.joints[12].parent = &f->skeleton.joints[10];
+  //feet
+  f->skeleton.joints[13].parent = &f->skeleton.joints[11];
+  f->skeleton.joints[14].parent = &f->skeleton.joints[12];
 
 }
 
