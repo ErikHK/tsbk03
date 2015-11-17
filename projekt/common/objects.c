@@ -119,41 +119,70 @@ void create_farmer(farmer_s * f, vec3 pos)
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
 
+  //head joint
   create_joint(&f->skeleton.joints[0], 
 	VectorAdd(f->pos, SetVector(0,5,0)), 
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
+  //neck joint
   create_joint(&f->skeleton.joints[1], 
-  	VectorAdd(f->pos, SetVector(0, 3.5, 0)), 
+  	VectorAdd(f->pos, SetVector(0, 3.7, 0)), 
 	NULL, NULL, NULL, 0);
 
-
+  //shoulder joints
   create_joint(&f->skeleton.joints[2], 
-	VectorAdd(f->pos, SetVector(0, 3.5, .6)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, .6)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[3], 
-	VectorAdd(f->pos, SetVector(0, 3.5, -.6)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, -.6)), 
 	NULL, NULL, NULL, 0);
 
-
+  //elbow joints
   create_joint(&f->skeleton.joints[4], 
-	VectorAdd(f->pos, SetVector(0, 3.5, 1.5)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, 1.5)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[5], 
-	VectorAdd(f->pos, SetVector(0, 3.5, -1.5)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, -1.5)), 
 	NULL, NULL, NULL, 0);
 
 
+  //hand joints
   create_joint(&f->skeleton.joints[6], 
-	VectorAdd(f->pos, SetVector(0, 3.5, 2.8)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, 2.8)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[7], 
-	VectorAdd(f->pos, SetVector(0, 3.5, -2.8)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)), 
 	NULL, NULL, NULL, 0);
 
-
+  //groin joint
   create_joint(&f->skeleton.joints[8], 
 	VectorAdd(f->pos, SetVector(0, 2, 0)), 
 	NULL, NULL, NULL, 0);
+
+  //hip joints
+  create_joint(&f->skeleton.joints[9], 
+	VectorAdd(f->pos, SetVector(0, 2, .4)), 
+	NULL, NULL, NULL, 0);
+  create_joint(&f->skeleton.joints[10], 
+	VectorAdd(f->pos, SetVector(0, 2, -.4)), 
+	NULL, NULL, NULL, 0);
+
+  //knee joints
+  create_joint(&f->skeleton.joints[11], 
+	VectorAdd(f->pos, SetVector(0, .8, .35)), 
+	NULL, NULL, NULL, 0);
+  create_joint(&f->skeleton.joints[12], 
+	VectorAdd(f->pos, SetVector(0, .8, -.35)), 
+	NULL, NULL, NULL, 0);
+
+  //foot joints
+  create_joint(&f->skeleton.joints[13], 
+	VectorAdd(f->pos, SetVector(0, 0, .3)), 
+	NULL, NULL, NULL, 0);
+  create_joint(&f->skeleton.joints[14], 
+	VectorAdd(f->pos, SetVector(0, 0, -.3)), 
+	NULL, NULL, NULL, 0);
+
+
 
 
 
@@ -171,7 +200,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
 
   int i;
-  for(i=0;i<9;i++)
+  for(i=0;i<15;i++)
   {
     mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
