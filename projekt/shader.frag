@@ -37,9 +37,9 @@ void main(void)
     
   }
 
-  if(draw_cow)
+  if(draw_cow==1)
     fragColor = (vec4(.2,.2,.2,0) +  vec4(colors,1))*texture(tex, outTexCoord*1);
-  else if(draw_floor)
+  else if(draw_floor==1)
     //fragColor = texture(tex, outTexCoord*5)*.1 + vec4(.4,.6,.4,1);
     fragColor = texture(tex, outTexCoord*1);
     //fragColor = vec4(sin(inPos.x)+.4, sin(inPos.y)+.4, sin(inPos.z)+.4, 1);

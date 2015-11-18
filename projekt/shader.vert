@@ -105,6 +105,8 @@ return mat4(1,0,0,pos.x,
 
 void main(void)
 {
+
+  gl_Position = vec4(0,0,0,0);
   ex_normal = transformed_normal;
 
   vec3 lightv = vec3(.6, .6, .6);
@@ -255,7 +257,7 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_head_bone_pos[i]);
 
-    if(dist < leng*1)
+    if(dist < leng*.5)
       gl_Position += proj_matrix*cam_matrix*farmer_head[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
@@ -268,7 +270,7 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_neck_bone_pos[i]);
 
-    if(dist < leng*.3)
+    if(dist < leng*1)
       gl_Position += proj_matrix*cam_matrix*farmer_neck[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
@@ -281,8 +283,11 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_lshoulder_bone_pos[i]);
 
-    if(dist < leng*1)
+    if(dist < leng*.4 && i > 0)
       gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng*.7)
+      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+
   }
 
 
@@ -295,7 +300,7 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_rshoulder_bone_pos[i]);
 
-    if(dist < leng*1.4)
+    if(dist < leng*.7)
       gl_Position += proj_matrix*cam_matrix*farmer_rshoulder[i]*mdl_matrix*vec4(inPosition, 1);
   }
 

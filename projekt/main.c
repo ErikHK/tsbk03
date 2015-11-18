@@ -9,7 +9,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "common/objects.h"
-#include "SFML/Graphics.h"
+//#include "SFML/Graphics.h"
 #include <sys/time.h>
 #include <time.h>
 #include "zpr.h"
@@ -306,8 +306,8 @@ void DisplayWindow()
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
 	//draw_cow(&cow, g_shader);
-
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
+
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
 	draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
@@ -386,8 +386,8 @@ void calc_bone_transform(joint_s * j, int acc)
 
   while(j->child[0] != NULL)
   {
-
-    for(k=1; k<MAX_CHILDREN; k++)
+    //calc_bone_transform(j->child[0], 1);
+    for(k=1; k < MAX_CHILDREN; k++)
     {
       if(j->child[k] != NULL)
         calc_bone_transform(j->child[k], 1);
@@ -419,13 +419,20 @@ void calc_bone_transform(joint_s * j, int acc)
 
     j = j->child[0];
     i++;
+
+
+  }
+
+  if(rootj->posvar != NULL)
+  {
+  //printf(rootj->posvar);
+  //printf("\n");
   }
 
   //printf("%f %f %f\n", currpos[0], currpos[1], currpos[2]);
   glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
-
 }
 
 
@@ -600,15 +607,20 @@ void OnTimer(int value)
 
 
 	j = &farmer.skeleton.joints[2];
-	//j->R = Rx(.5);
+	//j->R = Rx(cos(4*t));
+	j->R = Rx(M_PI/2.5);
 	//left shoulder (her right)
-	jc = &farmer.skeleton.joints[5];
-	jc->R = Rx(-M_PI/10);
-	//calc_bone_transform(&farmer.skeleton.joints[0], 0);
+	jc = &farmer.skeleton.joints[3];
+	jc->R = Rx(-sin(3*t));
+
+	jc = &farmer.skeleton.joints[4];
+	jc->R = Ry(-sin(3*t));
+
+	calc_bone_transform(&farmer.skeleton.joints[0], 0);
 	calc_bone_transform(&farmer.skeleton.joints[2], 0);
 	calc_bone_transform(&farmer.skeleton.joints[3], 0);
 	//calc_bone_transform(&farmer.skeleton.joints[4], 0);
-	//calc_bone_transform(&farmer.skeleton.joints[1], 0);
+	calc_bone_transform(&farmer.skeleton.joints[1], 0);
 
 
 	glutPostRedisplay();

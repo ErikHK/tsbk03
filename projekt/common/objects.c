@@ -121,7 +121,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   //head joint
   create_joint(&f->skeleton.joints[0], 
-	VectorAdd(f->pos, SetVector(0,5,0)), 
+	VectorAdd(f->pos, SetVector(0,6,0)), 
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
   //neck joint
   create_joint(&f->skeleton.joints[1], 
@@ -188,8 +188,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[0].child[0] = &f->skeleton.joints[1];
   //neck
   f->skeleton.joints[1].child[0] = &f->skeleton.joints[2];
-  //f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
-  //f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
+  f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
+  f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
   //shoulders
   f->skeleton.joints[2].child[0] = &f->skeleton.joints[4];
   f->skeleton.joints[3].child[0] = &f->skeleton.joints[5];
@@ -198,13 +198,17 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[5].child[0] = &f->skeleton.joints[7];
   //groin
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
-  //f->skeleton.joints[8].child[1] = &f->skeleton.joints[10];
+  f->skeleton.joints[8].child[1] = &f->skeleton.joints[10];
   //hips
   f->skeleton.joints[9].child[0] = &f->skeleton.joints[11];
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
   //knees
   f->skeleton.joints[11].child[0] = &f->skeleton.joints[13];
   f->skeleton.joints[12].child[0] = &f->skeleton.joints[14];
+
+  f->skeleton.joints[6].child[0] = NULL;
+  f->skeleton.joints[6].child[1] = NULL;
+
 
   //set parents
   f->skeleton.joints[0].parent = NULL;
