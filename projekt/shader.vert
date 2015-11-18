@@ -15,6 +15,7 @@ uniform mat4 proj_matrix;
 
 uniform float time;
 uniform int draw_cow;
+uniform int draw_farmer;
 uniform int draw_floor;
 uniform int draw_ball;
 uniform int collision;
@@ -57,6 +58,22 @@ uniform mat4 bodyjoint[8];
 uniform vec3 rightearcurrpos[8];
 uniform vec3 rightearbonepos[8];
 uniform mat4 rightearjoint[8];
+
+uniform vec3 farmer_head_pos[8];
+uniform vec3 farmer_head_bone_pos[8];
+uniform mat4 farmer_head[8];
+
+uniform vec3 farmer_neck_pos[8];
+uniform vec3 farmer_neck_bone_pos[8];
+uniform mat4 farmer_neck[8];
+
+uniform vec3 farmer_lshoulder_pos[8];
+uniform vec3 farmer_lshoulder_bone_pos[8];
+uniform mat4 farmer_lshoulder[8];
+
+uniform vec3 farmer_rshoulder_pos[8];
+uniform vec3 farmer_rshoulder_bone_pos[8];
+uniform mat4 farmer_rshoulder[8];
 
 mat3 normal_matrix = mat3(cam_matrix * mdl_matrix);
 vec3 transformed_normal = normal_matrix * inNormal;
@@ -225,24 +242,72 @@ void main(void)
 
   }
 
+  else if(draw_farmer==1)
+  {
+  float dist, leng;
+
+  //head
+  for(int i=0;i<1;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_head_pos[i], farmer_head_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_head_bone_pos[i]);
+
+    if(dist < leng*1)
+      gl_Position += proj_matrix*cam_matrix*farmer_head[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  //neck
+  for(int i=0;i<1;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_neck_pos[i], farmer_neck_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_neck_bone_pos[i]);
+
+    if(dist < leng*.3)
+      gl_Position += proj_matrix*cam_matrix*farmer_neck[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  //arms
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_lshoulder_pos[i], farmer_lshoulder_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_lshoulder_bone_pos[i]);
+
+    if(dist < leng*1)
+      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+  //arms
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_rshoulder_pos[i], farmer_rshoulder_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_rshoulder_bone_pos[i]);
+
+    if(dist < leng*1.4)
+      gl_Position += proj_matrix*cam_matrix*farmer_rshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+
+    //gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
+
+  }
   else
     gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
 
-  /*
-  if(draw_cow == 1)
-    //colorr = vec4(shade, shade, shade, .6);
-    colorr = vec4(.7,.7,.7,1) + (vec4(shade, shade, shade, 1))*.3;// + vec4(shade2,shade2,shade2,1)*1);
-  else if(draw_ball == 1)
-    //colorr = vec4(shade,shade,shade,1)*.6+vec4(shade2,shade2,shade2,1)*.4;
-    colorr = vec4(shade,shade,shade,1)*.6;
-  //else if(draw_floor == 1)
-  //  colorr = vec4(50*sin(inPosition.x*200), 40*cos(inPosition.y*400), 20*sin(inPosition.z*250), 1);
-  else if(collision == 1)
-    colorr = vec4(shade, shade, shade, 1) + vec4(.6,.3,.3,0);
-  else
-    colorr = vec4(shade, shade, shade, 1);
-  */
-    
+
   outTexCoord = inTexCoord;
   inPos = vec4(inPosition,1);
 }

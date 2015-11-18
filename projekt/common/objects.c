@@ -126,22 +126,22 @@ void create_farmer(farmer_s * f, vec3 pos)
   //neck joint
   create_joint(&f->skeleton.joints[1], 
   	VectorAdd(f->pos, SetVector(0, 3.7, 0)), 
-	NULL, NULL, NULL, 0);
+	"farmer_neck", "farmer_neck_pos", "farmer_neck_bone_pos", 0);
 
   //shoulder joints
   create_joint(&f->skeleton.joints[2], 
 	VectorAdd(f->pos, SetVector(0, 3.7, .6)), 
-	NULL, NULL, NULL, 0);
+	"farmer_lshoulder", "farmer_lshoulder_pos", "farmer_lshoulder_bone_pos", 0);
   create_joint(&f->skeleton.joints[3], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -.6)), 
-	NULL, NULL, NULL, 0);
+	"farmer_rshoulder", "farmer_rshoulder_pos", "farmer_rshoulder_bone_pos", 0);
 
   //elbow joints
   create_joint(&f->skeleton.joints[4], 
-	VectorAdd(f->pos, SetVector(0, 3.7, 1.5)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, 1.7)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[5], 
-	VectorAdd(f->pos, SetVector(0, 3.7, -1.5)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, -1.7)), 
 	NULL, NULL, NULL, 0);
 
 
@@ -188,8 +188,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[0].child[0] = &f->skeleton.joints[1];
   //neck
   f->skeleton.joints[1].child[0] = &f->skeleton.joints[2];
-  f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
-  f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
+  //f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
+  //f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
   //shoulders
   f->skeleton.joints[2].child[0] = &f->skeleton.joints[4];
   f->skeleton.joints[3].child[0] = &f->skeleton.joints[5];
@@ -198,7 +198,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[5].child[0] = &f->skeleton.joints[7];
   //groin
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
-  f->skeleton.joints[8].child[1] = &f->skeleton.joints[10];
+  //f->skeleton.joints[8].child[1] = &f->skeleton.joints[10];
   //hips
   f->skeleton.joints[9].child[0] = &f->skeleton.joints[11];
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
@@ -234,7 +234,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 void update_farmer(farmer_s * f)
 {
-  f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), S(.05, .05, .05));
+  f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), S(.1, .1, .1));
 }
 
 void draw_farmer(farmer_s * f, GLuint program)

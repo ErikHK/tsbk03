@@ -305,7 +305,8 @@ void DisplayWindow()
 	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
-	draw_cow(&cow, g_shader);
+	//draw_cow(&cow, g_shader);
+
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
 	draw_floor(&f, g_shader);
@@ -318,13 +319,18 @@ void DisplayWindow()
 	*/
 	draw_ragdoll(&ragdoll, g_shader);
 
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_DEPTH_TEST);
+
+	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDisable(GL_DEPTH_TEST);
 
 	draw_farmer(&farmer, g_shader);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+	//glEnable(GL_DEPTH_TEST);
+	//glDisable(GL_BLEND);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
+
+
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
 
@@ -368,9 +374,10 @@ void calc_bone_transform(joint_s * j, int acc)
   //tmp = IdentityMatrix();
   if(acc)
     tmp = j->parent->tmp;
+    //tmp = j->parent->Mtot;
   else
-    //tmp = IdentityMatrix();
-    tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
+    tmp = IdentityMatrix();
+    //tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
 
   GLfloat Ms[8][16];
   int i=0,ii=0, k=0;
@@ -414,10 +421,10 @@ void calc_bone_transform(joint_s * j, int acc)
     i++;
   }
 
+  //printf("%f %f %f\n", currpos[0], currpos[1], currpos[2]);
   glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
   glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
-
 
 }
 
@@ -585,9 +592,23 @@ void OnTimer(int value)
 
 	//head
 	j = &head_joint[0];
+
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t)/9.5);
 
 	calc_bone_transform(&head_joint[0],0);
+
+
+
+	j = &farmer.skeleton.joints[2];
+	//j->R = Rx(.5);
+	//left shoulder (her right)
+	jc = &farmer.skeleton.joints[5];
+	jc->R = Rx(-M_PI/10);
+	//calc_bone_transform(&farmer.skeleton.joints[0], 0);
+	calc_bone_transform(&farmer.skeleton.joints[2], 0);
+	calc_bone_transform(&farmer.skeleton.joints[3], 0);
+	//calc_bone_transform(&farmer.skeleton.joints[4], 0);
+	//calc_bone_transform(&farmer.skeleton.joints[1], 0);
 
 
 	glutPostRedisplay();
@@ -796,7 +817,7 @@ int main(int argc, char **argv)
 
 
 	create_cow(&cow);
-	create_farmer(&farmer, SetVector(5,0,10));
+	create_farmer(&farmer, SetVector(0,0,0));
 
 	create_ragdoll(&ragdoll);
 
