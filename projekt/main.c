@@ -608,11 +608,11 @@ void OnTimer(int value)
 
 	j = &farmer.skeleton.joints[2];
 	//j->R = Rx(cos(4*t));
-	j->R = Mult(Rx(M_PI/2.5 + sin(5*t)/11), Ry(cos(-5*t)/2));
+	j->R = Mult(Rx(M_PI/2.2 + sin(5*t)/11), Ry(cos(-5*t)/2));
 
 	j = &farmer.skeleton.joints[3];
 	//j->R = Rx(cos(4*t));
-	j->R = Mult(Rx(-M_PI/2.5 + sin(5*t)/11), Ry(cos(5*t)/2));
+	j->R = Mult(Rx(-M_PI/2.2 + sin(5*t)/11), Ry(cos(5*t)/2));
 
 	//left shoulder (her right)
 	//jc = &farmer.skeleton.joints[3];
@@ -627,7 +627,7 @@ void OnTimer(int value)
 
 	jc = &farmer.skeleton.joints[10];
 	//jc->R = Rz(M_PI/3);
-	jc->R = Rz(.5+cos(5*t));
+	jc->R = Rz(.5-cos(5*t));
 
 	jc = &farmer.skeleton.joints[12];
 	jc->R = Rz((-1-cos(5*t))/2);
@@ -635,7 +635,7 @@ void OnTimer(int value)
 
 	jc = &farmer.skeleton.joints[11];
 	//jc->R = Rz(M_PI/3);
-	jc->R = Rz(.5-cos(5*t));
+	jc->R = Rz(.5+cos(5*t));
 
 	jc = &farmer.skeleton.joints[13];
 	jc->R = Rz((-1-cos(5*t))/2);
