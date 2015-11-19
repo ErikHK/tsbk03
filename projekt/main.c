@@ -626,10 +626,19 @@ void OnTimer(int value)
 
 
 	jc = &farmer.skeleton.joints[10];
-	jc->R = Rz(M_PI/3);
+	//jc->R = Rz(M_PI/3);
+	jc->R = Rz(.5+cos(5*t));
 
 	jc = &farmer.skeleton.joints[12];
-	jc->R = Rz((-1-cos(2*t))/2);
+	jc->R = Rz((-1-cos(5*t))/2);
+
+
+	jc = &farmer.skeleton.joints[11];
+	//jc->R = Rz(M_PI/3);
+	jc->R = Rz(.5-cos(5*t));
+
+	jc = &farmer.skeleton.joints[13];
+	jc->R = Rz((-1-cos(5*t))/2);
 
 
 	calc_bone_transform(&farmer.skeleton.joints[0], 0);
