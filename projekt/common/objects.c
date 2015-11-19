@@ -125,7 +125,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
   //neck joint
   create_joint(&f->skeleton.joints[1], 
-  	VectorAdd(f->pos, SetVector(0, 3.7, 0)), 
+  	VectorAdd(f->pos, SetVector(-.1, 3.7, 0)), 
 	"farmer_neck", "farmer_neck_pos", "farmer_neck_bone_pos", 0);
 
   //shoulder joints
@@ -193,9 +193,10 @@ void create_farmer(farmer_s * f, vec3 pos)
   //head
   f->skeleton.joints[0].child[0] = &f->skeleton.joints[1];
   //neck
-  f->skeleton.joints[1].child[0] = &f->skeleton.joints[2];
-  f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
-  f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
+  //f->skeleton.joints[1].child[0] = &f->skeleton.joints[2];
+  //f->skeleton.joints[1].child[1] = &f->skeleton.joints[3];
+  //f->skeleton.joints[1].child[2] = &f->skeleton.joints[8];
+  f->skeleton.joints[1].child[0] = &f->skeleton.joints[8];
   //shoulders
   f->skeleton.joints[2].child[0] = &f->skeleton.joints[4];
   f->skeleton.joints[3].child[0] = &f->skeleton.joints[5];
@@ -257,6 +258,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glBindTexture(GL_TEXTURE_2D, f->tex);
   DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
 
+/*
   int i;
   for(i=0;i<15;i++)
   {
@@ -264,7 +266,7 @@ void draw_farmer(farmer_s * f, GLuint program)
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
     DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
-
+*/
 }
 
 

@@ -277,7 +277,7 @@ void main(void)
   }
 
   //neck
-  for(int i=0;i<1;i++)
+  for(int i=0;i<3;i++)
   {
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(farmer_neck_pos[i], farmer_neck_bone_pos[i]);
@@ -285,8 +285,15 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_neck_bone_pos[i]);
 
-    if(dist < leng*1)
+    if(dist < leng*.7 && i==0)
       gl_Position += proj_matrix*cam_matrix*farmer_neck[i]*mdl_matrix*vec4(inPosition, 1);
+
+    if(dist < leng*1.3 && i == 1)
+      gl_Position += proj_matrix*cam_matrix*farmer_neck[i]*mdl_matrix*vec4(inPosition, 1);
+
+    if(dist < leng*1 && i > 1)
+      gl_Position += proj_matrix*cam_matrix*farmer_neck[i]*mdl_matrix*vec4(inPosition, 1);
+
   }
 
   //arms
@@ -327,8 +334,14 @@ void main(void)
 
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_lhip_bone_pos[i]);
+    float distz = distance(vec3(inPosition.x*0, 0,inPosition.z),farmer_lhip_bone_pos[i]);
+    
 
-    if(dist < leng*.6)
+    if(dist < leng*.7 && i==0 && inPosition.z > 0)
+      gl_Position += proj_matrix*cam_matrix*farmer_lhip[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng*.5 && i==1 && inPosition.z > 0)
+      gl_Position += proj_matrix*cam_matrix*farmer_lhip[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng*.9 && i > 0 && inPosition.z > 0)
       gl_Position += proj_matrix*cam_matrix*farmer_lhip[i]*mdl_matrix*vec4(inPosition, 1);
   }
 
@@ -342,8 +355,11 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_rhip_bone_pos[i]);
 
-    if(dist < leng*.6)
+    if(dist < leng*.7 && i==0 && inPosition.z < 0)
       gl_Position += proj_matrix*cam_matrix*farmer_rhip[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng*.9 && i > 0 && inPosition.z < 0)
+      gl_Position += proj_matrix*cam_matrix*farmer_rhip[i]*mdl_matrix*vec4(inPosition, 1);
+
   }
 
 
@@ -354,7 +370,7 @@ void main(void)
   //distance to middle of bone
   dist = distance(vec3(inPosition), farmer_groin_bone_pos[0]);
 
-  if(dist < leng*1.6)
+  if(dist < leng*1.4)
     gl_Position += proj_matrix*cam_matrix*farmer_groin[0]*mdl_matrix*vec4(inPosition, 1);
 
   //stomach

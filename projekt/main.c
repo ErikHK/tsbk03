@@ -616,16 +616,24 @@ void OnTimer(int value)
 	jc = &farmer.skeleton.joints[4];
 	jc->R = Ry(-sin(3*t));
 
+	jc = &farmer.skeleton.joints[10];
+	jc->R = Rz(M_PI/3);
+
+	jc = &farmer.skeleton.joints[12];
+	jc->R = Rz((-1-cos(2*t))/2);
+
+
 	calc_bone_transform(&farmer.skeleton.joints[0], 0);
 	calc_bone_transform(&farmer.skeleton.joints[2], 0);
 	calc_bone_transform(&farmer.skeleton.joints[3], 0);
 	//calc_bone_transform(&farmer.skeleton.joints[4], 0);
 	calc_bone_transform(&farmer.skeleton.joints[1], 0);
-	calc_bone_transform(&farmer.skeleton.joints[10], 0);
-	calc_bone_transform(&farmer.skeleton.joints[11], 0);
-	calc_bone_transform(&farmer.skeleton.joints[8], 0);
-	calc_bone_transform(&farmer.skeleton.joints[9], 0);
 
+	calc_bone_transform(&farmer.skeleton.joints[10], 0);
+
+	calc_bone_transform(&farmer.skeleton.joints[11], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[8], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[9], 0);
 
 	glutPostRedisplay();
 }
