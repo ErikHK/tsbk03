@@ -153,32 +153,38 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)), 
 	NULL, NULL, NULL, 0);
 
-  //groin joint
+  //stomach joint
   create_joint(&f->skeleton.joints[8], 
+	VectorAdd(f->pos, SetVector(0, 2.7, 0)), 
+	NULL, NULL, NULL, 0);
+
+  //groin joint
+  create_joint(&f->skeleton.joints[9], 
 	VectorAdd(f->pos, SetVector(0, 2, 0)), 
 	NULL, NULL, NULL, 0);
 
   //hip joints
-  create_joint(&f->skeleton.joints[9], 
-	VectorAdd(f->pos, SetVector(0, 2, .4)), 
-	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[10], 
+	VectorAdd(f->pos, SetVector(0, 2, .4)), 
+	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
+  create_joint(&f->skeleton.joints[11], 
 	VectorAdd(f->pos, SetVector(0, 2, -.4)), 
-	NULL, NULL, NULL, 0);
+	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
+
 
   //knee joints
-  create_joint(&f->skeleton.joints[11], 
+  create_joint(&f->skeleton.joints[12], 
 	VectorAdd(f->pos, SetVector(0, .8, .35)), 
 	NULL, NULL, NULL, 0);
-  create_joint(&f->skeleton.joints[12], 
+  create_joint(&f->skeleton.joints[13], 
 	VectorAdd(f->pos, SetVector(0, .8, -.35)), 
 	NULL, NULL, NULL, 0);
 
   //foot joints
-  create_joint(&f->skeleton.joints[13], 
+  create_joint(&f->skeleton.joints[14], 
 	VectorAdd(f->pos, SetVector(0, 0, .3)), 
 	NULL, NULL, NULL, 0);
-  create_joint(&f->skeleton.joints[14], 
+  create_joint(&f->skeleton.joints[15], 
 	VectorAdd(f->pos, SetVector(0, 0, -.3)), 
 	NULL, NULL, NULL, 0);
 
@@ -196,15 +202,17 @@ void create_farmer(farmer_s * f, vec3 pos)
   //elbows
   f->skeleton.joints[4].child[0] = &f->skeleton.joints[6];
   f->skeleton.joints[5].child[0] = &f->skeleton.joints[7];
-  //groin
+  //stomach
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
-  f->skeleton.joints[8].child[1] = &f->skeleton.joints[10];
+  //groin
+  f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
+  f->skeleton.joints[10].child[1] = &f->skeleton.joints[11];
   //hips
-  f->skeleton.joints[9].child[0] = &f->skeleton.joints[11];
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
-  //knees
   f->skeleton.joints[11].child[0] = &f->skeleton.joints[13];
+  //knees
   f->skeleton.joints[12].child[0] = &f->skeleton.joints[14];
+  f->skeleton.joints[13].child[0] = &f->skeleton.joints[15];
 
   f->skeleton.joints[6].child[0] = NULL;
   f->skeleton.joints[6].child[1] = NULL;
@@ -222,17 +230,19 @@ void create_farmer(farmer_s * f, vec3 pos)
   //hands
   f->skeleton.joints[6].parent = &f->skeleton.joints[4];
   f->skeleton.joints[7].parent = &f->skeleton.joints[5];
-  //groin
+  //stomach
   f->skeleton.joints[8].parent = &f->skeleton.joints[1];
-  //hips
+  //groin
   f->skeleton.joints[9].parent = &f->skeleton.joints[8];
-  f->skeleton.joints[10].parent = &f->skeleton.joints[8];
-  //knees
+  //hips
+  f->skeleton.joints[10].parent = &f->skeleton.joints[9];
   f->skeleton.joints[11].parent = &f->skeleton.joints[9];
+  //knees
   f->skeleton.joints[12].parent = &f->skeleton.joints[10];
-  //feet
   f->skeleton.joints[13].parent = &f->skeleton.joints[11];
+  //feet
   f->skeleton.joints[14].parent = &f->skeleton.joints[12];
+  f->skeleton.joints[15].parent = &f->skeleton.joints[13];
 
 }
 
