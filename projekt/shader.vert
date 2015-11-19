@@ -75,9 +75,24 @@ uniform vec3 farmer_rshoulder_pos[8];
 uniform vec3 farmer_rshoulder_bone_pos[8];
 uniform mat4 farmer_rshoulder[8];
 
+uniform vec3 farmer_lhip_pos[8];
+uniform vec3 farmer_lhip_bone_pos[8];
+uniform mat4 farmer_lhip[8];
+
+uniform vec3 farmer_rhip_pos[8];
+uniform vec3 farmer_rhip_bone_pos[8];
+uniform mat4 farmer_rhip[8];
+
+uniform vec3 farmer_stomach_pos[8];
+uniform vec3 farmer_stomach_bone_pos[8];
+uniform mat4 farmer_stomach[8];
+
+uniform vec3 farmer_groin_pos[8];
+uniform vec3 farmer_groin_bone_pos[8];
+uniform mat4 farmer_groin[8];
+
 mat3 normal_matrix = mat3(cam_matrix * mdl_matrix);
 vec3 transformed_normal = normal_matrix * inNormal;
-
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -303,6 +318,54 @@ void main(void)
     if(dist < leng*.7)
       gl_Position += proj_matrix*cam_matrix*farmer_rshoulder[i]*mdl_matrix*vec4(inPosition, 1);
   }
+
+  //legs
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_lhip_pos[i], farmer_lhip_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_lhip_bone_pos[i]);
+
+    if(dist < leng*.6)
+      gl_Position += proj_matrix*cam_matrix*farmer_lhip[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+  //legs
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_rhip_pos[i], farmer_rhip_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_rhip_bone_pos[i]);
+
+    if(dist < leng*.6)
+      gl_Position += proj_matrix*cam_matrix*farmer_rhip[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+  //groin
+  //length of bone (joint to middle of bone times 2)
+  leng = 2*distance(farmer_groin_pos[0], farmer_groin_bone_pos[0]);
+
+  //distance to middle of bone
+  dist = distance(vec3(inPosition), farmer_groin_bone_pos[0]);
+
+  if(dist < leng*1.6)
+    gl_Position += proj_matrix*cam_matrix*farmer_groin[0]*mdl_matrix*vec4(inPosition, 1);
+
+  //stomach
+  //length of bone (joint to middle of bone times 2)
+  leng = 2*distance(farmer_stomach_pos[0], farmer_stomach_bone_pos[0]);
+
+  //distance to middle of bone
+  dist = distance(vec3(inPosition), farmer_stomach_bone_pos[0]);
+
+  if(dist < leng*2)
+    gl_Position += proj_matrix*cam_matrix*farmer_stomach[0]*mdl_matrix*vec4(inPosition, 1);
 
 
 

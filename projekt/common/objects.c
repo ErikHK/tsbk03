@@ -156,12 +156,12 @@ void create_farmer(farmer_s * f, vec3 pos)
   //stomach joint
   create_joint(&f->skeleton.joints[8], 
 	VectorAdd(f->pos, SetVector(0, 2.7, 0)), 
-	NULL, NULL, NULL, 0);
+	"farmer_stomach", "farmer_stomach_pos", "farmer_stomach_bone_pos", 0);
 
   //groin joint
   create_joint(&f->skeleton.joints[9], 
 	VectorAdd(f->pos, SetVector(0, 2, 0)), 
-	NULL, NULL, NULL, 0);
+	"farmer_groin", "farmer_groin_pos", "farmer_groin_bone_pos", 0);
 
   //hip joints
   create_joint(&f->skeleton.joints[10], 

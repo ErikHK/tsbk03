@@ -320,15 +320,15 @@ void DisplayWindow()
 	draw_ragdoll(&ragdoll, g_shader);
 
 
-	//glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_DEPTH_TEST);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDisable(GL_DEPTH_TEST);
 
 	draw_farmer(&farmer, g_shader);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	//glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
+	//glEnable(GL_DEPTH_TEST);
+	//glDisable(GL_BLEND);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
 
 
 
@@ -621,6 +621,10 @@ void OnTimer(int value)
 	calc_bone_transform(&farmer.skeleton.joints[3], 0);
 	//calc_bone_transform(&farmer.skeleton.joints[4], 0);
 	calc_bone_transform(&farmer.skeleton.joints[1], 0);
+	calc_bone_transform(&farmer.skeleton.joints[10], 0);
+	calc_bone_transform(&farmer.skeleton.joints[11], 0);
+	calc_bone_transform(&farmer.skeleton.joints[8], 0);
+	calc_bone_transform(&farmer.skeleton.joints[9], 0);
 
 
 	glutPostRedisplay();
