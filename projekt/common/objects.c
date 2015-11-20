@@ -721,6 +721,14 @@ void create_ragdoll(ragdoll_s * r)
   r->joints[1].parent = &r->joints[0];
   r->joints[2].parent = &r->joints[1];
   r->joints[3].parent = &r->joints[2];
+
+  r->joints[0].child[0] = &r->joints[1];
+  r->joints[1].child[0] = &r->joints[2];
+  r->joints[2].child[0] = &r->joints[3];
+  r->joints[3].child[0] = NULL;
+
+
+
 /*
   r->joints[4].parent = &r->joints[1];
   r->joints[5].parent = &r->joints[1];
@@ -738,6 +746,12 @@ void create_ragdoll(ragdoll_s * r)
   r->joints[1].dist_to_parent = 2;
   r->joints[2].dist_to_parent = 2.5;
   r->joints[3].dist_to_parent = 2;
+
+  r->joints[0].dist_to_child[0] = 2;
+  r->joints[1].dist_to_child[0] = 2.5;
+  r->joints[2].dist_to_child[0] = 2;
+  r->joints[3].dist_to_child[0] = 0;
+
 /*
   r->joints[4].dist_to_parent = 2;
   r->joints[5].dist_to_parent = 2;
@@ -786,11 +800,40 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   {
     r->joints[i].calculated_force = SetVector(0,0,0);
     joint_s * parent = r->joints[i].parent;
-
+    joint_s * child = r->joints[i].child[0];
 
     r->joints[i].calculated_force = VectorAdd(calculated_force, SetVector(0,-5,0));
 
+    if(child != NULL)
+    {
+      real_dist = VectorSub(r->joints[i].pos, child->pos);
+      n = Normalize(real_dist);
+      float dist_diff = (Norm(real_dist)-r->joints[i].dist_to_child[0]);
 
+    while(Norm(real_dist) < r->joints[i].dist_to_child[0] - .05 || 
+    Norm(real_dist) > r->joints[i].dist_to_child[0] + .05)
+    {
+      real_dist = VectorSub(r->joints[i].pos, child->pos);
+      n = Normalize(real_dist);
+      dist_diff = (Norm(real_dist)-r->joints[i].dist_to_child[0]);
+
+      if(Norm(real_dist) > r->joints[i].dist_to_child[0])
+        new_pos = VectorSub(r->joints[i].pos, ScalarMult(n, .05));
+      else
+        new_pos = VectorSub(r->joints[i].pos, ScalarMult(n, -.05));
+
+      r->joints[i].pos = new_pos;
+
+    }
+
+      //new_pos = VectorSub(r->joints[i].pos, ScalarMult(n, dist_diff/4));
+      //r->joints[i].pos = new_pos;
+
+
+
+
+
+    }
 
     if(parent != NULL)
     {
@@ -819,6 +862,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         //r->joints[i].pos = new_pos;
       //real_dist = VectorSub(r->joints[i].pos, parent->pos);
 
+
     while(Norm(real_dist) < r->joints[i].dist_to_parent - .05 || 
     Norm(real_dist) > r->joints[i].dist_to_parent + .05)
     {
@@ -834,6 +878,38 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       r->joints[i].pos = new_pos;
 
     }
+
+      //new_pos = VectorSub(r->joints[i].pos, ScalarMult(n, dist_diff/4));
+      //r->joints[i].pos = new_pos;
+
+
+      if(i==1)
+      {
+      vec3 n, leg, dir;
+      float dot, ang;
+
+    n = SetVector(0,1,0);
+    leg = Normalize(VectorSub(r->joints[0].pos, r->joints[1].pos));
+    dot = DotProduct(n, leg);
+    ang = 180*acos(dot)/M_PI;
+    dir = VectorSub(leg, n);
+    //printf("%f %f %f\n", r->joints[1].force.x, r->joints[1].force.y, r->joints[1].force.z);
+    //printf("%f\n", ang);
+    if(fabs(ang) > 20)
+    {
+      //r->joints[i].pos.x = new_pos.x;
+      //r->joints[i].pos.z = new_pos.z;
+      r->joints[1].pos = VectorAdd(r->joints[1].pos, 
+       ScalarMult(dir, .05));
+    leg = Normalize(VectorSub(r->joints[0].pos, r->joints[1].pos));
+    dot = DotProduct(n, leg);
+    ang = 180*acos(dot)/M_PI;
+
+
+    }
+
+    }
+
 
 
 
@@ -882,6 +958,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
     }
 
+
     if(i >= 0 && r->joints[i].pos.y > 0)
     {
       //dP = ScalarMult(VectorAdd(SetVector(0,-5,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
@@ -891,15 +968,6 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       dP = ScalarMult(VectorAdd(r->joints[i].force, r->joints[i].calculated_force), dT);
 
     }
-
-/*
-    else
-    {
-      dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
-      
-      
-    }
-*/
 
     if(r->joints[i].pos.y > 0 && fabs(r->joints[i].speed.y) <= 8)
       r->joints[i].speed = VectorAdd(r->joints[i].speed, dP);
