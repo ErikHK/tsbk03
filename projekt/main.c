@@ -325,7 +325,7 @@ void DisplayWindow()
 	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glDisable(GL_DEPTH_TEST);
 
-	draw_farmer(&farmer, g_shader);
+	//draw_farmer(&farmer, g_shader);
 	//glEnable(GL_DEPTH_TEST);
 	//glDisable(GL_BLEND);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
