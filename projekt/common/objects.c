@@ -1063,7 +1063,7 @@ void draw_ball(ball_s * b, GLuint program)
 
 void create_plank(plank_s * p, vec3 size)
 {
-  int i,j,x,z;
+  int i,j,x,y,z;
 
   int fine=1;
 
@@ -1071,7 +1071,48 @@ void create_plank(plank_s * p, vec3 size)
   GLfloat *normals = malloc(sizeof(GLfloat) * 3 * 2*2*2*fine);
   GLuint *indices = malloc(sizeof(GLuint) * 3 * 2);
 
+  for(x=0;x < size.x;x++)
+  {
+    for(y = 0;y < size.y;y++)
+    {
+      vertices[(y + x*(int)size.x)*3 + 0] = x*3;
+      vertices[(y + x*(int)size.x)*3 + 1] = y*3;
+      vertices[(y + x*(int)size.x)*3 + 2] = 0;
 
+    }
+
+  }
+
+
+  for(x=0;x < size.x-1;x++)
+  {
+    for(y = 0;y < size.y-1;y++)
+    {
+      indices[(x + y*(int)(size.y-1))*6 + 0] = x + y*size.y;
+      indices[(x + y*(int)(size.y-1))*6 + 1] = x + (y+1)*size.y;
+      indices[(x + y*(int)(size.y-1))*6 + 2] = x + 1 + y*size.y;
+
+      indices[(x + y*(int)(size.y-1))*6 + 3] = x + 1 + y*size.y;
+      indices[(x + y*(int)(size.y-1))*6 + 4] = x + (y+1)*size.y;
+      indices[(x + y*(int)(size.y-1))*6 + 5] = x + 1 + (y+1)*size.y;
+
+    }
+
+  }
 
   //Model * pb 
+  p->body = LoadDataToModel(
+	vertices,
+	NULL,
+	NULL,
+	NULL,
+	indices,
+	2*2,
+	2*3);
+}
+
+void draw_plank(plank_s * p, GLuint program)
+{
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, IdentityMatrix().m);
+  DrawModel(p->body, program, "inPosition", "inNormal", "inTexCoord");
 }

@@ -59,6 +59,7 @@ ball_s ball;
 wall_s wall;
 ragdoll_s ragdoll;
 farmer_s farmer;
+plank_s p;
 
 float cam_angle = 0;
 float cam_dist = 8;
@@ -317,7 +318,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
 	draw_wall(&wall, g_shader);
 	*/
-	draw_ragdoll(&ragdoll, g_shader);
+	//draw_ragdoll(&ragdoll, g_shader);
 
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
@@ -329,7 +330,7 @@ void DisplayWindow()
 	//glEnable(GL_DEPTH_TEST);
 	//glDisable(GL_BLEND);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
-
+	draw_plank(&p, g_shader);
 
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
@@ -726,6 +727,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
+	create_plank(&p, SetVector(2,2,2));
 	//f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));
