@@ -160,6 +160,23 @@ typedef struct wall_t
 
 } wall_s;
 
+typedef struct plank_t
+{
+  Model * body;
+  vec3 pos;
+  vec3 size;
+
+  float mass;
+
+} plank_s;
+
+typedef struct fence_t
+{
+  struct plank_t planks[4];
+
+} fence_s;
+
+
 void create_cow();
 void draw_cow();
 void turn_cow(cow_s * c, float angle);
@@ -193,3 +210,8 @@ void draw_ragdoll(ragdoll_s * r, GLuint program);
 void create_farmer(farmer_s * f, vec3 pos);
 void draw_farmer(farmer_s * f, GLuint program);
 void update_farmer(farmer_s * f);
+
+void create_plank(plank_s * p, vec3 size);
+void draw_plank(plank_s * p, GLuint program);
+
+void create_fence(fence_s * f);
