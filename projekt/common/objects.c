@@ -1130,8 +1130,8 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-#define XS 2
-#define YS 5
+#define XS 5
+#define YS 10
 #define ZS 2
 
 GLfloat verts[XS*YS*ZS*3*2];
@@ -1143,9 +1143,9 @@ i=0;
       for(z = 0;z < ZS;z++)
       {
         printf("%i %i %i\n", x,y,z);
-        verts[i*3 + 0] = x;
-        verts[i*3 + 1] = y;
-        verts[i*3 + 2] = z;
+        verts[i*3 + 0] = x*3.0;
+        verts[i*3 + 1] = y/5.0;
+        verts[i*3 + 2] = z/2.0;
 	i++;
       }
     }
@@ -1300,7 +1300,7 @@ GLuint indic[] = {
 	NULL,
 	indic,
 	(XS)*(YS)*ZS,
-	(XS)*(YS)*2*2*2);
+	(XS)*(YS)*2*2*2*2);
 //	);
 }
 
