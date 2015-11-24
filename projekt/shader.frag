@@ -54,4 +54,6 @@ void main(void)
   if(collision==1 && draw_cow==1)
     fragColor = vec4(.5,0,.5,1);
 
+  fragColor = inPos;
+
 }
