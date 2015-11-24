@@ -937,6 +937,7 @@ void DrawModel(Model *m, GLuint program, char* vertexVariableName, char* normalV
 		}
 
 		glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 }
 

@@ -1064,51 +1064,136 @@ void draw_ball(ball_s * b, GLuint program)
 void create_plank(plank_s * p, vec3 size)
 {
   int i,j,x,y,z;
+  int tri_count = (size.x-1)*(size.y-1)*(size.z-1)*3;
 
   int fine=1;
 
-  GLfloat *vertices = malloc(sizeof(GLfloat) * 3 * 2*2*2*fine);
-  GLfloat *normals = malloc(sizeof(GLfloat) * 3 * 2*2*2*fine);
-  GLuint *indices = malloc(sizeof(GLuint) * 3 * 2);
+  GLfloat *vertices = malloc(sizeof(GLfloat) * 3 * (int)(size.x*size.y));
+  GLfloat *normals = malloc(sizeof(GLfloat) * 3 * (int)(size.x*size.y));
+  //GLuint *indices = malloc(sizeof(GLuint) * 3 * tri_count *2);
 
   for(x=0;x < size.x;x++)
   {
-    for(y = 0;y < size.y;y++)
-    {
-      vertices[(y + x*(int)size.x)*3 + 0] = x*3;
-      vertices[(y + x*(int)size.x)*3 + 1] = y*3;
-      vertices[(y + x*(int)size.x)*3 + 2] = 0;
-
-    }
+//    for(y = 0;y < size.y;y++)
+//    {
+      for(z = 0;z < size.z;z++)
+      {
+        printf("hehe\n");
+        vertices[(z + 0*y*(int)size.y + x*(int)size.x)*3 + 0] = x*5;
+        vertices[(z + 0*y*(int)size.y + x*(int)size.x)*3 + 1] = 1;
+        vertices[(z + 0*y*(int)size.y + x*(int)size.x)*3 + 2] = z*5;
+      }
+//    }
 
   }
 
 
+/*
   for(x=0;x < size.x-1;x++)
   {
     for(y = 0;y < size.y-1;y++)
     {
-      indices[(x + y*(int)(size.y-1))*6 + 0] = x + y*size.y;
-      indices[(x + y*(int)(size.y-1))*6 + 1] = x + (y+1)*size.y;
-      indices[(x + y*(int)(size.y-1))*6 + 2] = x + 1 + y*size.y;
+      for(z = 0;z < size.z-1;z++)
+      {
+        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 0] =
+	 x + y*size.y;
 
-      indices[(x + y*(int)(size.y-1))*6 + 3] = x + 1 + y*size.y;
-      indices[(x + y*(int)(size.y-1))*6 + 4] = x + (y+1)*size.y;
-      indices[(x + y*(int)(size.y-1))*6 + 5] = x + 1 + (y+1)*size.y;
+        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 1] =
+	 x + (y+1)*size.y;
 
+        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 2] =
+	 x + 1 + y*size.y;
+
+
+        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 3] =
+	 x + 1 + y*size.y + z*size.z;
+        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 4] =
+	 x + (y+1)*size.y + z*size.z;
+        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 5] =
+	 x + 1 + (y+1)*size.y + z*size.z;
+      }
+    }
+
+  }
+*/
+  //Model * pb 
+
+/*
+  GLfloat verts[] = 
+	{0,0,0,
+	0,0,1,
+	0,1,0,
+	0,1,1,
+	1,0,0,
+	1,0,1,
+	1,1,0,
+	1,1,1};
+*/
+
+GLfloat verts[4*2*2*3];
+i=0;
+  for(x=0;x < 4;x++)
+  {
+    for(y = 0;y < 2;y++)
+    {
+      for(z = 0;z < 2;z++)
+      {
+        printf("%i %i %i\n", x,y,z);
+        verts[i*3 + 0] = x;
+        verts[i*3 + 1] = y;
+        verts[i*3 + 2] = z;
+	i++;
+      }
     }
 
   }
 
-  //Model * pb 
+
+
+
+//GLuint indic[] = {
+//	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+//	21,22,23,24,25,26,27,28,29,30,31,32,33,34,35};
+
+/*
+GLuint indic[] = {
+	0,1,2,
+	1,2,3,
+	4,5,6,
+	5,6,7,
+	8,9,10,
+	9,10,11};
+*/
+GLuint indic[] = {
+	//right side first
+	0,2,6,
+	//0,4,6,
+	2,4,6,
+	//right side second
+	4,6,8,
+	6,8,10,
+	//left side first
+	1,3,7,
+	1,5,7,
+	//left side second
+	5,7,9,
+	7,9,11,
+	//bottom first
+	0,1,4,
+	1,4,5,
+	//bottom second
+	4,5,8,
+	5,8,9};
+
+
   p->body = LoadDataToModel(
-	vertices,
+	verts,
 	NULL,
 	NULL,
 	NULL,
-	indices,
-	2*2,
-	2*3);
+	indic,
+	12*3,
+	12*3);
 }
 
 void draw_plank(plank_s * p, GLuint program)

@@ -310,7 +310,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
-	draw_floor(&f, g_shader);
+	//draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
 	/*
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
@@ -727,7 +727,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
-	create_plank(&p, SetVector(2,2,2));
+	create_plank(&p, SetVector(4,4,0));
 	//f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));
