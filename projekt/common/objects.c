@@ -1130,8 +1130,8 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-#define XS 6
-#define YS 6
+#define XS 5
+#define YS 5
 #define ZS 2
 
 GLfloat verts[XS*YS*ZS*3*2];
@@ -1180,16 +1180,6 @@ for(i=0;i < XS-1;i++)
   for(j=0;j < YS-1;j++)
   {
     //one side (z=0)
-/*
-    indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
-    indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
-    indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + y*2;
-
-    indic[i*(y-1)*3 + 0+ 3*j + XS*YS*3] = (y)*2*i + 2*j + 2;
-    indic[i*(y-1)*3 + 1+ 3*j + XS*YS*3] = (y)*2*i + 2*j +y*2;
-    indic[i*(y-1)*3 + 2+ 3*j + XS*YS*3] = (y)*2*i + 2*j + y*2 +2;
-*/
-    //one side (z=0)
     indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
     indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
     indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + (y)*2;
@@ -1203,38 +1193,39 @@ for(i=0;i < XS-1;i++)
     indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + 2 + 1;
     indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + (y)*2 + 1;
 
-    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3*5] = (y)*2*i + 2*j + 2 + 1;
-    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*5] = (y)*2*i + 2*j +(y)*2 + 1;
-    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*5] = (y)*2*i + 2*j + (y)*2 +2 + 1;
-
-/*
-    //other side (z=1)
-    indic[i*(y-1)*3 + 0+ 3*j + 36*2] = (y)*2*i + 2*j + 1;
-    indic[i*(y-1)*3 + 1+ 3*j + 36*2] = (y)*2*i + 2*j + 2 + 1;
-    indic[i*(y-1)*3 + 2+ 3*j + 36*2] = (y)*2*i + 2*j + y*2 + 1;
-
-    indic[i*(y-1)*3 + 0+ 3*j + 36 + 36*2] = (y)*2*i + 2*j + 2 + 1;
-    indic[i*(y-1)*3 + 1+ 3*j + 36 + 36*2] = (y)*2*i + 2*j + 2+8 + 1;
-    indic[i*(y-1)*3 + 2+ 3*j + 36 + 36*2] = (y)*2*i + 2*j + 2 + 8 +2 + 1;
-*/
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3*3] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*3] = (y)*2*i + 2*j +(y)*2 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*3] = (y)*2*i + 2*j + (y)*2 +2 + 1;
 
   }
+
+
+  //bottom
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 0] = y*2*i;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 1] = y*2*i + 1;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 2] = y*2*i + 2*(y);
+
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 3] = y*2*i + 1;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 4] = y*2*i + y*2;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 5] = y*2*i + 2*(y) + 1;
+
+
+  //top
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 0] = y*2*i + (YS-1)*2;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 1] = y*2*i + 1 + (YS-1)*2;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 2] = y*2*i + 2*(y) + (YS-1)*2;
+
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 3] = y*2*i + (YS-1)*2+1;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 4] = y*2*i + 1 + (YS-1)*4+1;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 5] = y*2*i + 3 + (YS-1)*4;
+
 /*
-  //bottom
-  indic[72*2 + i*6 + 0] = y*2*i;
-  indic[72*2 + i*6 + 1] = y*2*i + 1;
-  indic[72*2 + i*6 + 2] = y*2*i + 2*(y);
-
-  //bottom
-  indic[72*2 + i*6 + 3] = y*2*i + 1;
-  indic[72*2 + i*6 + 4] = y*2*i + 2*y;
-  indic[72*2 + i*6 + 5] = y*2*i + 2*(y)+1;
-
   //top
   indic[72*2 + 18 + i*6 + 0] = y*2*i + 8;
   indic[72*2 + 18 + i*6 + 1] = y*2*i + 1 + 8;
   indic[72*2 + 18 + i*6 + 2] = y*2*i + 2*(y) + 8;
-
+*/
+/*
   //top
   indic[72*2 + 18 + i*6 + 3] = y*2*i + 1 + 8;
   indic[72*2 + 18 + i*6 + 4] = y*2*i + 2*y + 8;
@@ -1260,7 +1251,7 @@ for(i=0;i<8;i++)
 }
 */
 
-for(i=0;i < 32*6;i++)
+for(i=0;i < 32*6*4;i++)
 {
   printf("%i ", indic[i]);
   if((i+1)%3==0)
@@ -1299,7 +1290,7 @@ GLuint indic[] = {
 	NULL,
 	indic,
 	(XS)*(YS)*ZS,
-	(XS)*(YS)*2*2*2*2);
+	(XS)*(YS)*2*2*2*2 + 30);
 //	);
 }
 
