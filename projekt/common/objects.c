@@ -1130,13 +1130,13 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-GLfloat verts[4*2*2*3];
+GLfloat verts[4*2*3*3];
 i=0;
   for(x=0;x < 4;x++)
   {
     for(y = 0;y < 2;y++)
     {
-      for(z = 0;z < 2;z++)
+      for(z = 0;z < 3;z++)
       {
         printf("%i %i %i\n", x,y,z);
         verts[i*3 + 0] = x;
@@ -1148,30 +1148,31 @@ i=0;
 
   }
 
+GLuint indic[28*3];
 
+for(i=0;i < 6;i++)
+{
+  indic[i*3 + 0] = i*z;
+  indic[i*3 + 1] = i*z+z;
+  indic[i*3 + 2] = i*z+z*2;
 
+  indic[i*3 + 0+6*3] = i*z+1;
+  indic[i*3 + 1+6*3] = i*z+z+1;
+  indic[i*3 + 2+6*3] = i*z+z*2+1;
 
-//GLuint indic[] = {
-//	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
-//	21,22,23,24,25,26,27,28,29,30,31,32,33,34,35};
+}
 
 /*
 GLuint indic[] = {
-	0,1,2,
-	1,2,3,
-	4,5,6,
-	5,6,7,
-	8,9,10,
-	9,10,11};
-*/
-GLuint indic[] = {
 	//right side first
-	0,2,6,
-	//0,4,6,
+	0,2,4,
 	2,4,6,
 	//right side second
 	4,6,8,
 	6,8,10,
+	//right side third
+	8,10,12,
+	10,12,14,
 	//left side first
 	1,3,7,
 	1,5,7,
@@ -1184,7 +1185,7 @@ GLuint indic[] = {
 	//bottom second
 	4,5,8,
 	5,8,9};
-
+*/
 
   p->body = LoadDataToModel(
 	verts,
