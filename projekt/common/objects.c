@@ -1134,9 +1134,9 @@ GLfloat verts[4*2*3*3];
 i=0;
   for(x=0;x < 4;x++)
   {
-    for(y = 0;y < 2;y++)
+    for(y = 0;y < 3;y++)
     {
-      for(z = 0;z < 3;z++)
+      for(z = 0;z < 2;z++)
       {
         printf("%i %i %i\n", x,y,z);
         verts[i*3 + 0] = x;
@@ -1149,17 +1149,20 @@ i=0;
   }
 
 GLuint indic[28*3];
-
-for(i=0;i < 6;i++)
+//int j;
+for(i=0;i < 3;i++)
 {
-  indic[i*3 + 0] = i*z;
-  indic[i*3 + 1] = i*z+z;
-  indic[i*3 + 2] = i*z+z*2;
+  indic[i*6 + 0] = i*6;
+  indic[i*6 + 1] = i*6+2;
+  indic[i*6 + 2] = i*6 + 6;
 
-  indic[i*3 + 0+6*3] = i*z+1;
-  indic[i*3 + 1+6*3] = i*z+z+1;
-  indic[i*3 + 2+6*3] = i*z+z*2+1;
+  indic[i*6 +3 + 0] = i*6+2;
+  indic[i*6 +3 + 1] = i*6+2+2;
+  indic[i*6 +3 + 2] = i*6 + 6+2;
 
+  //indic[i*3 + 0+6*3] = i*z+1;
+  //indic[i*3 + 1+6*3] = i*z+z+1;
+  //indic[i*3 + 2+6*3] = i*z+z*2+1;
 }
 
 /*
