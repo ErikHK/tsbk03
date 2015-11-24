@@ -1153,13 +1153,17 @@ GLuint indic[28*3];
 printf("\n\n");
 for(i=0;i < 3;i++)
 {
-  indic[i*6 + 0] = i*8;
-  indic[i*6 + 1] = i*8+2;
-  indic[i*6 + 2] = i*8 + 6+2;
+  indic[i*9 + 0] = i*8;
+  indic[i*9 + 1] = i*8+2;
+  indic[i*9 + 2] = i*8 + 6+2;
 
-  indic[i*6  + 3] = i*8 + 2;
-  indic[i*6  + 4] = i*8+ 2 + 2;
-  indic[i*6  + 5] = i*8 + 2 + 6+2;
+  indic[i*9  + 3] = i*8 + 2;
+  indic[i*9  + 4] = i*8+ 2 + 2;
+  indic[i*9  + 5] = i*8 + 2 + 6+2;
+
+  indic[i*9  + 6] = i*8 + 2+2;
+  indic[i*9  + 7] = i*8+ 2 + 2+2;
+  indic[i*9  + 8] = i*8 + 2 + 6+2+2;
 
   //indic[i*3 + 0+6*3] = i*z+1;
   //indic[i*3 + 1+6*3] = i*z+z+1;
@@ -1205,7 +1209,7 @@ GLuint indic[] = {
 	NULL,
 	indic,
 	32*3,
-	18*2);
+	24*2);
 }
 
 void draw_plank(plank_s * p, GLuint program)
