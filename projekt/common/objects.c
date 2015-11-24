@@ -1130,11 +1130,11 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-#define XS 4
-#define YS 4
+#define XS 6
+#define YS 6
 #define ZS 2
 
-GLfloat verts[XS*YS*ZS*3];
+GLfloat verts[XS*YS*ZS*3*2];
 i=0;
   for(x=0;x < XS;x++)
   {
@@ -1155,7 +1155,7 @@ i=0;
 //verts[0] = -2;
 //verts[12] = -2;
 
-GLuint indic[XS*YS*ZS*3] = {{0}};
+GLuint indic[XS*YS*ZS*3*3] = {{0}};
 //int j;
 i=0;
 j=0;
@@ -1189,6 +1189,7 @@ for(i=0;i < XS-1;i++)
     indic[i*(y-1)*3 + 1+ 3*j + XS*YS*3] = (y)*2*i + 2*j +y*2;
     indic[i*(y-1)*3 + 2+ 3*j + XS*YS*3] = (y)*2*i + 2*j + y*2 +2;
 */
+    //one side (z=0)
     indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
     indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
     indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + (y)*2;
@@ -1196,6 +1197,15 @@ for(i=0;i < XS-1;i++)
     indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j + 2;
     indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j +(y)*2;
     indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j + (y)*2 +2;
+
+    //other side (z=1)
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + (y)*2 + 1;
+
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3*5] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*5] = (y)*2*i + 2*j +(y)*2 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*5] = (y)*2*i + 2*j + (y)*2 +2 + 1;
 
 /*
     //other side (z=1)
@@ -1289,7 +1299,7 @@ GLuint indic[] = {
 	NULL,
 	indic,
 	(XS)*(YS)*ZS,
-	9*3*2-3);
+	(XS)*(YS)*2*2*2*2);
 //	);
 }
 
