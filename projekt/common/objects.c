@@ -1152,8 +1152,20 @@ i=0;
 
   }
 
-//verts[0] = -2;
-//verts[12] = -2;
+verts[0] = -.5;
+verts[3] = -.2;
+
+verts[12] = -.9;
+verts[15] = -.3;
+
+verts[24] = -1.1;
+verts[27] = -.3;
+
+verts[36] = -0.4;
+verts[39] = -.9;
+
+verts[48] = -.2;
+verts[51] = -.4;
 
 GLuint indic[XS*YS*ZS*3*3] = {{0}};
 //int j;
