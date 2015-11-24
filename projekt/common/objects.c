@@ -1130,11 +1130,11 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-GLfloat verts[4*2*4*3];
+GLfloat verts[4*2*6*3];
 i=0;
   for(x=0;x < 4;x++)
   {
-    for(y = 0;y < 4;y++)
+    for(y = 0;y < 6;y++)
     {
       for(z = 0;z < 2;z++)
       {
@@ -1150,9 +1150,12 @@ i=0;
 
 GLuint indic[28*3];
 //int j;
+i=0;
+j=0;
 printf("\n\n");
 for(i=0;i < 3;i++)
 {
+  /*
   indic[i*9 + 0] = i*8;
   indic[i*9 + 1] = i*8+2;
   indic[i*9 + 2] = i*8 + 6+2;
@@ -1164,13 +1167,17 @@ for(i=0;i < 3;i++)
   indic[i*9  + 6] = i*8 + 2+2;
   indic[i*9  + 7] = i*8+ 2 + 2+2;
   indic[i*9  + 8] = i*8 + 2 + 6+2+2;
+  */
 
-  //indic[i*3 + 0+6*3] = i*z+1;
-  //indic[i*3 + 1+6*3] = i*z+z+1;
-  //indic[i*3 + 2+6*3] = i*z+z*2+1;
+  for(j=0;j < 5;j++)
+  {
+    indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
+    indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
+    indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + y*2;
+  }
 }
 
-for(i=0;i<3*6;i++)
+for(i=0;i < 3*9;i++)
 {
   printf("%i ", indic[i]);
   if((i+1)%3==0)
@@ -1209,7 +1216,7 @@ GLuint indic[] = {
 	NULL,
 	indic,
 	32*3,
-	24*2);
+	27*2);
 }
 
 void draw_plank(plank_s * p, GLuint program)
