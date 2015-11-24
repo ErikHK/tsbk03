@@ -1130,13 +1130,17 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-GLfloat verts[5*2*5*3];
+#define XS 4
+#define YS 4
+#define ZS 2
+
+GLfloat verts[XS*YS*ZS*3];
 i=0;
-  for(x=0;x < 4;x++)
+  for(x=0;x < XS;x++)
   {
-    for(y = 0;y < 5;y++)
+    for(y = 0;y < YS;y++)
     {
-      for(z = 0;z < 2;z++)
+      for(z = 0;z < ZS;z++)
       {
         printf("%i %i %i\n", x,y,z);
         verts[i*3 + 0] = x;
@@ -1151,12 +1155,13 @@ i=0;
 //verts[0] = -2;
 //verts[12] = -2;
 
-GLuint indic[36*2*3*2];
+GLuint indic[XS*YS*ZS*3] = {{0}};
 //int j;
 i=0;
 j=0;
 printf("\n\n");
-for(i=0;i < 3;i++)
+printf("%i\n\n", y);
+for(i=0;i < XS-1;i++)
 {
   /*
   indic[i*9 + 0] = i*8;
@@ -1172,29 +1177,39 @@ for(i=0;i < 3;i++)
   indic[i*9  + 8] = i*8 + 2 + 6+2+2;
   */
 
-  for(j=0;j < 4;j++)
+  for(j=0;j < YS-1;j++)
   {
     //one side (z=0)
+/*
     indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
     indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
     indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + y*2;
 
-    indic[i*(y-1)*3 + 0+ 3*j + 36] = (y)*2*i + 2*j + 2;
-    indic[i*(y-1)*3 + 1+ 3*j + 36] = (y)*2*i + 2*j + 2+8;
-    indic[i*(y-1)*3 + 2+ 3*j + 36] = (y)*2*i + 2*j + 2 + 8 +2;
+    indic[i*(y-1)*3 + 0+ 3*j + XS*YS*3] = (y)*2*i + 2*j + 2;
+    indic[i*(y-1)*3 + 1+ 3*j + XS*YS*3] = (y)*2*i + 2*j +y*2;
+    indic[i*(y-1)*3 + 2+ 3*j + XS*YS*3] = (y)*2*i + 2*j + y*2 +2;
+*/
+    indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
+    indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
+    indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + (y)*2;
 
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j + 2;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j +(y)*2;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j + (y)*2 +2;
+
+/*
     //other side (z=1)
-    indic[i*(y-1)*3 + 0+ 3*j + 72] = (y)*2*i + 2*j + 1;
-    indic[i*(y-1)*3 + 1+ 3*j + 72] = (y)*2*i + 2*j + 2 + 1;
-    indic[i*(y-1)*3 + 2+ 3*j + 72] = (y)*2*i + 2*j + y*2 + 1;
+    indic[i*(y-1)*3 + 0+ 3*j + 36*2] = (y)*2*i + 2*j + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + 36*2] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + 36*2] = (y)*2*i + 2*j + y*2 + 1;
 
-    indic[i*(y-1)*3 + 0+ 3*j + 36 + 72] = (y)*2*i + 2*j + 2 + 1;
-    indic[i*(y-1)*3 + 1+ 3*j + 36 + 72] = (y)*2*i + 2*j + 2+8 + 1;
-    indic[i*(y-1)*3 + 2+ 3*j + 36 + 72] = (y)*2*i + 2*j + 2 + 8 +2 + 1;
-
+    indic[i*(y-1)*3 + 0+ 3*j + 36 + 36*2] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + 36 + 36*2] = (y)*2*i + 2*j + 2+8 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + 36 + 36*2] = (y)*2*i + 2*j + 2 + 8 +2 + 1;
+*/
 
   }
-
+/*
   //bottom
   indic[72*2 + i*6 + 0] = y*2*i;
   indic[72*2 + i*6 + 1] = y*2*i + 1;
@@ -1214,10 +1229,10 @@ for(i=0;i < 3;i++)
   indic[72*2 + 18 + i*6 + 3] = y*2*i + 1 + 8;
   indic[72*2 + 18 + i*6 + 4] = y*2*i + 2*y + 8;
   indic[72*2 + 18 + i*6 + 5] = y*2*i + 2*(y)+1 + 8;
-
+*/
 
 }
-
+/*
 for(i=0;i<8;i++)
 {
   //left side
@@ -1233,9 +1248,9 @@ for(i=0;i<8;i++)
   indic[72*2+18+18 + i*6 + 5] = i + 2+30;
 
 }
+*/
 
-
-for(i=0;i < 72*2+36*2;i++)
+for(i=0;i < 32*6;i++)
 {
   printf("%i ", indic[i]);
   if((i+1)%3==0)
@@ -1273,8 +1288,9 @@ GLuint indic[] = {
 	NULL,
 	NULL,
 	indic,
-	32*3,
-	36*2*2+36*3);
+	(XS)*(YS)*ZS,
+	9*3*2-3);
+//	);
 }
 
 void draw_plank(plank_s * p, GLuint program)
