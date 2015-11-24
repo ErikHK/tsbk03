@@ -1130,7 +1130,7 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-#define XS 5
+#define XS 2
 #define YS 5
 #define ZS 2
 
@@ -1233,23 +1233,33 @@ for(i=0;i < XS-1;i++)
 */
 
 }
-/*
-for(i=0;i<8;i++)
+
+for(i=0;i<2*YS;i++)
 {
   //left side
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 0] = i + 0;
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 1] = i + 1;
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 2] = i + 2;
 
-  indic[72*2+18+18 + i*6 + 0] = i + 0;
-  indic[72*2+18+18 + i*6 + 1] = i + 1;
-  indic[72*2+18+18 + i*6 + 2] = i + 2;
+  //right side
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 3] = i + 0 + 2*(YS)*(XS-1);
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 4] = i + 1 + 2*(YS)*(XS-1);
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 5] = i + 2 + 2*(YS)*(XS-1);
 
 
+
+//  indic[72*2+18+18 + i*6 + 0] = i + 0;
+//  indic[72*2+18+18 + i*6 + 1] = i + 1;
+//  indic[72*2+18+18 + i*6 + 2] = i + 2;
+
+/*
   //right side
   indic[72*2+18+18 + i*6 + 3] = i + 0+30;
   indic[72*2+18+18 + i*6 + 4] = i + 1+30;
   indic[72*2+18+18 + i*6 + 5] = i + 2+30;
-
-}
 */
+}
+
 
 for(i=0;i < 32*6*4;i++)
 {
@@ -1290,7 +1300,7 @@ GLuint indic[] = {
 	NULL,
 	indic,
 	(XS)*(YS)*ZS,
-	(XS)*(YS)*2*2*2*2 + 30);
+	(XS)*(YS)*2*2*2);
 //	);
 }
 
