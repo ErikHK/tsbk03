@@ -306,11 +306,11 @@ void DisplayWindow()
 	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
-	//draw_cow(&cow, g_shader);
+	draw_cow(&cow, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
-	//draw_floor(&f, g_shader);
+	draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
 	/*
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
@@ -330,7 +330,9 @@ void DisplayWindow()
 	//glEnable(GL_DEPTH_TEST);
 	//glDisable(GL_BLEND);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_plank"), 1);
 	draw_plank(&p, g_shader);
+	glUniform1i(glGetUniformLocation(g_shader, "draw_plank"), 0);
 
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
@@ -727,7 +729,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
-	create_plank(&p, SetVector(4,4,0));
+	create_plank(&p, SetVector(4,4,0), SetVector(0,5,0));
 	//f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));

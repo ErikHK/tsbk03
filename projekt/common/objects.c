@@ -1061,10 +1061,15 @@ void draw_ball(ball_s * b, GLuint program)
 }
 
 
-void create_plank(plank_s * p, vec3 size)
+void create_plank(plank_s * p, vec3 size, vec3 pos)
 {
   int i,j,x,y,z;
   int tri_count = (size.x-1)*(size.y-1)*(size.z-1)*3;
+
+  p->pos = pos;
+  p->mass = 2;
+
+  p->T = T(pos.x, pos.y, pos.z);
 
   int fine=1;
 
@@ -1130,11 +1135,12 @@ void create_plank(plank_s * p, vec3 size)
 	1,1,1};
 */
 
-#define XS 5
+#define XS 6
 #define YS 10
 #define ZS 2
 
 GLfloat verts[XS*YS*ZS*3*2];
+GLfloat norms[XS*YS*ZS*3*2];
 i=0;
   for(x=0;x < XS;x++)
   {
@@ -1146,6 +1152,7 @@ i=0;
         verts[i*3 + 0] = x*3.0;
         verts[i*3 + 1] = y/5.0;
         verts[i*3 + 2] = z/2.0;
+
 	i++;
       }
     }
@@ -1166,6 +1173,28 @@ verts[39] = -.9;
 
 verts[48] = -.2;
 verts[51] = -.4;
+
+Point3D tmp_normal;
+i=0;
+  for(x=0;x < XS;x++)
+  {
+    for(y = 0;y < YS;y++)
+    {
+      for(z = 0;z < ZS;z++)
+      {
+
+      //calc_normal(verts, x, y, YS, &tmp_normal);
+      if(z>0)
+        norms[i*3 + 2] = 1;
+      else
+        norms[i*3 + 2] = -1;
+      norms[i*3 + 1] = 0;
+      norms[i*3 + 0] = 0;
+      i++;
+      }
+    }
+  }
+
 
 GLuint indic[XS*YS*ZS*3*3] = {{0}};
 //int j;
@@ -1307,17 +1336,17 @@ GLuint indic[] = {
 
   p->body = LoadDataToModel(
 	verts,
-	NULL,
+	norms,
 	NULL,
 	NULL,
 	indic,
 	(XS)*(YS)*ZS,
-	(XS)*(YS)*2*2*2*2);
+	(XS)*(YS)*2*2*2*2-40);
 //	);
 }
 
 void draw_plank(plank_s * p, GLuint program)
 {
-  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, IdentityMatrix().m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, p->T.m);
   DrawModel(p->body, program, "inPosition", "inNormal", "inTexCoord");
 }
