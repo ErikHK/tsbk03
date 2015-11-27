@@ -1060,80 +1060,63 @@ void draw_ball(ball_s * b, GLuint program)
   DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
+void create_fence(fence_s * f, int width, vec3 pos)
+{
 
-void create_plank(plank_s * p, vec3 size, vec3 pos)
+  int i;
+  for(i=0;i<width;i++)
+  {
+    //create upright (type 0)
+    create_plank(&f->planks[i*3], 
+	VectorAdd(pos, SetVector(i*10,0,0)), 0);
+    //create upright (type 0)
+    //create_plank(&f->planks[i*4+1],
+    //	 VectorAdd(pos, SetVector(i*5+10,0,0)), 0);
+
+    create_plank(&f->planks[i*3+1],
+	 VectorAdd(pos, SetVector(i*10,7,0)), 1);
+    create_plank(&f->planks[i*3+2],
+	 VectorAdd(pos, SetVector(i*10,3,0)), 1);
+  }
+
+//  create_plank(&f->planks[0],
+//	VectorAdd(pos, SetVector(-20,20,0)), 0);
+
+}
+
+void draw_fence(fence_s * f, GLuint program)
+{
+
+  int i;
+  for(i=0;i<9;i++)
+  {
+    draw_plank(&f->planks[i], program);
+    //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
+    //DrawModel(f->planks[i].body, program, "inPosition", "inNormal", "inTexCoord");
+  }
+
+
+  //draw_plank(&f->planks[0], program);
+
+}
+
+
+void create_plank(plank_s * p, vec3 pos, int type)
 {
   int i,j,x,y,z;
-  int tri_count = (size.x-1)*(size.y-1)*(size.z-1)*3;
+  //int tri_count = (size.x-1)*(size.y-1)*(size.z-1)*3;
 
   p->pos = pos;
   p->mass = 2;
 
-  p->T = T(pos.x, pos.y, pos.z);
+  if(type==0)
+    p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
+    //p->T = Rz(M_PI/2);
+    //p->T = T(0,0,0);
+  else
+    p->T = T(pos.x, pos.y, pos.z);
 
   int fine=1;
-
-  GLfloat *vertices = malloc(sizeof(GLfloat) * 3 * (int)(size.x*size.y));
-  GLfloat *normals = malloc(sizeof(GLfloat) * 3 * (int)(size.x*size.y));
-  //GLuint *indices = malloc(sizeof(GLuint) * 3 * tri_count *2);
-
-  for(x=0;x < size.x;x++)
-  {
-//    for(y = 0;y < size.y;y++)
-//    {
-      for(z = 0;z < size.z;z++)
-      {
-        printf("hehe\n");
-        vertices[(z + 0*y*(int)size.y + x*(int)size.x)*3 + 0] = x*5;
-        vertices[(z + 0*y*(int)size.y + x*(int)size.x)*3 + 1] = 1;
-        vertices[(z + 0*y*(int)size.y + x*(int)size.x)*3 + 2] = z*5;
-      }
-//    }
-
-  }
-
-
-/*
-  for(x=0;x < size.x-1;x++)
-  {
-    for(y = 0;y < size.y-1;y++)
-    {
-      for(z = 0;z < size.z-1;z++)
-      {
-        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 0] =
-	 x + y*size.y;
-
-        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 1] =
-	 x + (y+1)*size.y;
-
-        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 2] =
-	 x + 1 + y*size.y;
-
-
-        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 3] =
-	 x + 1 + y*size.y + z*size.z;
-        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 4] =
-	 x + (y+1)*size.y + z*size.z;
-        indices[(x + z*(int)(size.z-1) + y*(int)(size.y-1))*6 + 5] =
-	 x + 1 + (y+1)*size.y + z*size.z;
-      }
-    }
-
-  }
-*/
-  //Model * pb 
-
-/*
-  GLfloat verts[] = 
-	{0,0,0,
-	0,0,1,
-	0,1,0,
-	0,1,1,
-	1,0,0,
-	1,0,1,
-	1,1,0,
-	1,1,1};
-*/
 
 #define XS 6
 #define YS 10
@@ -1149,7 +1132,7 @@ i=0;
       for(z = 0;z < ZS;z++)
       {
         printf("%i %i %i\n", x,y,z);
-        verts[i*3 + 0] = x*3.0;
+        verts[i*3 + 0] = x*2.0;
         verts[i*3 + 1] = y/5.0;
         verts[i*3 + 2] = z/2.0;
 
@@ -1159,6 +1142,7 @@ i=0;
 
   }
 
+/*
 verts[0] = -.5;
 verts[3] = -.2;
 
@@ -1173,6 +1157,7 @@ verts[39] = -.9;
 
 verts[48] = -.2;
 verts[51] = -.4;
+*/
 
 Point3D tmp_normal;
 i=0;
@@ -1196,7 +1181,7 @@ i=0;
   }
 
 
-GLuint indic[XS*YS*ZS*3*3] = {{0}};
+GLuint indic[XS*YS*ZS*3*3] = {0};
 //int j;
 i=0;
 j=0;

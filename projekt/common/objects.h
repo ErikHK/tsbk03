@@ -174,7 +174,8 @@ typedef struct plank_t
 
 typedef struct fence_t
 {
-  struct plank_t planks[4];
+  plank_s planks[40];
+  vec3 pos;
 
 } fence_s;
 
@@ -213,7 +214,9 @@ void create_farmer(farmer_s * f, vec3 pos);
 void draw_farmer(farmer_s * f, GLuint program);
 void update_farmer(farmer_s * f);
 
-void create_plank(plank_s * p, vec3 size, vec3 pos);
+void create_plank(plank_s * p, vec3 pos, int type);
 void draw_plank(plank_s * p, GLuint program);
 
-void create_fence(fence_s * f);
+void create_fence(fence_s * f, int width, vec3 pos);
+void draw_fence(fence_s * f, GLuint program);
+//void update_fence(fence_s * f, cow_s * c, GLfloat dT);
