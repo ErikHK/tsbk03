@@ -1068,15 +1068,13 @@ void create_fence(fence_s * f, int width, vec3 pos)
   {
     //create upright (type 0)
     create_plank(&f->planks[i*3], 
-	VectorAdd(pos, SetVector(i*10,0,0)), 0);
-    //create upright (type 0)
-    //create_plank(&f->planks[i*4+1],
-    //	 VectorAdd(pos, SetVector(i*5+10,0,0)), 0);
+	VectorAdd(pos, SetVector(i*10.8,0,0)), 0);
 
     create_plank(&f->planks[i*3+1],
-	 VectorAdd(pos, SetVector(i*10,7,0)), 1);
+	 VectorAdd(pos, SetVector(i*10.8,4,0)), 1);
+
     create_plank(&f->planks[i*3+2],
-	 VectorAdd(pos, SetVector(i*10,3,0)), 1);
+	 VectorAdd(pos, SetVector(i*10.8,2,0)), 1);
   }
 
 //  create_plank(&f->planks[0],
@@ -1088,7 +1086,7 @@ void draw_fence(fence_s * f, GLuint program)
 {
 
   int i;
-  for(i=0;i<9;i++)
+  for(i=0;i<12;i++)
   {
     draw_plank(&f->planks[i], program);
     //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
@@ -1110,7 +1108,8 @@ void create_plank(plank_s * p, vec3 pos, int type)
   p->mass = 2;
 
   if(type==0)
-    p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
+    //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
+    p->T = Mult( T(pos.x, pos.y, pos.z), Rz(M_PI/2) );
     //p->T = Rz(M_PI/2);
     //p->T = T(0,0,0);
   else
@@ -1132,8 +1131,13 @@ i=0;
       for(z = 0;z < ZS;z++)
       {
         printf("%i %i %i\n", x,y,z);
-        verts[i*3 + 0] = x*2.0;
-        verts[i*3 + 1] = y/5.0;
+        if(type==0)
+          verts[i*3 + 0] = x*1.0;
+        else
+          verts[i*3 + 0] = x*2.0;
+
+        //verts[i*3 + 0] = x*2.0;
+        verts[i*3 + 1] = y/10.0;
         verts[i*3 + 2] = z/2.0;
 
 	i++;
@@ -1143,6 +1147,8 @@ i=0;
   }
 
 /*
+if(type==0)
+{
 verts[0] = -.5;
 verts[3] = -.2;
 
@@ -1157,8 +1163,8 @@ verts[39] = -.9;
 
 verts[48] = -.2;
 verts[51] = -.4;
+}
 */
-
 Point3D tmp_normal;
 i=0;
   for(x=0;x < XS;x++)
