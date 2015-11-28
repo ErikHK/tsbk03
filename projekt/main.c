@@ -455,6 +455,7 @@ void OnTimer(int value)
 
 	turn_cow(&cow, -m_angle);
 	update_cow(&cow, delta_t);
+	update_fence(&ff, &cow, delta_t);
 	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
 	update_wall(&wall, &cow, delta_t);
@@ -713,7 +714,7 @@ int main(int argc, char **argv)
 	mouse_y = 0;
 	old_mouse_y = 0;
 
-	m_angle = 0;
+	m_angle = -300*M_PI; //FOULHACK!
 
 
 	glutInit(&argc, argv);

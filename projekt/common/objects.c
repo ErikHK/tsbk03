@@ -375,7 +375,7 @@ void create_cow(cow_s * c)
   c->torque = SetVector(0,0,0);
   c->momentum = SetVector(0,0,0);
   c->mass = 2.0;
-  c->angle = 0;
+  c->angle = 300*M_PI; //foulhack!!
   c->d_angle = 0;
   c->jumping = 0;
   LoadTGATextureSimple("./res/texture.tga", &(c->tex));
@@ -437,7 +437,7 @@ void move_cow(cow_s * c, float angle)
 
     if(jump_timer < 20)
     {
-    c->momentum.y = 20;
+    c->momentum.y = 15;
     c->jumping = 1;
     }
 
@@ -1109,7 +1109,8 @@ void draw_fence(fence_s * f, GLuint program)
   int i;
   for(i=0;i < f->width*3+1;i++)
   {
-    draw_plank(&f->planks[i], program);
+    if(f->planks[i].destroyed_at == -1)
+      draw_plank(&f->planks[i], program);
     //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
     //DrawModel(f->planks[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
@@ -1128,6 +1129,8 @@ void create_plank(plank_s * p, vec3 pos, int type)
   p->pos = pos;
   p->type = type;
   p->mass = 2;
+  //not destroyed
+  p->destroyed_at = -1;
 
   if(type==0)
     //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
@@ -1168,7 +1171,7 @@ i=0;
 
   }
 
-
+/*
 if(type==0)
 {
 verts[0] = -.5;
@@ -1186,7 +1189,7 @@ verts[39] = -.9;
 verts[48] = -.2;
 verts[51] = -.4;
 }
-
+*/
 
 Point3D tmp_normal;
 i=0;
@@ -1330,11 +1333,50 @@ void draw_plank(plank_s * p, GLuint program)
   int i;
   for(i=0;i < 6;i++)
   {
+/*
   if(p->type==1)
   {
   mat4 tmp = T(p->pos.x + 2*i, p->pos.y, p->pos.z);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
   DrawModel(p->debug_sphere, program, "inPosition", "inNormal", "inTexCoord");
   }
+*/
   }
+}
+
+
+void update_fence(fence_s * f, cow_s *c, GLfloat dT)
+{
+  int i;
+  float dist = Norm(VectorSub(c->head_pos, f->planks[1].pos));
+  //first check
+  if(dist < 10)
+  {
+    //printf("COLLISION %f\n", dist);
+    //alright, now test for every vertex along x axis
+    for(i=0;i < 6;i++)
+    {
+      dist = Norm(VectorSub(c->head_pos, 
+	VectorAdd(f->planks[1].pos, SetVector(i*2, 0, 0))));
+      if(dist < 1.5)
+      {
+        //set plank to state "destroyed"
+        printf("COLL2, %f %i \n", dist, i);
+        if(f->planks[1].destroyed_at == -1)
+        {
+          f->planks[1].destroyed_at = i;
+          f->planks[2].destroyed_at = i;
+
+          c->momentum = ScalarMult(c->momentum, -1);
+          c->pos = VectorAdd(c->pos, SetVector(0,0,1));
+
+          printf("destroyed at %i\n", i);
+        }
+        break;
+
+      }
+    }
+
+  }
+
 }

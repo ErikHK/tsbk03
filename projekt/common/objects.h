@@ -171,6 +171,7 @@ typedef struct plank_t
   vec3 pos;
   vec3 size;
   int type;
+  int destroyed_at;
 
   float mass;
 
@@ -224,4 +225,4 @@ void draw_plank(plank_s * p, GLuint program);
 
 void create_fence(fence_s * f, int width, vec3 pos);
 void draw_fence(fence_s * f, GLuint program);
-//void update_fence(fence_s * f, cow_s * c, GLfloat dT);
+void update_fence(fence_s * f, cow_s * c, GLfloat dT);
