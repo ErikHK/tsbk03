@@ -338,7 +338,7 @@ void DisplayWindow()
 
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
 
-	//draw_debug_sphere(&ball, cow.bb.pos, g_shader);
+	draw_debug_sphere(&ball, cow.head_pos, g_shader);
 	int i;
 	for(i=0;i < 8;i++)
 	{
@@ -731,7 +731,7 @@ int main(int argc, char **argv)
 
 	create_floor(&f);
 	//create_plank(&p, SetVector(4,4,0), SetVector(0,5,0));
-	create_fence(&ff, 4, SetVector(0,0,0));
+	create_fence(&ff, 14, SetVector(0,0,0));
 	//f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));

@@ -26,9 +26,11 @@ typedef struct cow_t
 {
   Model * main_body;
   Model * udder;
+  Model * debug_sphere;
   mat4 matrix;
 
   vec3 pos;
+  vec3 head_pos;
   vec3 speed;
   vec3 acc;
   vec3 force;
@@ -163,10 +165,12 @@ typedef struct wall_t
 typedef struct plank_t
 {
   Model * body;
+  Model * debug_sphere;
   mat4 R;
   mat4 T;
   vec3 pos;
   vec3 size;
+  int type;
 
   float mass;
 
@@ -174,8 +178,9 @@ typedef struct plank_t
 
 typedef struct fence_t
 {
-  plank_s planks[40];
+  plank_s planks[400];
   vec3 pos;
+  int width;
 
 } fence_s;
 

@@ -366,6 +366,7 @@ void update_bb(bounding_box_s * bb, vec3 pos, vec3 angle)
 void create_cow(cow_s * c)
 {
   c->main_body = LoadModelPlus("./res/ko_fine.obj");
+  c->debug_sphere = LoadModelPlus("./res/groundsphere.obj");
   c->matrix = S(.1,.1,.1); //makes it roughly 5 high
   c->pos = SetVector(5,0,5);
   c->speed = SetVector(0,0,0);
@@ -414,7 +415,16 @@ void update_cow(cow_s * c, GLfloat dT)
   c->R = ArbRotate(SetVector(0, -c->angle, 0), -c->angle);
 
   update_vertices(&c->bb, c->pos, c->R);
+  //update_vertices(&c->bb, c->head_pos, c->R);
   //update_bb(&c->bb, c->pos, SetVector(0,-c->angle,0));
+
+  //update head pos
+  c->head_pos = VectorAdd(c->pos, SetVector(-3,3,0));
+
+  mat4 R = Mult(Mult(T(c->pos.x, c->pos.y, c->pos.z), 
+  c->R), T(-c->pos.x, -c->pos.y, -c->pos.z));
+  c->head_pos = MultVec3(R, c->head_pos);
+
 }
 
 void move_cow(cow_s * c, float angle)
@@ -472,6 +482,9 @@ void move_cow(cow_s * c, float angle)
     c->force = SetVector(0,0,0);
     c->momentum = SetVector(0,0,0);
   }
+
+
+  //printf("%f %f %f \n", c->pos.x, c->pos.y, c->pos.z);
 
 //c->matrix = Mult(T(c->pos.x, c->pos.y, c->pos.z), S(.1,.1,.1));
 
@@ -975,6 +988,12 @@ void draw_cow(cow_s * c, GLuint program)
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, c->matrix.m);
   glBindTexture(GL_TEXTURE_2D, c->tex);
   DrawModel(c->main_body, program, "inPosition", "inNormal", "inTexCoord");
+
+  //mat4 tmp = T(c->head_pos.x, c->head_pos.y, c->head_pos.z);
+  //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
+  //glBindTexture(GL_TEXTURE_2D, c->tex);
+  //DrawModel(c->debug_sphere, program, "inPosition", "inNormal", "inTexCoord");
+
 }
 
 void draw_bone(bone_s * b, GLuint program)
@@ -1063,6 +1082,8 @@ void draw_ball(ball_s * b, GLuint program)
 void create_fence(fence_s * f, int width, vec3 pos)
 {
 
+  f->width = width;
+
   int i;
   for(i=0;i<width;i++)
   {
@@ -1077,8 +1098,8 @@ void create_fence(fence_s * f, int width, vec3 pos)
 	 VectorAdd(pos, SetVector(i*10.8,2,0)), 1);
   }
 
-//  create_plank(&f->planks[0],
-//	VectorAdd(pos, SetVector(-20,20,0)), 0);
+  create_plank(&f->planks[(width-1)*3+3],
+	VectorAdd(pos, SetVector(width*10.8,0,0)), 0);
 
 }
 
@@ -1086,7 +1107,7 @@ void draw_fence(fence_s * f, GLuint program)
 {
 
   int i;
-  for(i=0;i<12;i++)
+  for(i=0;i < f->width*3+1;i++)
   {
     draw_plank(&f->planks[i], program);
     //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
@@ -1105,6 +1126,7 @@ void create_plank(plank_s * p, vec3 pos, int type)
   //int tri_count = (size.x-1)*(size.y-1)*(size.z-1)*3;
 
   p->pos = pos;
+  p->type = type;
   p->mass = 2;
 
   if(type==0)
@@ -1130,13 +1152,13 @@ i=0;
     {
       for(z = 0;z < ZS;z++)
       {
-        printf("%i %i %i\n", x,y,z);
+        //printf("%i %i %i\n", x,y,z);
+        //if upright
         if(type==0)
           verts[i*3 + 0] = x*1.0;
         else
           verts[i*3 + 0] = x*2.0;
 
-        //verts[i*3 + 0] = x*2.0;
         verts[i*3 + 1] = y/10.0;
         verts[i*3 + 2] = z/2.0;
 
@@ -1146,7 +1168,7 @@ i=0;
 
   }
 
-/*
+
 if(type==0)
 {
 verts[0] = -.5;
@@ -1164,7 +1186,8 @@ verts[39] = -.9;
 verts[48] = -.2;
 verts[51] = -.4;
 }
-*/
+
+
 Point3D tmp_normal;
 i=0;
   for(x=0;x < XS;x++)
@@ -1251,19 +1274,6 @@ for(i=0;i < XS-1;i++)
   indic[(XS-1)*(YS-1)*3*5  + i*6 + 4] = y*2*i + 1 + (YS-1)*4+1;
   indic[(XS-1)*(YS-1)*3*5  + i*6 + 5] = y*2*i + 3 + (YS-1)*4;
 
-/*
-  //top
-  indic[72*2 + 18 + i*6 + 0] = y*2*i + 8;
-  indic[72*2 + 18 + i*6 + 1] = y*2*i + 1 + 8;
-  indic[72*2 + 18 + i*6 + 2] = y*2*i + 2*(y) + 8;
-*/
-/*
-  //top
-  indic[72*2 + 18 + i*6 + 3] = y*2*i + 1 + 8;
-  indic[72*2 + 18 + i*6 + 4] = y*2*i + 2*y + 8;
-  indic[72*2 + 18 + i*6 + 5] = y*2*i + 2*(y)+1 + 8;
-*/
-
 }
 
 for(i=0;i<2*YS;i++)
@@ -1277,7 +1287,6 @@ for(i=0;i<2*YS;i++)
   indic[(XS-1)*(YS-1)*3*6  + i*6 + 3] = i + 0 + 2*(YS)*(XS-1);
   indic[(XS-1)*(YS-1)*3*6  + i*6 + 4] = i + 1 + 2*(YS)*(XS-1);
   indic[(XS-1)*(YS-1)*3*6  + i*6 + 5] = i + 2 + 2*(YS)*(XS-1);
-
 
 
 //  indic[72*2+18+18 + i*6 + 0] = i + 0;
@@ -1300,31 +1309,6 @@ for(i=0;i < 32*6*4;i++)
     printf("\n");
 }
 
-/*
-GLuint indic[] = {
-	//right side first
-	0,2,4,
-	2,4,6,
-	//right side second
-	4,6,8,
-	6,8,10,
-	//right side third
-	8,10,12,
-	10,12,14,
-	//left side first
-	1,3,7,
-	1,5,7,
-	//left side second
-	5,7,9,
-	7,9,11,
-	//bottom first
-	0,1,4,
-	1,4,5,
-	//bottom second
-	4,5,8,
-	5,8,9};
-*/
-
   p->body = LoadDataToModel(
 	verts,
 	norms,
@@ -1333,11 +1317,24 @@ GLuint indic[] = {
 	indic,
 	(XS)*(YS)*ZS,
 	(XS)*(YS)*2*2*2*2-40);
-//	);
+
+  p->debug_sphere = LoadModelPlus("./res/groundsphere.obj");
 }
 
 void draw_plank(plank_s * p, GLuint program)
 {
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, p->T.m);
   DrawModel(p->body, program, "inPosition", "inNormal", "inTexCoord");
+
+
+  int i;
+  for(i=0;i < 6;i++)
+  {
+  if(p->type==1)
+  {
+  mat4 tmp = T(p->pos.x + 2*i, p->pos.y, p->pos.z);
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
+  DrawModel(p->debug_sphere, program, "inPosition", "inNormal", "inTexCoord");
+  }
+  }
 }
