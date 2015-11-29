@@ -1425,6 +1425,12 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
           f->planks[j+1][0].momentum = c->momentum;
           f->planks[j+1][1].momentum = c->momentum;
 
+          f->planks[j][0].angular_momentum = SetVector(.8,2,.2);
+          f->planks[j+1][0].angular_momentum = SetVector(.8,2,.2);
+          f->planks[j][1].angular_momentum = SetVector(.8,2,.2);
+          f->planks[j+1][1].angular_momentum = SetVector(.8,2,.2);
+
+
           c->momentum = ScalarMult(c->momentum, -1);
           c->pos = VectorAdd(c->pos, SetVector(0,0,.1));
 
@@ -1456,6 +1462,13 @@ void update_plank(plank_s * p, cow_s * c, GLfloat dT)
   //p->pos = VectorAdd(p->pos, SetVector(0,0,-dT*20));
 
   vec3 dP = ScalarMult(p->force, dT);
+  vec3 dL = ScalarMult(p->torque, dT);
+  p->angular_momentum = VectorAdd(p->angular_momentum, dL);
+  p->omega = p->angular_momentum;
+  vec3 dO = ScalarMult(p->omega, dT);
+  mat4 Rd = CrossMatrix(dO);
+  Rd = Mult(Rd, p->R);
+  p->R = MatrixAdd(p->R, Rd);
 
   p->momentum = VectorAdd(p->momentum, dP);
   p->speed = ScalarMult(p->momentum, 1.0/p->mass);
@@ -1463,4 +1476,6 @@ void update_plank(plank_s * p, cow_s * c, GLfloat dT)
 
   p->pos = VectorAdd(p->pos, dX);
   p->M = Mult(T(p->pos.x, p->pos.y, p->pos.z), p->R);
+
+  OrthoNormalizeMatrix(&p->R);
 }
