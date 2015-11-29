@@ -168,6 +168,14 @@ typedef struct plank_t
   Model * debug_sphere;
   mat4 R;
   mat4 T;
+  mat4 M;
+  vec3 acc;
+  vec3 speed;
+  vec3 force;
+  vec3 torque;
+  vec3 momentum;
+  vec3 angular_momentum;
+  vec3 omega;
   vec3 pos;
   vec3 size;
   int type;
@@ -222,6 +230,7 @@ void update_farmer(farmer_s * f);
 
 void create_plank(plank_s * p, vec3 pos, int type);
 void draw_plank(plank_s * p, GLuint program);
+void update_plank(plank_s * p, cow_s * c, GLfloat dT);
 
 void create_fence(fence_s * f, int width, vec3 pos);
 void draw_fence(fence_s * f, GLuint program);

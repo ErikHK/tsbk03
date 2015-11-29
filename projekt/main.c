@@ -310,7 +310,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
-	//draw_floor(&f, g_shader);
+	draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
 	/*
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
@@ -380,8 +380,8 @@ void calc_bone_transform(joint_s * j, int acc)
     tmp = j->parent->tmp;
     //tmp = j->parent->Mtot;
   else
-    tmp = IdentityMatrix();
-    //tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
+    //tmp = IdentityMatrix();
+    tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
 
   GLfloat Ms[8][16];
   int i=0,ii=0, k=0;

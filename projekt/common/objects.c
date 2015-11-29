@@ -1131,19 +1131,27 @@ void create_plank(plank_s * p, vec3 pos, int type)
   p->pos = pos;
   p->type = type;
   p->mass = 2;
+  p->force = SetVector(0,-10,0);
   //not destroyed
   if(type==0 || type==1)
     p->destroyed_at = -1;
 
   if(type==0)
     //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
-    p->T = Mult( T(pos.x, pos.y, pos.z), Rz(M_PI/2) );
+    //p->T = Mult( T(pos.x, pos.y, pos.z), Rz(M_PI/2) );
+    p->R = Rz(M_PI/2);
     //p->T = Rz(M_PI/2);
     //p->T = T(0,0,0);
   else if(type==2)
-    p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Ry(M_PI/1.1)), T(-p->destroyed_at*5/3.0,0,-.5));
+    //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Ry(M_PI/1.1)), T(-p->destroyed_at*5/3.0,0,-.5));
+    p->R = Mult(Ry(M_PI/1.1), T(-p->destroyed_at*5/3.0,0,-.5));
+  //else
   else
-    p->T = T(pos.x, pos.y, pos.z);
+    p->R = IdentityMatrix();
+
+  p->T = T(pos.x, pos.y, pos.z);
+
+  p->M = Mult(p->T, p->R);
 
   int fine=1;
 
@@ -1204,20 +1212,20 @@ verts[51] = -.4;
 }
 else if(type==2)
 {
-verts[0] = -.5;
+verts[0] = -1;
 verts[3] = -.2;
 
 verts[12] = -.9;
 verts[15] = -.3;
 
-verts[24] = -1.1;
+verts[24] = -.5;
 verts[27] = -.3;
 
-verts[36] = -0.4;
+verts[36] = -.4;
 verts[39] = -.9;
 
 verts[48] = -.2;
-verts[51] = -.4;
+verts[51] = -1.2;
 
 
 
@@ -1358,9 +1366,8 @@ for(i=0;i < 32*6*4;i++)
 
 void draw_plank(plank_s * p, GLuint program)
 {
-  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, p->T.m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, p->M.m);
   DrawModel(p->body, program, "inPosition", "inNormal", "inTexCoord");
-
 
   int i;
   for(i=0;i < 6;i++)
@@ -1408,12 +1415,20 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
           create_plank(&f->planks[j+1][0], SetVector((j-1)*3.6, 2, 0), 2);
           create_plank(&f->planks[j+1][1], SetVector((j-1)*3.6+i*1.8, 2, 0), 3);
 
+
+          f->planks[j][0].momentum = c->momentum;
+          f->planks[j][1].momentum = c->momentum;
+
+          f->planks[j+1][0].momentum = c->momentum;
+          f->planks[j+1][1].momentum = c->momentum;
+
           c->momentum = ScalarMult(c->momentum, -1);
-          c->pos = VectorAdd(c->pos, SetVector(0,0,.5));
+          c->pos = VectorAdd(c->pos, SetVector(0,0,.1));
+
 
           //printf("destroyed at %i\n", i);
         }
-        break;
+        //break;
 
       }
     }
@@ -1422,4 +1437,27 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
 
   }
 
+  for(i=0;i < 20;i++)
+  {
+    if(f->planks[i][0].type == 2 || f->planks[i][0].type==3)
+    {
+    update_plank(&f->planks[i][0], c, dT);
+    update_plank(&f->planks[i][1], c, dT);
+    }
+  }
+
+}
+
+void update_plank(plank_s * p, cow_s * c, GLfloat dT)
+{
+  //p->pos = VectorAdd(p->pos, SetVector(0,0,-dT*20));
+
+  vec3 dP = ScalarMult(p->force, dT);
+
+  p->momentum = VectorAdd(p->momentum, dP);
+  p->speed = ScalarMult(p->momentum, 1.0/p->mass);
+  vec3 dX = ScalarMult(p->speed, dT);
+
+  p->pos = VectorAdd(p->pos, dX);
+  p->M = Mult(T(p->pos.x, p->pos.y, p->pos.z), p->R);
 }
