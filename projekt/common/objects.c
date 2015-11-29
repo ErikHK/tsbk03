@@ -1109,9 +1109,9 @@ void draw_fence(fence_s * f, GLuint program)
   int i;
   for(i=0;i < f->width*3+1;i++)
   {
-    if(f->planks[i][0].destroyed_at == -1 || f->planks[i][0].type == 2)
+    if(f->planks[i][0].destroyed_at == -1 || f->planks[i][0].type == 2 || f->planks[i][0].type == 3)
       draw_plank(&f->planks[i][0], program);
-    if(f->planks[i][1].destroyed_at == -1 || f->planks[i][1].type == 2)
+    if(f->planks[i][1].destroyed_at == -1 || f->planks[i][1].type == 2 || f->planks[i][1].type == 3)
       draw_plank(&f->planks[i][1], program);
     //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
     //DrawModel(f->planks[i].body, program, "inPosition", "inNormal", "inTexCoord");
@@ -1132,7 +1132,8 @@ void create_plank(plank_s * p, vec3 pos, int type)
   p->type = type;
   p->mass = 2;
   //not destroyed
-  p->destroyed_at = -1;
+  if(type==0 || type==1)
+    p->destroyed_at = -1;
 
   if(type==0)
     //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
@@ -1163,8 +1164,14 @@ i=0;
           verts[i*3 + 0] = x*1.0;
         else if(type==1)
           verts[i*3 + 0] = x*2.0;
+        else if(type==2)
+          verts[i*3 + 0] = (p->destroyed_at)*x/3.0;
         else
-          verts[i*3 + 0] = x/2.0;
+        {
+          verts[i*3 + 0] = (6-p->destroyed_at)*x/3.0;
+          printf("BAAAJS\n");
+        }
+
 
         verts[i*3 + 1] = y/10.0;
         verts[i*3 + 2] = z/2.0;
@@ -1370,16 +1377,20 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
         printf("COLL2, %f %i \n", dist, i);
         if(f->planks[j][0].destroyed_at == -1)
         {
-          create_plank(&f->planks[j][0], SetVector(0,4,0), 2);
-          create_plank(&f->planks[j][1], SetVector(0,8,0), 2);
-
           f->planks[j][0].destroyed_at = i;
           f->planks[j+1][0].destroyed_at = i;
+          f->planks[j][1].destroyed_at = i;
+          f->planks[j+1][1].destroyed_at = i;
+
+          create_plank(&f->planks[j][0], SetVector((j-1)*3.6, 4, 0), 2);
+          create_plank(&f->planks[j][1], SetVector((j-1)*3.6+i*1.8, 4, 0), 3);
+          create_plank(&f->planks[j+1][0], SetVector((j-1)*3.6, 2, 0), 2);
+          create_plank(&f->planks[j+1][1], SetVector((j-1)*3.6+i*1.8, 2, 0), 3);
 
           c->momentum = ScalarMult(c->momentum, -1);
           c->pos = VectorAdd(c->pos, SetVector(0,0,.5));
 
-          printf("destroyed at %i\n", i);
+          //printf("destroyed at %i\n", i);
         }
         break;
 
