@@ -1140,6 +1140,8 @@ void create_plank(plank_s * p, vec3 pos, int type)
     p->T = Mult( T(pos.x, pos.y, pos.z), Rz(M_PI/2) );
     //p->T = Rz(M_PI/2);
     //p->T = T(0,0,0);
+  else if(type==2)
+    p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Ry(M_PI/1.1)), T(-p->destroyed_at*5/3.0,0,-.5));
   else
     p->T = T(pos.x, pos.y, pos.z);
 
@@ -1182,8 +1184,8 @@ i=0;
 
   }
 
-/*
-if(type==0)
+
+if(type==3)
 {
 verts[0] = -.5;
 verts[3] = -.2;
@@ -1200,7 +1202,26 @@ verts[39] = -.9;
 verts[48] = -.2;
 verts[51] = -.4;
 }
-*/
+else if(type==2)
+{
+verts[0] = -.5;
+verts[3] = -.2;
+
+verts[12] = -.9;
+verts[15] = -.3;
+
+verts[24] = -1.1;
+verts[27] = -.3;
+
+verts[36] = -0.4;
+verts[39] = -.9;
+
+verts[48] = -.2;
+verts[51] = -.4;
+
+
+
+}
 
 Point3D tmp_normal;
 i=0;
