@@ -179,7 +179,7 @@ typedef struct plank_t
 
 typedef struct fence_t
 {
-  plank_s planks[400];
+  plank_s planks[400][2];
   vec3 pos;
   int width;
 

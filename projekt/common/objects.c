@@ -1088,17 +1088,17 @@ void create_fence(fence_s * f, int width, vec3 pos)
   for(i=0;i<width;i++)
   {
     //create upright (type 0)
-    create_plank(&f->planks[i*3], 
+    create_plank(&f->planks[i*3][0], 
 	VectorAdd(pos, SetVector(i*10.8,0,0)), 0);
 
-    create_plank(&f->planks[i*3+1],
+    create_plank(&f->planks[i*3+1][0],
 	 VectorAdd(pos, SetVector(i*10.8,4,0)), 1);
 
-    create_plank(&f->planks[i*3+2],
+    create_plank(&f->planks[i*3+2][0],
 	 VectorAdd(pos, SetVector(i*10.8,2,0)), 1);
   }
 
-  create_plank(&f->planks[(width-1)*3+3],
+  create_plank(&f->planks[(width-1)*3+3][0],
 	VectorAdd(pos, SetVector(width*10.8,0,0)), 0);
 
 }
@@ -1109,8 +1109,10 @@ void draw_fence(fence_s * f, GLuint program)
   int i;
   for(i=0;i < f->width*3+1;i++)
   {
-    if(f->planks[i].destroyed_at == -1)
-      draw_plank(&f->planks[i], program);
+    if(f->planks[i][0].destroyed_at == -1 || f->planks[i][0].type == 2)
+      draw_plank(&f->planks[i][0], program);
+    if(f->planks[i][1].destroyed_at == -1 || f->planks[i][1].type == 2)
+      draw_plank(&f->planks[i][1], program);
     //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
     //DrawModel(f->planks[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
@@ -1159,8 +1161,10 @@ i=0;
         //if upright
         if(type==0)
           verts[i*3 + 0] = x*1.0;
-        else
+        else if(type==1)
           verts[i*3 + 0] = x*2.0;
+        else
+          verts[i*3 + 0] = x/2.0;
 
         verts[i*3 + 1] = y/10.0;
         verts[i*3 + 2] = z/2.0;
@@ -1347,8 +1351,10 @@ void draw_plank(plank_s * p, GLuint program)
 
 void update_fence(fence_s * f, cow_s *c, GLfloat dT)
 {
-  int i;
-  float dist = Norm(VectorSub(c->head_pos, f->planks[1].pos));
+  int i,j;
+  for(j=1;j < 20;j+=1)
+  {
+  float dist = Norm(VectorSub(c->head_pos, f->planks[j][0].pos));
   //first check
   if(dist < 10)
   {
@@ -1357,18 +1363,21 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
     for(i=0;i < 6;i++)
     {
       dist = Norm(VectorSub(c->head_pos, 
-	VectorAdd(f->planks[1].pos, SetVector(i*2, 0, 0))));
+	VectorAdd(f->planks[j][0].pos, SetVector(i*2, 0, 0))));
       if(dist < 1.5)
       {
         //set plank to state "destroyed"
         printf("COLL2, %f %i \n", dist, i);
-        if(f->planks[1].destroyed_at == -1)
+        if(f->planks[j][0].destroyed_at == -1)
         {
-          f->planks[1].destroyed_at = i;
-          f->planks[2].destroyed_at = i;
+          create_plank(&f->planks[j][0], SetVector(0,4,0), 2);
+          create_plank(&f->planks[j][1], SetVector(0,8,0), 2);
+
+          f->planks[j][0].destroyed_at = i;
+          f->planks[j+1][0].destroyed_at = i;
 
           c->momentum = ScalarMult(c->momentum, -1);
-          c->pos = VectorAdd(c->pos, SetVector(0,0,1));
+          c->pos = VectorAdd(c->pos, SetVector(0,0,.5));
 
           printf("destroyed at %i\n", i);
         }
@@ -1376,6 +1385,8 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
 
       }
     }
+
+  }
 
   }
 
