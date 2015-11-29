@@ -1130,8 +1130,11 @@ void create_plank(plank_s * p, vec3 pos, int type)
 
   p->pos = pos;
   p->type = type;
-  p->mass = 2;
-  p->force = SetVector(0,-10,0);
+
+  p->mass = 2*(float)rand()/(float)RAND_MAX;
+  printf("%f\n", p->mass);
+
+  p->force = SetVector(0,-15,0);
   //not destroyed
   if(type==0 || type==1)
     p->destroyed_at = -1;
@@ -1179,7 +1182,7 @@ i=0;
         else
         {
           verts[i*3 + 0] = (6-p->destroyed_at)*x/3.0;
-          printf("BAAAJS\n");
+          //printf("BAAAJS\n");
         }
 
 
@@ -1257,8 +1260,8 @@ GLuint indic[XS*YS*ZS*3*3] = {0};
 //int j;
 i=0;
 j=0;
-printf("\n\n");
-printf("%i\n\n", y);
+//printf("\n\n");
+//printf("%i\n\n", y);
 for(i=0;i < XS-1;i++)
 {
   /*
@@ -1347,9 +1350,9 @@ for(i=0;i<2*YS;i++)
 
 for(i=0;i < 32*6*4;i++)
 {
-  printf("%i ", indic[i]);
-  if((i+1)%3==0)
-    printf("\n");
+  //printf("%i ", indic[i]);
+  //if((i+1)%3==0)
+  //  printf("\n");
 }
 
   p->body = LoadDataToModel(
