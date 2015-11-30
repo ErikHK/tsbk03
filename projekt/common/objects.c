@@ -651,6 +651,14 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
     joint_s * j = &r->joints[i];
     joint_s * parent = r->joints[i].parent;
+
+    if(j->pos.y <= 0)
+    {
+      j->pos.y += .1;
+      //jp->force.y = 40;
+      j->speed.y *= -.6;
+    }
+
     if(parent != NULL && j != NULL)
     {
       //parent = parent->parent;
@@ -665,7 +673,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       float ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
       while(ang > j->max_angle && j->constraint)
       {
-        printf("%f\n", ang);
+        //printf("%f\n", ang);
 
         real_dist = VectorSub(parent->pos, j->pos);
         dist_diff = (Norm(real_dist)-j->dist_to_parent);
@@ -680,29 +688,16 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
       }
 
-      joint_s * jp = j;
-      while(jp != NULL)
-      {
-      while(jp->pos.y <= 0)
-      {
-        jp->pos.y += .2;
-        jp->speed.y *= -.6;
-      }
-        jp = jp->parent;
-      }
-
     }
-
-      //j = j->parent;
-      //parent = parent->parent;
-    //}
 
     dP = ScalarMult(VectorAdd(SetVector(0,-40,0), VectorAdd(j->force, calculated_force)), dT);
     j->speed = VectorAdd(j->speed, dP);
     dX = ScalarMult(j->speed, dT);
     j->pos = VectorAdd(j->pos, dX);
     j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
-    //parent = parent->parent;
+
+
+
 
   }
 }
