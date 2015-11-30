@@ -94,13 +94,15 @@ typedef struct joint_t
   struct joint_t *parent;
   struct joint_t *child[MAX_CHILDREN];
   float dist_to_parent;
-  float max_deg;
+  float max_angle;
   float angle;
+  vec3 orig_vec;
   vec3 force;
   char * Mvar;
   char * posvar;
   char * boneposvar;
   int isnull;
+  int constraint;
 
 } joint_s;
 
