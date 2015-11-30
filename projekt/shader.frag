@@ -29,7 +29,7 @@ void main(void)
   colors = vec3(0,0,0);
   s = normalize(light_cam_matrix * vec3(inPos));
   n = normalize(ex_normal);
-  float lambert = dot(n,s)-.001;  
+  float lambert = pow(dot(n,s), 2)-.001;
 
   if(lambert > 0)
   {

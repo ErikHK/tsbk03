@@ -1147,7 +1147,7 @@ void create_plank(plank_s * p, vec3 pos, int type)
     //p->T = T(0,0,0);
   else if(type==2)
     //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Ry(M_PI/1.1)), T(-p->destroyed_at*5/3.0,0,-.5));
-    p->R = Mult(Ry(M_PI/1.1), T(-p->destroyed_at*5/3.0,0,-.5));
+    p->R = Mult(Ry(M_PI/1.1), T(-p->destroyed_at*5/6.0,0,-.5));
   //else
   else
     p->R = IdentityMatrix();
@@ -1158,7 +1158,7 @@ void create_plank(plank_s * p, vec3 pos, int type)
 
   int fine=1;
 
-#define XS 6
+#define XS 12
 #define YS 10
 #define ZS 2
 
@@ -1174,14 +1174,14 @@ i=0;
         //printf("%i %i %i\n", x,y,z);
         //if upright
         if(type==0)
-          verts[i*3 + 0] = x*1.0;
+          verts[i*3 + 0] = x*.5;
         else if(type==1)
-          verts[i*3 + 0] = x*2.0;
+          verts[i*3 + 0] = x*1.0;
         else if(type==2)
-          verts[i*3 + 0] = (p->destroyed_at)*x/3.0;
+          verts[i*3 + 0] = (p->destroyed_at)*x/12.0;
         else
         {
-          verts[i*3 + 0] = (6-p->destroyed_at)*x/3.0;
+          verts[i*3 + 0] = (12-p->destroyed_at)*x/12.0;
           //printf("BAAAJS\n");
         }
 
@@ -1390,7 +1390,7 @@ void draw_plank(plank_s * p, GLuint program)
 void update_fence(fence_s * f, cow_s *c, GLfloat dT)
 {
   int i,j;
-  for(j=1;j < 20;j+=1)
+  for(j=1;j < 40;j+=1)
   {
   float dist = Norm(VectorSub(c->head_pos, f->planks[j][0].pos));
   //first check
@@ -1398,10 +1398,10 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
   {
     //printf("COLLISION %f\n", dist);
     //alright, now test for every vertex along x axis
-    for(i=0;i < 6;i++)
+    for(i=0;i < 12;i++)
     {
       dist = Norm(VectorSub(c->head_pos, 
-	VectorAdd(f->planks[j][0].pos, SetVector(i*2, 0, 0))));
+	VectorAdd(f->planks[j][0].pos, SetVector(i*1, 0, 0))));
       if(dist < 1.5)
       {
         //set plank to state "destroyed"
@@ -1414,9 +1414,9 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
           f->planks[j+1][1].destroyed_at = i;
 
           create_plank(&f->planks[j][0], SetVector((j-1)*3.6, 4, 0), 2);
-          create_plank(&f->planks[j][1], SetVector((j-1)*3.6+i*1.8, 4, 0), 3);
+          create_plank(&f->planks[j][1], SetVector((j-1)*3.6+i*1.8/2, 4, 0), 3);
           create_plank(&f->planks[j+1][0], SetVector((j-1)*3.6, 2, 0), 2);
-          create_plank(&f->planks[j+1][1], SetVector((j-1)*3.6+i*1.8, 2, 0), 3);
+          create_plank(&f->planks[j+1][1], SetVector((j-1)*3.6+i*1.8/2, 2, 0), 3);
 
 
           f->planks[j][0].momentum = c->momentum;
