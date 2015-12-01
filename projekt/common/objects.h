@@ -110,11 +110,19 @@ typedef struct skeleton_t
   float distances[20];
 } skeleton_s;
 
+typedef struct ragdoll_t
+{
+  //Model * joint_model;
+  joint_s joints[20];
+  int num_joints;
+
+} ragdoll_s;
+
 typedef struct farmer_t
 {
   Model * body;
   mat4 matrix;
-  struct skeleton_t skeleton;
+  struct ragdoll_t skeleton;
 
   vec3 pos;
   vec3 speed;
@@ -129,13 +137,6 @@ typedef struct farmer_t
 
 } farmer_s;
 
-
-typedef struct ragdoll_t
-{
-  //Model * joint_model;
-  joint_s joints[20];
-
-} ragdoll_s;
 
 typedef struct wall_t
 {

@@ -691,6 +691,8 @@ void create_ragdoll_joint(joint_s * j, vec3 pos)
 
 void create_ragdoll(ragdoll_s * r)
 {
+  r->num_joints = 4;
+
   //head
   create_ragdoll_joint(&r->joints[0], SetVector(0,8,0));
 
@@ -757,7 +759,7 @@ void create_ragdoll(ragdoll_s * r)
 void update_ragdoll(ragdoll_s * r, GLfloat dT)
 {
   int i;
-  for(i=0; i < 4; i++)
+  for(i=0; i < r->num_joints; i++)
   {
     r->joints[i].force = SetVector(0,0,0);
   }

@@ -457,7 +457,10 @@ void OnTimer(int value)
 	update_ball(&ball, &cow, delta_t);
 	update_farmer(&farmer);
         if(keyIsDown('k'))
-	update_ragdoll(&ragdoll, delta_t);
+        {
+	  update_ragdoll(&ragdoll, delta_t);
+          update_ragdoll(&farmer.skeleton, delta_t);
+        }
 
 	if(check_collision_2(&cow.bb, &wall.bb))
 	{
