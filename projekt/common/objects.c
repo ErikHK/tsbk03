@@ -119,6 +119,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
 
+  f->skeleton.num_joints = 15;
+
   //head joint
   create_joint(&f->skeleton.joints[0], 
 	VectorAdd(f->pos, SetVector(0,6,0)), 
@@ -135,6 +137,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   create_joint(&f->skeleton.joints[3], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -.6)), 
 	"farmer_rshoulder", "farmer_rshoulder_pos", "farmer_rshoulder_bone_pos", 0);
+
+  f->skeleton.joints[3].T = T(0, 1.7, -.6);
 
   //elbow joints
   create_joint(&f->skeleton.joints[4], 
@@ -245,6 +249,29 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[14].parent = &f->skeleton.joints[12];
   f->skeleton.joints[15].parent = &f->skeleton.joints[13];
 
+  //int kk;
+  //for(kk=0;kk < 15;kk++)
+  //  f->skeleton.joints[kk].dist_to_parent = 2;
+  f->skeleton.joints[1].dist_to_parent = 2.7;
+  f->skeleton.joints[2].dist_to_parent = .6;
+  f->skeleton.joints[3].dist_to_parent = .6;
+  f->skeleton.joints[4].dist_to_parent = 1.1;
+  f->skeleton.joints[5].dist_to_parent = 1.1;
+  f->skeleton.joints[6].dist_to_parent = 1.1;
+  f->skeleton.joints[7].dist_to_parent = 1.1;
+  f->skeleton.joints[8].dist_to_parent = 1;
+  f->skeleton.joints[9].dist_to_parent = .7;
+  f->skeleton.joints[10].dist_to_parent = .4;
+  f->skeleton.joints[11].dist_to_parent = .4;
+  f->skeleton.joints[12].dist_to_parent = 1.2;
+  f->skeleton.joints[13].dist_to_parent = 1.2;
+  f->skeleton.joints[14].dist_to_parent = .8;
+  f->skeleton.joints[15].dist_to_parent = .8;
+
+
+
+
+
 }
 
 void update_farmer(farmer_s * f)
@@ -254,19 +281,23 @@ void update_farmer(farmer_s * f)
 
 void draw_farmer(farmer_s * f, GLuint program)
 {
+  glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
   DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
-/*
+
   int i;
   for(i=0;i<15;i++)
   {
-    mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
+    //mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
+    mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x, 
+	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
     DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
-*/
+
 }
 
 
@@ -663,6 +694,7 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   j->posvar = posvar;
   j->boneposvar = boneposvar;
 
+  j->orig_pos = pos;
   j->pos = pos;
   j->id = id;
   j->body = LoadModelPlus("./res/groundsphere.obj");
@@ -673,7 +705,7 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   j->Mtot = T(pos.x, pos.y, pos.z);
   //j->Minv = InvertMat4(j->M);
   j->Minv = InvertMat4(T(pos.x, pos.y, pos.z));
-  j->R = T(0,0,0);
+  j->R = IdentityMatrix();
   //j->body_matrix = S(.1, .1, .1);
   //j->body_matrix = IdentityMatrix();
 }
@@ -759,7 +791,7 @@ void create_ragdoll(ragdoll_s * r)
 void update_ragdoll(ragdoll_s * r, GLfloat dT)
 {
   int i;
-  for(i=0; i < r->num_joints; i++)
+  for(i=0; i < r->num_joints+1; i++)
   {
     r->joints[i].force = SetVector(0,0,0);
   }
@@ -784,7 +816,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   vec3 n;
   vec3 real_dist;
   vec3 new_pos = {0,0,0};
-  for(i=0; i < 4; i++)
+  for(i=0; i < r->num_joints+1; i++)
   {
     r->joints[i].calculated_force = SetVector(0,0,0);
     joint_s * parent = r->joints[i].parent;

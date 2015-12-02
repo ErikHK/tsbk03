@@ -73,6 +73,7 @@ extern "C" {
 	vec3 CrossProduct(vec3 a, vec3 b);
 	GLfloat DotProduct(vec3 a, vec3 b);
 	vec3 ScalarMult(vec3 a, GLfloat s);
+	mat4 ScalarMultMat4(mat4 a, GLfloat s);
 	GLfloat Norm(vec3 a);
 	vec3 Normalize(vec3 a);
 	vec3 CalcNormalVector(vec3 a, vec3 b, vec3 c);

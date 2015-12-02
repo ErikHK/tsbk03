@@ -320,7 +320,7 @@ void DisplayWindow()
 	draw_ragdoll(&ragdoll, g_shader);
 
 
-	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
+	//glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
 	//glEnable (GL_BLEND);
 	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glDisable(GL_DEPTH_TEST);
@@ -328,7 +328,7 @@ void DisplayWindow()
 	draw_farmer(&farmer, g_shader);
 	//glEnable(GL_DEPTH_TEST);
 	//glDisable(GL_BLEND);
-	glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
+	//glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 0);
 
 
 
@@ -398,7 +398,25 @@ void calc_bone_transform(joint_s * j, int acc)
     tmptrans = j->T;
     tmp = Mult(tmp, tmptrans);
     invtrans = InvertMat4(tmptrans);
-    tmp = Mult(tmp, Mult(j->R, invtrans));
+
+    vec3 a = Normalize(VectorSub(jc->pos, j->pos));
+    vec3 b = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
+    vec3 v = CrossProduct(a,b);
+    float s = Norm(v);
+    float c = DotProduct(a, b);
+
+    mat4 vv = CrossMatrix(v);
+    mat4 vv2 = Mult(vv, vv);
+    mat4 RR = MatrixAdd(MatrixAdd(IdentityMatrix(), vv), 
+	ScalarMultMat4(vv2, ((1-c)/(s*s)) ));
+    if(s==0)
+      RR = IdentityMatrix();
+
+    //tmp = Mult(tmp, Mult(j->R, invtrans));
+    tmp = Mult(tmp, Mult(RR, invtrans));
+
+    //tmp = T(j->pos.x, j->pos.y, j->pos.z);
+
     j->tmp = tmp;
     j->isnull = 0;
 
@@ -608,7 +626,7 @@ void OnTimer(int value)
 	calc_bone_transform(&head_joint[0],0);
 
 
-
+/*
 	j = &farmer.skeleton.joints[2];
 	//j->R = Rx(cos(4*t));
 	j->R = Mult(Rx(M_PI/2.2 + sin(5*t)/11), Ry(cos(-5*t)/2));
@@ -639,10 +657,9 @@ void OnTimer(int value)
 	jc = &farmer.skeleton.joints[11];
 	//jc->R = Rz(M_PI/3);
 	jc->R = Rz(.5+cos(5*t));
-
-	jc = &farmer.skeleton.joints[13];
-	jc->R = Rz((-1-cos(5*t))/2);
-
+*/
+	jc = &farmer.skeleton.joints[3];
+	jc->R = Ry((-1-cos(5*t))/2);
 
 	calc_bone_transform(&farmer.skeleton.joints[0], 0);
 	calc_bone_transform(&farmer.skeleton.joints[2], 0);
