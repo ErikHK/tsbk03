@@ -309,7 +309,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
-	draw_floor(&f, g_shader);
+	//draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
 	/*
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
