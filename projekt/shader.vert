@@ -269,11 +269,13 @@ void main(void)
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(farmer_head_pos[i], farmer_head_bone_pos[i]);
 
-    //distance to middle of bone
-    dist = distance(vec3(inPosition), farmer_head_bone_pos[i]);
+    //distance from current vertex to middle of bone
+    //dist = distance(inPosition, farmer_head_bone_pos[i]);
+    dist = distance(inPosition, farmer_head_pos[i]);
 
-    if(dist < leng*.5)
-      gl_Position += proj_matrix*cam_matrix*farmer_head[i]*mdl_matrix*vec4(inPosition, 1);
+    if(dist < leng)
+      //gl_Position += (proj_matrix*cam_matrix*farmer_head[i]*mdl_matrix)*(vec4(inPosition, 1));
+      gl_Position = (proj_matrix*cam_matrix*farmer_head[i]*mdl_matrix)*(vec4(inPosition, 1));
   }
 
   //neck

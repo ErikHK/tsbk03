@@ -366,6 +366,39 @@ void DisplayWindow()
 	//printf("runrunrun\n");
 }
 
+void calc_bone_transform2(joint_s * j, int acc)
+{
+
+  GLfloat bonepos[8*3] = {0};
+  GLfloat currpos[8*3] = {0};
+
+  joint_s * jc = j->child[0];
+
+  vec3 tmp_bonepos;
+
+  if(jc != NULL)
+    tmp_bonepos = ScalarMult(
+		VectorAdd(j->pos, jc->pos), .5);
+  else
+    tmp_bonepos = SetVector(0,0,0);
+
+  bonepos[0] = tmp_bonepos.x;
+  bonepos[0+1] = tmp_bonepos.y;
+  bonepos[0+2] = tmp_bonepos.z;
+
+  currpos[0] = j->pos.x;
+  currpos[0+1] = j->pos.y;
+  currpos[0+2] = j->pos.z;
+
+  printf("%f %f %f\n", j->pos.x, j->pos.y, j->pos.z);
+
+
+  glUniformMatrix4fv(glGetUniformLocation(g_shader, j->Mvar), 8, GL_TRUE, T(j->pos.x, j->pos.y, j->pos.z).m);
+  glUniform3fv(glGetUniformLocation(g_shader, j->posvar), 8, currpos);
+  glUniform3fv(glGetUniformLocation(g_shader, j->boneposvar), 8, bonepos);
+
+}
+
 void calc_bone_transform(joint_s * j, int acc)
 {
   joint_s * jc;
@@ -377,6 +410,7 @@ void calc_bone_transform(joint_s * j, int acc)
     //tmp = j->parent->Mtot;
   else
     tmp = IdentityMatrix();
+    //tmp = InvertMat4(T(rootj->pos.x, rootj->pos.y, rootj->pos.z));
     //tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
 
   GLfloat Ms[8][16];
@@ -393,29 +427,51 @@ void calc_bone_transform(joint_s * j, int acc)
         calc_bone_transform(j->child[k], 1);
     }
 
-    jc = j->child[0];
     vec3 tmp_bonepos;
+    vec3 tmp_bonepos_orig;
+    jc = j->child[0];
+
     tmptrans = j->T;
     tmp = Mult(tmp, tmptrans);
     invtrans = InvertMat4(tmptrans);
 
     vec3 a = Normalize(VectorSub(jc->pos, j->pos));
-    vec3 b = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
-    vec3 v = CrossProduct(a,b);
+    //vec3 b = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
+    vec3 b;
+    if(j->parent != NULL)
+      b = Normalize(VectorSub(j->pos, j->parent->pos));
+    else
+      b = Normalize(VectorSub(j->pos, j->orig_pos));
+
+    vec3 v = CrossProduct(b,a);
     float s = Norm(v);
     float c = DotProduct(a, b);
+/*
+    printf("s %f\n", asin(s)*180/M_PI );
+    printf("c %f\n\n", acos(c)*180/M_PI );
 
     mat4 vv = CrossMatrix(v);
     mat4 vv2 = Mult(vv, vv);
-    mat4 RR = MatrixAdd(MatrixAdd(IdentityMatrix(), vv), 
-	ScalarMultMat4(vv2, ((1-c)/(s*s)) ));
+    mat4 RR = MatrixAdd(MatrixAdd(IdentityMatrix(), vv),
+	ScalarMultMat4(vv2, (1-c)/(s*s) ));
+    OrthoNormalizeMatrix(&RR);
     if(s==0)
+      RR = IdentityMatrix();
+*/
+    mat4 RR;
+    if(j->parent != NULL)
+      RR = ArbRotate(v, asin(s));
+    else
       RR = IdentityMatrix();
 
     //tmp = Mult(tmp, Mult(j->R, invtrans));
     tmp = Mult(tmp, Mult(RR, invtrans));
+    //tmp = Mult(j->T, Mult(RR, invtrans));
 
+
+    //tmp = Mult(tmp, j->T);
     //tmp = T(j->pos.x, j->pos.y, j->pos.z);
+
 
     j->tmp = tmp;
     j->isnull = 0;
@@ -423,17 +479,31 @@ void calc_bone_transform(joint_s * j, int acc)
     //middle of bone
     tmp_bonepos = ScalarMult(
 		VectorAdd(j->pos, jc->pos), .5);
+    tmp_bonepos_orig = ScalarMult(
+		VectorAdd(j->orig_pos, jc->orig_pos), .5);
 
     for(ii=0;ii<16;ii++)
       Ms[i][ii] = (tmp).m[ii];
 
-    currpos[i*3] = 10*j->pos.x;
-    currpos[i*3+1] = 10*j->pos.y;
-    currpos[i*3+2] = 10*j->pos.z;
+    //currpos[i*3] = (j->pos.x - j->orig_pos.x);
+    //currpos[i*3+1] = (j->pos.y - j->orig_pos.y);
+    //currpos[i*3+2] = (j->pos.z - j->orig_pos.z);
 
-    bonepos[i*3] = 10*tmp_bonepos.x;
-    bonepos[i*3+1] = 10*tmp_bonepos.y;
-    bonepos[i*3+2] = 10*tmp_bonepos.z;
+    //currpos[i*3] = (j->pos.x);
+    //currpos[i*3+1] = (j->pos.y);
+    //currpos[i*3+2] = (j->pos.z);
+
+    currpos[i*3] = (j->orig_pos.x);
+    currpos[i*3+1] = (j->orig_pos.y);
+    currpos[i*3+2] = (j->orig_pos.z);
+
+    bonepos[i*3] = tmp_bonepos.x;
+    bonepos[i*3+1] = tmp_bonepos.y;
+    bonepos[i*3+2] = tmp_bonepos.z;
+
+    //bonepos[i*3] = (tmp_bonepos.x - tmp_bonepos_orig.x);
+    //bonepos[i*3+1] = (tmp_bonepos.y - tmp_bonepos_orig.y);
+    //bonepos[i*3+2] = (tmp_bonepos.z - tmp_bonepos_orig.z);
 
     j = j->child[0];
     i++;
@@ -577,6 +647,8 @@ void OnTimer(int value)
 	tmppp = IdentityMatrix();
 	//legbase_joint[0].R = ArbRotate(SetVector(0,0,1), cos(3*t)/2);
 
+
+	/*
 	//legs
 	calc_bone_transform(&legbase_joint[0], 0);
 	calc_bone_transform(&legbase_joint[1], 0);
@@ -624,7 +696,7 @@ void OnTimer(int value)
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t)/9.5);
 
 	calc_bone_transform(&head_joint[0],0);
-
+*/
 
 /*
 	j = &farmer.skeleton.joints[2];
@@ -658,20 +730,21 @@ void OnTimer(int value)
 	//jc->R = Rz(M_PI/3);
 	jc->R = Rz(.5+cos(5*t));
 */
+/*
 	jc = &farmer.skeleton.joints[3];
 	jc->R = Ry((-1-cos(5*t))/2);
 
-	calc_bone_transform(&farmer.skeleton.joints[0], 0);
-	calc_bone_transform(&farmer.skeleton.joints[2], 0);
-	calc_bone_transform(&farmer.skeleton.joints[3], 0);
-	//calc_bone_transform(&farmer.skeleton.joints[4], 0);
-	calc_bone_transform(&farmer.skeleton.joints[1], 0);
+	jc = &farmer.skeleton.joints[5];
+	jc->R = Rx((-1-cos(4*t))/2);
+*/
 
-	calc_bone_transform(&farmer.skeleton.joints[10], 0);
+	calc_bone_transform2(&farmer.skeleton.joints[0], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[2], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[3], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[1], 0);
 
-	calc_bone_transform(&farmer.skeleton.joints[11], 0);
-//	calc_bone_transform(&farmer.skeleton.joints[8], 0);
-//	calc_bone_transform(&farmer.skeleton.joints[9], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[12], 0);
+//	calc_bone_transform(&farmer.skeleton.joints[13], 0);
 
 	glutPostRedisplay();
 }

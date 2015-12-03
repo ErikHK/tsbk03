@@ -115,20 +115,25 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
 
 void create_farmer(farmer_s * f, vec3 pos)
 {
-  f->body = LoadModelPlus("./res/farmergirl1.obj");
+  f->body = LoadModelPlus("./res/farmergirl1_small.obj");
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
 
-  f->skeleton.num_joints = 15;
+  f->skeleton.num_joints = 16;
 
   //head joint
   create_joint(&f->skeleton.joints[0], 
-	VectorAdd(f->pos, SetVector(0,6,0)), 
+	VectorAdd(f->pos, SetVector(0,0,0)), 
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
+
   //neck joint
   create_joint(&f->skeleton.joints[1], 
   	VectorAdd(f->pos, SetVector(-.1, 3.7, 0)), 
 	"farmer_neck", "farmer_neck_pos", "farmer_neck_bone_pos", 0);
+
+  //f->skeleton.joints[1].T = T(0, 3.7, .2);
+  //f->skeleton.joints[1].pos = SetVector(0, 3.7, .2);
+
 
   //shoulder joints
   create_joint(&f->skeleton.joints[2], 
@@ -137,8 +142,6 @@ void create_farmer(farmer_s * f, vec3 pos)
   create_joint(&f->skeleton.joints[3], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -.6)), 
 	"farmer_rshoulder", "farmer_rshoulder_pos", "farmer_rshoulder_bone_pos", 0);
-
-  f->skeleton.joints[3].T = T(0, 1.7, -.6);
 
   //elbow joints
   create_joint(&f->skeleton.joints[4], 
@@ -156,6 +159,14 @@ void create_farmer(farmer_s * f, vec3 pos)
   create_joint(&f->skeleton.joints[7], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)), 
 	NULL, NULL, NULL, 0);
+
+  //f->skeleton.joints[7].T = T(0, 3.7, -2.6);
+  //f->skeleton.joints[7].pos = SetVector(0, 3.7, -2.6);
+
+  //f->skeleton.joints[5].T = T(0, 3.2, -1.5);
+  //f->skeleton.joints[5].pos = SetVector(0, 3.2, -1.5);
+
+
 
   //stomach joint
   create_joint(&f->skeleton.joints[8], 
@@ -179,10 +190,13 @@ void create_farmer(farmer_s * f, vec3 pos)
   //knee joints
   create_joint(&f->skeleton.joints[12], 
 	VectorAdd(f->pos, SetVector(0, .8, .35)), 
-	NULL, NULL, NULL, 0);
+//	NULL, NULL, NULL, 0);
+	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
+
   create_joint(&f->skeleton.joints[13], 
 	VectorAdd(f->pos, SetVector(0, .8, -.35)), 
-	NULL, NULL, NULL, 0);
+//	NULL, NULL, NULL, 0);
+	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
 
   //foot joints
   create_joint(&f->skeleton.joints[14], 
@@ -191,6 +205,14 @@ void create_farmer(farmer_s * f, vec3 pos)
   create_joint(&f->skeleton.joints[15], 
 	VectorAdd(f->pos, SetVector(0, 0, -.3)), 
 	NULL, NULL, NULL, 0);
+
+
+  int i;
+  for(i=0;i<16;i++)
+    f->skeleton.joints[i].pos.z += 0.0;
+
+
+
 
   //set children
 
@@ -211,7 +233,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
   //groin
   f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
-  f->skeleton.joints[10].child[1] = &f->skeleton.joints[11];
+  //f->skeleton.joints[10].child[1] = &f->skeleton.joints[11];
   //hips
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
   f->skeleton.joints[11].child[0] = &f->skeleton.joints[13];
@@ -252,7 +274,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   //int kk;
   //for(kk=0;kk < 15;kk++)
   //  f->skeleton.joints[kk].dist_to_parent = 2;
-  f->skeleton.joints[1].dist_to_parent = 2.7;
+  f->skeleton.joints[0].dist_to_parent = 2.3;
+  f->skeleton.joints[1].dist_to_parent = 2.3;
   f->skeleton.joints[2].dist_to_parent = .6;
   f->skeleton.joints[3].dist_to_parent = .6;
   f->skeleton.joints[4].dist_to_parent = 1.1;
@@ -276,7 +299,21 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 void update_farmer(farmer_s * f)
 {
-  f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), S(.1, .1, .1));
+  int i;
+  for(i=0;i<16;i++)
+  {
+    joint_s * j = &f->skeleton.joints[i];
+    //j->pos.x += .02;
+    j->T = T(j->pos.x, j->pos.y, j->pos.z);
+  }
+  //f->pos.x += .02;
+  //f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
+
+  f->pos.x =  f->skeleton.joints[0].pos.x;
+  f->pos.y =  f->skeleton.joints[0].pos.y;
+  f->pos.z =  f->skeleton.joints[0].pos.z;
+  f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
+
 }
 
 void draw_farmer(farmer_s * f, GLuint program)
@@ -289,11 +326,13 @@ void draw_farmer(farmer_s * f, GLuint program)
 
 
   int i;
-  for(i=0;i<15;i++)
+  for(i=0;i<16;i++)
   {
     //mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
-    mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x, 
-	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
+    //mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x, 
+    //	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
+    mat4 tmp = T(f->skeleton.joints[i].pos.x, 
+	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z);
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
     DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
@@ -698,7 +737,8 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   j->pos = pos;
   j->id = id;
   j->body = LoadModelPlus("./res/groundsphere.obj");
-  j->body_matrix = Mult(T(pos.x, pos.y, pos.z), S(.1, .1, .1));
+  //j->body_matrix = Mult(T(pos.x, pos.y, pos.z), S(.1, .1, .1));
+  j->body_matrix = T(pos.x, pos.y, pos.z);
   j->T = T(pos.x, pos.y, pos.z);
   j->M = T(pos.x, pos.y, pos.z);
   j->Mp = T(pos.x, pos.y, pos.z);
@@ -713,6 +753,7 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
 void create_ragdoll_joint(joint_s * j, vec3 pos)
 {
   j->pos = pos;
+  j->orig_pos = pos;
   j->body = LoadModelPlus("./res/groundsphere.obj");
   j->body_matrix = Mult(T(pos.x, pos.y, pos.z), S(.02, .02, .02));
   j->T = T(pos.x, pos.y, pos.z);
@@ -791,7 +832,7 @@ void create_ragdoll(ragdoll_s * r)
 void update_ragdoll(ragdoll_s * r, GLfloat dT)
 {
   int i;
-  for(i=0; i < r->num_joints+1; i++)
+  for(i=0; i < r->num_joints; i++)
   {
     r->joints[i].force = SetVector(0,0,0);
   }
@@ -816,12 +857,12 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   vec3 n;
   vec3 real_dist;
   vec3 new_pos = {0,0,0};
-  for(i=0; i < r->num_joints+1; i++)
+  for(i=0; i < r->num_joints; i++)
   {
     r->joints[i].calculated_force = SetVector(0,0,0);
     joint_s * parent = r->joints[i].parent;
 
-
+    //if(i!=0)
     r->joints[i].calculated_force = VectorAdd(calculated_force, SetVector(0,-5,0));
 
     if(r->joints[i].pos.y <= 0)

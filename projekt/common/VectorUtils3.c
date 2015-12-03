@@ -196,7 +196,7 @@ char transposed = 0;
 	mat4 ScalarMultMat4(mat4 a, GLfloat s)
 	{
 	  int i=0;
-	  for(i=0;i<16;i++)
+	  for(i=0;i<15;i++)
 	    a.m[i] *= s;
 	  return a;
 	}
