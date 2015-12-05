@@ -123,7 +123,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   //head joint
   create_joint(&f->skeleton.joints[0], 
-	VectorAdd(f->pos, SetVector(0,0,0)), 
+	VectorAdd(f->pos, SetVector(0,6,0)), 
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
 
   //neck joint
@@ -309,8 +309,8 @@ void update_farmer(farmer_s * f)
   //f->pos.x += .02;
   //f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
 
-  f->pos.x =  f->skeleton.joints[0].pos.x;
-  f->pos.y =  f->skeleton.joints[0].pos.y;
+  f->pos.x =  f->skeleton.joints[0].pos.x+1;
+  f->pos.y =  f->skeleton.joints[0].pos.y-4;
   f->pos.z =  f->skeleton.joints[0].pos.z;
   f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
 
@@ -329,10 +329,10 @@ void draw_farmer(farmer_s * f, GLuint program)
   for(i=0;i<16;i++)
   {
     //mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
-    //mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x, 
-    //	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
-    mat4 tmp = T(f->skeleton.joints[i].pos.x, 
-	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z);
+    mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x, 
+    	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
+    //mat4 tmp = T(f->skeleton.joints[i].pos.x, 
+//	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z);
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
     DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
