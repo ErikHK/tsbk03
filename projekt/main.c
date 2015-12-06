@@ -317,7 +317,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 0);
 	draw_wall(&wall, g_shader);
 	*/
-	draw_ragdoll(&ragdoll, g_shader);
+	//draw_ragdoll(&ragdoll, g_shader);
 
 
 	//glUniform1i(glGetUniformLocation(g_shader, "draw_farmer"), 1);
@@ -399,7 +399,7 @@ void calc_bone_transform2(joint_s * j, int acc)
 
 }
 
-void calc_bone_transform(joint_s * j, int acc)
+void calc_bone_transform(joint_s * j, int acc, int start_deg)
 {
   joint_s * jc;
   joint_s * rootj = j;
@@ -462,9 +462,16 @@ void calc_bone_transform(joint_s * j, int acc)
     if(s==0)
       RR = IdentityMatrix();
 */
+    float deg;
+
+    if(i==0)
+      deg = acos(c)-M_PI*start_deg/180.0;
+    else
+      deg = acos(c);
+
     mat4 RR;
     if(j->parent != NULL)
-      RR = ArbRotate(Normalize(v), asin(s));
+      RR = ArbRotate(Normalize(v), deg);
     else
       RR = IdentityMatrix();
 
@@ -559,7 +566,7 @@ void OnTimer(int value)
 	update_farmer(&farmer);
         if(keyIsDown('k'))
         {
-	  update_ragdoll(&ragdoll, delta_t);
+	  //update_ragdoll(&ragdoll, delta_t);
           update_ragdoll(&farmer.skeleton, delta_t);
         }
 
@@ -758,13 +765,13 @@ void OnTimer(int value)
 	//jc->R = Rx((-1-cos(4*t))/2);
 
 
-	//calc_bone_transform(&farmer.skeleton.joints[0], 0);
-	calc_bone_transform(&farmer.skeleton.joints[2], 0);
-	//calc_bone_transform(&farmer.skeleton.joints[3], 0);
-//	calc_bone_transform(&farmer.skeleton.joints[1], 0);
+	calc_bone_transform(&farmer.skeleton.joints[0], 0,0);
+	calc_bone_transform(&farmer.skeleton.joints[2], 0,0);
+	calc_bone_transform(&farmer.skeleton.joints[3], 0,0);
+	calc_bone_transform(&farmer.skeleton.joints[1], 0,0);
 
-//	calc_bone_transform(&farmer.skeleton.joints[12], 0);
-//	calc_bone_transform(&farmer.skeleton.joints[13], 0);
+	calc_bone_transform(&farmer.skeleton.joints[10], 0,90);
+	calc_bone_transform(&farmer.skeleton.joints[11], 0,90);
 
 	glutPostRedisplay();
 }
@@ -974,7 +981,7 @@ int main(int argc, char **argv)
 	create_cow(&cow);
 	create_farmer(&farmer, SetVector(0,0,0));
 
-	create_ragdoll(&ragdoll);
+	//create_ragdoll(&ragdoll);
 
 	g_shader = loadShaders("shader.vert" , "shader.frag");
 	glUseProgram(g_shader);

@@ -145,18 +145,19 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   //elbow joints
   create_joint(&f->skeleton.joints[4], 
-	VectorAdd(f->pos, SetVector(0, 2.9, 1.7)), 
+	VectorAdd(f->pos, SetVector(0, 3.4, 1.7)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[5], 
-	VectorAdd(f->pos, SetVector(0, 3.7, -1.7)), 
+	VectorAdd(f->pos, SetVector(0, 3.4, -1.7)), 
 	NULL, NULL, NULL, 0);
 
   f->skeleton.joints[4].orig_pos = SetVector(0,3.7,1.7);
+  f->skeleton.joints[5].orig_pos = SetVector(0,3.7,-1.7);
 
 
   //hand joints
   create_joint(&f->skeleton.joints[6], 
-	VectorAdd(f->pos, SetVector(0, 1.6, 1.8)), 
+	VectorAdd(f->pos, SetVector(0, 3.7, 2.8)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[7], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)), 
@@ -175,8 +176,10 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   //stomach joint
   create_joint(&f->skeleton.joints[8], 
-	VectorAdd(f->pos, SetVector(0, 2.7, 0)), 
+	VectorAdd(f->pos, SetVector(0, 2.7, .05)), 
 	"farmer_stomach", "farmer_stomach_pos", "farmer_stomach_bone_pos", 0);
+
+  f->skeleton.joints[8].orig_pos = SetVector(0,2.7,0);
 
   //groin joint
   create_joint(&f->skeleton.joints[9], 
@@ -308,7 +311,9 @@ void update_farmer(farmer_s * f)
   for(i=0;i<16;i++)
   {
     joint_s * j = &f->skeleton.joints[i];
-    //j->pos.x += .02;
+    j->pos.x += .02;
+    j->pos.y += .02;
+    j->pos.z += .02;
     j->T = T(j->pos.x, j->pos.y, j->pos.z);
   }
   //f->pos.x += .02;
