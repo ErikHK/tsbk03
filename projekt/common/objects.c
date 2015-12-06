@@ -155,6 +155,24 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[5].orig_pos = SetVector(0,3.7,-1.7);
 
 
+  f->skeleton.joints[2].constraint = 1;
+  f->skeleton.joints[2].max_angle = 30;
+  f->skeleton.joints[2].orig_vec = SetVector(0,0,-1);
+
+  f->skeleton.joints[3].constraint = 1;
+  f->skeleton.joints[3].max_angle = 30;
+  f->skeleton.joints[3].orig_vec = SetVector(0,0,1);
+
+  f->skeleton.joints[4].constraint = 1;
+  f->skeleton.joints[4].max_angle = 60;
+  f->skeleton.joints[4].orig_vec = SetVector(0,0,-1);
+
+  f->skeleton.joints[5].constraint = 1;
+  f->skeleton.joints[5].max_angle = 60;
+  f->skeleton.joints[5].orig_vec = SetVector(0,0,1);
+
+
+
   //hand joints
   create_joint(&f->skeleton.joints[6], 
 	VectorAdd(f->pos, SetVector(0, 3.7, 2.8)), 
@@ -164,6 +182,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 	NULL, NULL, NULL, 0);
 
   f->skeleton.joints[6].orig_pos = SetVector(0,3.7,2.8);
+  f->skeleton.joints[7].orig_pos = SetVector(0,3.7,-2.8);
 
 
   //f->skeleton.joints[7].T = T(0, 3.7, -2.6);
@@ -171,7 +190,6 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   //f->skeleton.joints[5].T = T(0, 3.2, -1.5);
   //f->skeleton.joints[5].pos = SetVector(0, 3.2, -1.5);
-
 
 
   //stomach joint
@@ -194,6 +212,15 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 2, -.4)), 
 	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
 
+
+  f->skeleton.joints[10].constraint = 1;
+  f->skeleton.joints[10].max_angle = 30;
+  f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
+
+
+  f->skeleton.joints[11].constraint = 1;
+  f->skeleton.joints[11].max_angle = 30;
+  f->skeleton.joints[11].orig_vec = SetVector(0,0,1);
 
   //knee joints
   create_joint(&f->skeleton.joints[12], 
@@ -261,7 +288,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[3].parent = &f->skeleton.joints[1];
   //elbows
   f->skeleton.joints[4].parent = &f->skeleton.joints[2];
-  f->skeleton.joints[5].parent = &f->skeleton.joints[2];
+  f->skeleton.joints[5].parent = &f->skeleton.joints[3];
   //hands
   f->skeleton.joints[6].parent = &f->skeleton.joints[4];
   f->skeleton.joints[7].parent = &f->skeleton.joints[5];
@@ -311,9 +338,9 @@ void update_farmer(farmer_s * f)
   for(i=0;i<16;i++)
   {
     joint_s * j = &f->skeleton.joints[i];
-    j->pos.x += .02;
-    j->pos.y += .02;
-    j->pos.z += .02;
+    //j->pos.x += .02;
+    //j->pos.y += .02;
+    //j->pos.z += .02;
     j->T = T(j->pos.x, j->pos.y, j->pos.z);
   }
   //f->pos.x += .02;
@@ -746,6 +773,9 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   j->boneposvar = boneposvar;
 
   j->orig_pos = pos;
+  j->orig_vec = SetVector(0,0,1);
+  j->constraint = 0;
+  j->max_angle = 360;
   j->pos = pos;
   j->id = id;
   j->body = LoadModelPlus("./res/groundsphere.obj");
@@ -841,14 +871,10 @@ void create_ragdoll(ragdoll_s * r)
   //r->joints[0].force = SetVector(0,0,.1);
 }
 
+
+
 void update_ragdoll(ragdoll_s * r, GLfloat dT)
 {
-  int i;
-  for(i=0; i < r->num_joints; i++)
-  {
-    r->joints[i].force = SetVector(0,0,0);
-  }
-
   if(keyIsDown('a'))
     r->joints[0].force.z = 20;
   else if(keyIsDown('q'))
@@ -856,7 +882,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   else if(keyIsDown('o'))
     r->joints[0].force.z = -20;
   else if(keyIsDown('.'))
-    r->joints[0].force.y = 20;
+    r->joints[0].force.y = 80;
   else
   {
     r->joints[0].force.z = 0;
@@ -864,219 +890,72 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
     r->joints[0].force.x = 0;
   }
 
-
-  vec3 dP, dX, calculated_force = {0,0,0}, calculated_force_parent = {0,0,0};
+  int test=0;
+  vec3 dP, dX, calculated_force = {0,0,0};
   vec3 n;
   vec3 real_dist;
-  vec3 new_pos = {0,0,0};
-  for(i=0; i < r->num_joints; i++)
+  int i;
+  for(i=0;i < r->num_joints;i++)
   {
-    r->joints[i].calculated_force = SetVector(0,0,0);
+
+    joint_s * j = &r->joints[i];
     joint_s * parent = r->joints[i].parent;
-
-    //if(i!=0)
-    r->joints[i].calculated_force = VectorAdd(calculated_force, SetVector(0,-5,0));
-
-    if(r->joints[i].pos.y <= 0)
+    if(parent != NULL && j != NULL)
     {
-      r->joints[i].pos.y = .05;
-      //r->joints[i].force.y = 5;
-      r->joints[i].speed.y *= -.7;
-      //if(parent != NULL)
-      //  parent->speed.y *= -.7;
-    }
-
-    if(parent != NULL)
-    {
-      real_dist = VectorSub(r->joints[i].pos, parent->pos);
+      //parent = parent->parent;
+      real_dist = VectorSub(j->pos, parent->pos);
       n = Normalize(real_dist);
-      float dist_diff = (Norm(real_dist)-r->joints[i].dist_to_parent);
-      vec3 speed_diff = VectorSub(r->joints[i].speed, parent->speed);
-      //calculated_force =VectorAdd(calculated_force, VectorSub(ScalarMult(n, dist_diff*20), 
-      //ScalarMult(speed_diff, 2.5)));
-      //r->joints[i].calculated_force = VectorSub(
-      //r->joints[i].calculated_force, ScalarMult(n, dist_diff*30));
-      //calculated_force_parent = ScalarMult(calculated_force, -1.7);
-      //calculated_force = VectorAdd(calculated_force, r->joints[i].force);
+      float dist_diff = (Norm(real_dist)-j->dist_to_parent);
+      vec3 speed_diff = VectorSub(j->speed, parent->speed);
+      calculated_force = VectorSub(ScalarMult(n, -dist_diff*40),
+      ScalarMult(speed_diff, 5));
+      j->pos = VectorSub(j->pos, ScalarMult(n, dist_diff));
 
-      //parent->force = ScalarMult(calculated_force, -1);
-
-
-
-      new_pos = VectorSub(r->joints[i].pos, ScalarMult(n, dist_diff));
-
-      //if(i != 1)
-        r->joints[i].pos = new_pos;
-      //r->joints[i].pos = VectorSub(r->joints[i].pos, ScalarMult(n, dist_diff/20.0));
-
-      //printf("%f\n", r->joints[0].force.y);
-      if(i==1)
+      float ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
+      while(ang > j->max_angle && j->constraint)
       {
-      vec3 n, leg, dir;
-      float dot, ang;
+        printf("%f\n", ang);
 
-    n = SetVector(0,1,0);
-    leg = Normalize(VectorSub(r->joints[0].pos, r->joints[1].pos));
-    dot = DotProduct(n, leg);
-    ang = 180*acos(dot)/M_PI;
-    dir = VectorSub(leg, n);
-    //printf("%f %f %f\n", r->joints[1].force.x, r->joints[1].force.y, r->joints[1].force.z);
-    //printf("%f\n", ang);
-    if(fabs(ang) > 20)
-    {
-      //r->joints[i].pos.x = new_pos.x;
-      //r->joints[i].pos.z = new_pos.z;
-      r->joints[1].pos = VectorAdd(r->joints[1].pos, 
-       ScalarMult(dir, .05));
-      //r->joints[1].parent->speed = SetVector(0,0,0);
-      //r->joints[1].speed = ScalarMult(r->joints[1].speed, -1);
-      //r->joints[1].force.y = -r->joints[1].parent->force.y;
-      //r->joints[0].force = SetVector(0,0,0);
-      //r->joints[1].parent->pos = VectorAdd(r->joints[i].pos, 
-      //ScalarMult(n, dist_diff));
-      //r->joints[1].parent->force = SetVector(0,0,0);
-      //r->joints[1].force = SetVector(0,0,0);
-      //r->joints[1].calculated_force = SetVector(0,0,0);
-      //calculated_force = SetVector(0,-5,0);
-    }
-    //else
-      //r->joints[i].pos = new_pos;
+        real_dist = VectorSub(parent->pos, j->pos);
+        dist_diff = (Norm(real_dist)-j->dist_to_parent);
 
-    }
-
-
-
-      //printf("%f %f %f\n", calculated_force.x, calculated_force.y, calculated_force.z);
-
-      /*
-      //fixate legs
-      if(i == 8)
-      {
-        float ang = 180*atan((real_dist.y)/(real_dist.z))/M_PI;
-        vec3 nn = VectorSub(r->joints[3].pos, r->joints[2].pos);
-        nn = SetVector(nn.x, nn.z, -nn.y);
-        if(fabs(ang) > 4)
-          r->joints[i].pos = VectorAdd(parent->pos, ScalarMult(Normalize(nn), 2));
+        n = Normalize(real_dist);
+        vec3 align_vec = Normalize(VectorSub(real_dist, j->orig_vec));
+        if(dist_diff < 0)
+          j->pos = VectorAdd(j->pos, ScalarMult(n, -.01));
+        else
+          j->pos = VectorAdd(j->pos, ScalarMult(n, .01));
+        j->pos = VectorAdd(j->pos, ScalarMult(align_vec, .01));
+        ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
       }
 
-      if(i == 9)
+      joint_s * jp = j;
+      while(jp != NULL)
       {
-        float ang = 180*atan((real_dist.y)/(real_dist.z))/M_PI;
-        //printf("%f\n", ang);
-        if(fabs(ang) > 4)
-          //calculated_force = SetVector(0,42,0);
-          r->joints[i].pos = VectorAdd(parent->pos, ScalarMult(SetVector(0,0,-1), 2));
+      while(jp->pos.y <= 0)
+      {
+        jp->pos.y += .2;
+        jp->speed.y *= -.6;
+      }
+        jp = jp->parent;
       }
 
-      if(i == 10)
-      {
-
-      }
-
-
-      //fixate arms
-      if(i == 4)
-      {
-        float ang = 180*atan((real_dist.y)/(real_dist.z))/M_PI;
-        //printf("%f\n", ang);
-        if(fabs(ang) > 4)
-          //calculated_force = SetVector(0,42,0);
-          r->joints[i].pos = VectorAdd(parent->pos, ScalarMult(SetVector(0,0,1), 2));
-      }
-
-      if(i == 5)
-      {
-        float ang = 180*atan((real_dist.y)/(real_dist.z))/M_PI;
-        //printf("%f\n", ang);
-        if(fabs(ang) > 4)
-          //calculated_force = SetVector(0,42,0);
-          r->joints[i].pos = VectorAdd(parent->pos, ScalarMult(SetVector(0,0,-1), 2));
-      }
-      */
-
-
     }
 
+      //j = j->parent;
+      //parent = parent->parent;
+    //}
 
-/*
-    vec3 n = SetVector(0,1,0);
-    vec3 leg = Normalize(VectorSub(r->joints[10].pos, r->joints[12].pos));
-    float dot = DotProduct(n, leg);
-    float ang = 180*acos(dot)/M_PI;
-    vec3 dir = Normalize(VectorSub(leg, n));
-    //printf("%f\n", ang);
-    if(fabs(ang) > 2)
-      //calculated_force = SetVector(0,42,0);
-      r->joints[12].pos = VectorAdd(r->joints[12].pos, 
-       ScalarMult(dir, .03));
-   if(r->joints[12].parent != NULL)
-     r->joints[12].parent->force = SetVector(0,6,0);
-
-    leg = Normalize(VectorSub(r->joints[10].pos, r->joints[8].pos));
-    dot = DotProduct(n, leg);
-    ang = 180*acos(dot)/M_PI;
-    dir = Normalize(VectorSub(leg, n));
-    if(fabs(ang) > 2)
-      //calculated_force = SetVector(0,42,0);
-      r->joints[10].pos = VectorAdd(r->joints[10].pos, 
-       ScalarMult(dir, .03));
-*/
-
-
-
-    /*
-
-    if(i==3)
-    {
-    n = SetVector(0,1,0);
-    leg = Normalize(VectorSub(r->joints[2].pos, r->joints[3].pos));
-    dot = DotProduct(n, leg);
-    ang = 180*acos(dot)/M_PI;
-    dir = Normalize(VectorSub(leg, n));
-    //printf("%f\n", ang);
-    if(fabs(ang) > 20)
-    {
-      r->joints[3].pos = VectorAdd(r->joints[3].pos, 
-       ScalarMult(dir, .2));
-      //r->joints[2].force.y = -r->joints[2].parent->force.y;
-      //r->joints[3].force = SetVector(0,0,0);
-      //r->joints[2].parent->force = SetVector(0,0,0);
-      calculated_force = SetVector(0,-5,0);
-    }
-    }
-    */
-
-
-
-    if(i >= 0)
-    {
-      //dP = ScalarMult(VectorAdd(SetVector(0,-5,0), VectorAdd(r->joints[i].force, calculated_force)), dT);
-      dP = ScalarMult(VectorAdd(r->joints[i].force, r->joints[i].calculated_force), dT);
-      //if(parent != NULL)
-      //  dP = VectorAdd(tmpdP, ScalarMult(VectorAdd(parent->force, calculated_force_parent), dT));
-
-    }
-/*
-    else
-    {
-      dP = ScalarMult(VectorAdd(r->joints[i].force, calculated_force), dT);
-      
-      
-    }
-*/
-
-
-
-    r->joints[i].speed = VectorAdd(r->joints[i].speed, dP);
-    //r->joints[i].speed = SetVector(0,.1,0);
-
-    dX = ScalarMult(r->joints[i].speed, dT);
-
-    r->joints[i].pos = VectorAdd(r->joints[i].pos, dX);
-    r->joints[i].T = Mult(T(r->joints[i].pos.x, r->joints[i].pos.y, r->joints[i].pos.z), S(.5,.5,.5));
+    dP = ScalarMult(VectorAdd(SetVector(0,-10,0), VectorAdd(j->force, calculated_force)), dT);
+    j->speed = VectorAdd(j->speed, dP);
+    dX = ScalarMult(j->speed, dT);
+    j->pos = VectorAdd(j->pos, dX);
+    j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
+    //parent = parent->parent;
 
   }
 }
+
 
 void draw_cow(cow_s * c, GLuint program)
 {

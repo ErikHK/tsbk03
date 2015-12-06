@@ -81,6 +81,7 @@ typedef struct joint_t
 {
   Model * body;
   vec3 orig_pos;
+  vec3 orig_vec;
   vec3 pos;
   vec3 speed;
   mat4 body_matrix;
@@ -101,6 +102,8 @@ typedef struct joint_t
   char * posvar;
   char * boneposvar;
   int isnull;
+  float max_angle;
+  int constraint;
 
 } joint_s;
 
