@@ -177,7 +177,7 @@ void main(void)
   }
 
   //neck
-  for(int i=0;i<3;i++)
+  for(int i=0;i<2;i++)
   {
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(farmer_neck_pos[i], farmer_neck_bone_pos[i]);

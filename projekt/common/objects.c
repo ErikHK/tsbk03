@@ -126,10 +126,15 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0,6,0)), 
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
 
+
   //neck joint
   create_joint(&f->skeleton.joints[1], 
   	VectorAdd(f->pos, SetVector(-.1, 3.7, 0)), 
 	"farmer_neck", "farmer_neck_pos", "farmer_neck_bone_pos", 0);
+
+  f->skeleton.joints[1].constraint = 1;
+  f->skeleton.joints[1].max_angle = 5;
+  f->skeleton.joints[1].orig_vec = SetVector(0,1,0);
 
   //f->skeleton.joints[1].T = T(0, 3.7, .2);
   //f->skeleton.joints[1].pos = SetVector(0, 3.7, .2);
@@ -156,19 +161,19 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   f->skeleton.joints[2].constraint = 1;
-  f->skeleton.joints[2].max_angle = 30;
+  f->skeleton.joints[2].max_angle = 10;
   f->skeleton.joints[2].orig_vec = SetVector(0,0,-1);
 
   f->skeleton.joints[3].constraint = 1;
-  f->skeleton.joints[3].max_angle = 30;
+  f->skeleton.joints[3].max_angle = 10;
   f->skeleton.joints[3].orig_vec = SetVector(0,0,1);
 
   f->skeleton.joints[4].constraint = 1;
-  f->skeleton.joints[4].max_angle = 60;
+  f->skeleton.joints[4].max_angle = 30;
   f->skeleton.joints[4].orig_vec = SetVector(0,0,-1);
 
   f->skeleton.joints[5].constraint = 1;
-  f->skeleton.joints[5].max_angle = 60;
+  f->skeleton.joints[5].max_angle = 30;
   f->skeleton.joints[5].orig_vec = SetVector(0,0,1);
 
 
@@ -183,6 +188,15 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   f->skeleton.joints[6].orig_pos = SetVector(0,3.7,2.8);
   f->skeleton.joints[7].orig_pos = SetVector(0,3.7,-2.8);
+
+  f->skeleton.joints[6].constraint = 1;
+  f->skeleton.joints[6].max_angle = 70;
+  f->skeleton.joints[6].orig_vec = SetVector(0,0,-1);
+
+  f->skeleton.joints[7].constraint = 1;
+  f->skeleton.joints[7].max_angle = 70;
+  f->skeleton.joints[7].orig_vec = SetVector(0,0,1);
+
 
 
   //f->skeleton.joints[7].T = T(0, 3.7, -2.6);
@@ -199,10 +213,20 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   f->skeleton.joints[8].orig_pos = SetVector(0,2.7,0);
 
+  f->skeleton.joints[8].constraint = 1;
+  f->skeleton.joints[8].max_angle = 5;
+  f->skeleton.joints[8].orig_vec = SetVector(0,1,0);
+
+
   //groin joint
   create_joint(&f->skeleton.joints[9], 
 	VectorAdd(f->pos, SetVector(0, 2, 0)), 
 	"farmer_groin", "farmer_groin_pos", "farmer_groin_bone_pos", 0);
+
+  f->skeleton.joints[9].constraint = 1;
+  f->skeleton.joints[9].max_angle = 5;
+  f->skeleton.joints[9].orig_vec = SetVector(0,1,0);
+
 
   //hip joints
   create_joint(&f->skeleton.joints[10], 
@@ -214,24 +238,34 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   f->skeleton.joints[10].constraint = 1;
-  f->skeleton.joints[10].max_angle = 30;
+  f->skeleton.joints[10].max_angle = 5;
   f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
 
 
   f->skeleton.joints[11].constraint = 1;
-  f->skeleton.joints[11].max_angle = 30;
+  f->skeleton.joints[11].max_angle = 5;
   f->skeleton.joints[11].orig_vec = SetVector(0,0,1);
 
   //knee joints
   create_joint(&f->skeleton.joints[12], 
 	VectorAdd(f->pos, SetVector(0, .8, .35)), 
-//	NULL, NULL, NULL, 0);
-	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
+	NULL, NULL, NULL, 0);
+//	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
+
+
+  f->skeleton.joints[12].constraint = 1;
+  f->skeleton.joints[12].max_angle = 25;
+  f->skeleton.joints[12].orig_vec = SetVector(0,1,0);
 
   create_joint(&f->skeleton.joints[13], 
 	VectorAdd(f->pos, SetVector(0, .8, -.35)), 
-//	NULL, NULL, NULL, 0);
-	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
+	NULL, NULL, NULL, 0);
+//	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
+
+  f->skeleton.joints[13].constraint = 1;
+  f->skeleton.joints[13].max_angle = 25;
+  f->skeleton.joints[13].orig_vec = SetVector(0,1,0);
+
 
   //foot joints
   create_joint(&f->skeleton.joints[14], 
@@ -241,6 +275,14 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 0, -.3)), 
 	NULL, NULL, NULL, 0);
 
+
+  f->skeleton.joints[14].constraint = 1;
+  f->skeleton.joints[14].max_angle = 25;
+  f->skeleton.joints[14].orig_vec = SetVector(0,1,0);
+
+  f->skeleton.joints[15].constraint = 1;
+  f->skeleton.joints[15].max_angle = 25;
+  f->skeleton.joints[15].orig_vec = SetVector(0,1,0);
 
   int i;
   for(i=0;i<16;i++)
@@ -360,7 +402,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  //DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
 
