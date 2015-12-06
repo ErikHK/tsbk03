@@ -132,12 +132,55 @@ void main(void)
 
   float shade2 = dot(lightv2, inNormal);
 
+  float leng, dist;
 
-  float dist = distance(inPosition, vec3(0,6,0));
+
   if(draw_farmer==1)
   {
-    if(dist < 2)
-    gl_Position = proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
+    //HEAD
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_head_pos[0], farmer_head_bone_pos[0]);
+
+    //distance to middle of bone
+    dist = distance(inPosition, farmer_head_bone_pos[0]);
+    //dist = distance(inPosition, vec3(0,6,0));
+
+    if(dist < leng/2)
+    gl_Position += proj_matrix*cam_matrix*farmer_head[0]*mdl_matrix*vec4(inPosition,1);
+
+
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_lshoulder_pos[i], farmer_lshoulder_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_lshoulder_bone_pos[i]);
+
+    if(dist < leng*.4 && i > 0)
+      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng*.7)
+      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+
+  }
+
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_rshoulder_pos[i], farmer_rshoulder_bone_pos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_rshoulder_bone_pos[i]);
+
+    if(dist < leng*.4 && i > 0)
+      gl_Position += proj_matrix*cam_matrix*farmer_rshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng*.7)
+      gl_Position += proj_matrix*cam_matrix*farmer_rshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+
+  }
+
+
+
   }
   else
 

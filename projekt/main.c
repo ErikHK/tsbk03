@@ -309,7 +309,7 @@ void DisplayWindow()
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
-	//draw_floor(&f, g_shader);
+	draw_floor(&f, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 0);
 	/*
 	glUniform1i(glGetUniformLocation(g_shader, "draw_ball"), 1);
@@ -410,7 +410,11 @@ void calc_bone_transform(joint_s * j, int acc)
     //tmp = j->parent->Mtot;
   else
     tmp = IdentityMatrix();
+    //tmp = j->T;
+    //tmp = farmer.matrix;
+    //tmp = T(farmer.pos.x, farmer.pos.y, farmer.pos.z);
     //tmp = InvertMat4(T(rootj->pos.x, rootj->pos.y, rootj->pos.z));
+    //tmp = InvertMat4(farmer.matrix);
     //tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
 
   GLfloat Ms[8][16];
@@ -421,11 +425,11 @@ void calc_bone_transform(joint_s * j, int acc)
   while(j->child[0] != NULL)
   {
     //calc_bone_transform(j->child[0], 1);
-    for(k=1; k < MAX_CHILDREN; k++)
-    {
-      if(j->child[k] != NULL)
-        calc_bone_transform(j->child[k], 1);
-    }
+    //for(k=1; k < MAX_CHILDREN; k++)
+    //{
+    //  if(j->child[k] != NULL)
+    //    calc_bone_transform(j->child[k], 1);
+    //}
 
     vec3 tmp_bonepos;
     vec3 tmp_bonepos_orig;
@@ -464,8 +468,8 @@ void calc_bone_transform(joint_s * j, int acc)
     else
       RR = IdentityMatrix();
 
-    //tmp = Mult(tmp, Mult(j->R, invtrans));
-    tmp = Mult(tmp, Mult(RR, invtrans));
+    tmp = Mult(tmp, Mult(j->R, invtrans));
+    //tmp = Mult(tmp, Mult(RR, invtrans));
     //tmp = Mult(j->T, Mult(RR, invtrans));
 
 
@@ -493,13 +497,22 @@ void calc_bone_transform(joint_s * j, int acc)
     //currpos[i*3+1] = (j->pos.y);
     //currpos[i*3+2] = (j->pos.z);
 
+    //printf("%f %f %f   ", j->pos.x, j->pos.y, j->pos.z);
+
     currpos[i*3] = (j->orig_pos.x);
     currpos[i*3+1] = (j->orig_pos.y);
     currpos[i*3+2] = (j->orig_pos.z);
 
-    bonepos[i*3] = tmp_bonepos.x;
-    bonepos[i*3+1] = tmp_bonepos.y;
-    bonepos[i*3+2] = tmp_bonepos.z;
+    //bonepos[i*3] = tmp_bonepos.x;
+    //bonepos[i*3+1] = tmp_bonepos.y;
+    //bonepos[i*3+2] = tmp_bonepos.z;
+
+    //printf("%f %f %f\n", tmp_bonepos.x, tmp_bonepos.y, tmp_bonepos.z);
+
+
+    bonepos[i*3] = tmp_bonepos_orig.x;
+    bonepos[i*3+1] = tmp_bonepos_orig.y;
+    bonepos[i*3+2] = tmp_bonepos_orig.z;
 
     //bonepos[i*3] = (tmp_bonepos.x - tmp_bonepos_orig.x);
     //bonepos[i*3+1] = (tmp_bonepos.y - tmp_bonepos_orig.y);
@@ -730,17 +743,24 @@ void OnTimer(int value)
 	//jc->R = Rz(M_PI/3);
 	jc->R = Rz(.5+cos(5*t));
 */
-/*
+
 	jc = &farmer.skeleton.joints[3];
 	jc->R = Ry((-1-cos(5*t))/2);
 
-	jc = &farmer.skeleton.joints[5];
-	jc->R = Rx((-1-cos(4*t))/2);
-*/
+	jc = &farmer.skeleton.joints[2];
+	jc->R = Ry((-1-cos(3*t))/1);
 
-	calc_bone_transform2(&farmer.skeleton.joints[0], 0);
-//	calc_bone_transform(&farmer.skeleton.joints[2], 0);
-//	calc_bone_transform(&farmer.skeleton.joints[3], 0);
+	jc = &farmer.skeleton.joints[0];
+	jc->R = Ry((-1-cos(5*t))/2);
+
+
+	//jc = &farmer.skeleton.joints[5];
+	//jc->R = Rx((-1-cos(4*t))/2);
+
+
+	calc_bone_transform(&farmer.skeleton.joints[0], 0);
+	calc_bone_transform(&farmer.skeleton.joints[2], 0);
+	calc_bone_transform(&farmer.skeleton.joints[3], 0);
 //	calc_bone_transform(&farmer.skeleton.joints[1], 0);
 
 //	calc_bone_transform(&farmer.skeleton.joints[12], 0);

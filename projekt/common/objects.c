@@ -309,11 +309,13 @@ void update_farmer(farmer_s * f)
   //f->pos.x += .02;
   //f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
 
-  f->pos.x =  f->skeleton.joints[0].pos.x+1;
-  f->pos.y =  f->skeleton.joints[0].pos.y-4;
+  f->pos.x =  f->skeleton.joints[0].pos.x;
+  f->pos.y =  f->skeleton.joints[0].pos.y-6;
   f->pos.z =  f->skeleton.joints[0].pos.z;
   f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
 
+  //f->matrix = T(f->skeleton.joints[0].pos.x,
+  //	f->skeleton.joints[0].pos.y-6, f->skeleton.joints[0].pos.z);
 }
 
 void draw_farmer(farmer_s * f, GLuint program)
