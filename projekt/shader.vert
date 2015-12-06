@@ -137,6 +137,7 @@ void main(void)
 
   if(draw_farmer==1)
   {
+/*
     //HEAD
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(farmer_head_pos[0], farmer_head_bone_pos[0]);
@@ -145,11 +146,11 @@ void main(void)
     dist = distance(inPosition, farmer_head_bone_pos[0]);
     //dist = distance(inPosition, vec3(0,6,0));
 
-    if(dist < leng/2)
+    if(dist < leng/1.8)
     gl_Position += proj_matrix*cam_matrix*farmer_head[0]*mdl_matrix*vec4(inPosition,1);
+*/
 
-
-  for(int i=0;i<3;i++)
+  for(int i=0;i<2;i++)
   {
     //length of bone (joint to middle of bone times 2)
     leng = 2*distance(farmer_lshoulder_pos[i], farmer_lshoulder_bone_pos[i]);
@@ -157,13 +158,14 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_lshoulder_bone_pos[i]);
 
-    if(dist < leng*.4 && i > 0)
+    if(dist < leng/1.8)
       gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
-    else if(dist < leng*.7)
-      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+
+//    else if(dist < leng*.7)
+//      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
 
   }
-
+/*
   for(int i=0;i<3;i++)
   {
     //length of bone (joint to middle of bone times 2)
@@ -178,7 +180,7 @@ void main(void)
       gl_Position += proj_matrix*cam_matrix*farmer_rshoulder[i]*mdl_matrix*vec4(inPosition, 1);
 
   }
-
+*/
 
 
   }

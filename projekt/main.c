@@ -450,10 +450,10 @@ void calc_bone_transform(joint_s * j, int acc)
     vec3 v = CrossProduct(b,a);
     float s = Norm(v);
     float c = DotProduct(a, b);
-/*
+
     printf("s %f\n", asin(s)*180/M_PI );
     printf("c %f\n\n", acos(c)*180/M_PI );
-
+/*
     mat4 vv = CrossMatrix(v);
     mat4 vv2 = Mult(vv, vv);
     mat4 RR = MatrixAdd(MatrixAdd(IdentityMatrix(), vv),
@@ -464,12 +464,12 @@ void calc_bone_transform(joint_s * j, int acc)
 */
     mat4 RR;
     if(j->parent != NULL)
-      RR = ArbRotate(v, asin(s));
+      RR = ArbRotate(Normalize(v), asin(s));
     else
       RR = IdentityMatrix();
 
-    tmp = Mult(tmp, Mult(j->R, invtrans));
-    //tmp = Mult(tmp, Mult(RR, invtrans));
+    //tmp = Mult(tmp, Mult(j->R, invtrans));
+    tmp = Mult(tmp, Mult(RR, invtrans));
     //tmp = Mult(j->T, Mult(RR, invtrans));
 
 
@@ -742,7 +742,7 @@ void OnTimer(int value)
 	jc = &farmer.skeleton.joints[11];
 	//jc->R = Rz(M_PI/3);
 	jc->R = Rz(.5+cos(5*t));
-*/
+
 
 	jc = &farmer.skeleton.joints[3];
 	jc->R = Ry((-1-cos(5*t))/2);
@@ -752,15 +752,15 @@ void OnTimer(int value)
 
 	jc = &farmer.skeleton.joints[0];
 	jc->R = Ry((-1-cos(5*t))/2);
-
+*/
 
 	//jc = &farmer.skeleton.joints[5];
 	//jc->R = Rx((-1-cos(4*t))/2);
 
 
-	calc_bone_transform(&farmer.skeleton.joints[0], 0);
+	//calc_bone_transform(&farmer.skeleton.joints[0], 0);
 	calc_bone_transform(&farmer.skeleton.joints[2], 0);
-	calc_bone_transform(&farmer.skeleton.joints[3], 0);
+	//calc_bone_transform(&farmer.skeleton.joints[3], 0);
 //	calc_bone_transform(&farmer.skeleton.joints[1], 0);
 
 //	calc_bone_transform(&farmer.skeleton.joints[12], 0);

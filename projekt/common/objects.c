@@ -145,20 +145,25 @@ void create_farmer(farmer_s * f, vec3 pos)
 
   //elbow joints
   create_joint(&f->skeleton.joints[4], 
-	VectorAdd(f->pos, SetVector(0, 3.7, 1.7)), 
+	VectorAdd(f->pos, SetVector(0, 2.9, 1.7)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[5], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -1.7)), 
 	NULL, NULL, NULL, 0);
 
+  f->skeleton.joints[4].orig_pos = SetVector(0,3.7,1.7);
+
 
   //hand joints
   create_joint(&f->skeleton.joints[6], 
-	VectorAdd(f->pos, SetVector(0, 3.7, 2.8)), 
+	VectorAdd(f->pos, SetVector(0, 1.6, 1.8)), 
 	NULL, NULL, NULL, 0);
   create_joint(&f->skeleton.joints[7], 
 	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)), 
 	NULL, NULL, NULL, 0);
+
+  f->skeleton.joints[6].orig_pos = SetVector(0,3.7,2.8);
+
 
   //f->skeleton.joints[7].T = T(0, 3.7, -2.6);
   //f->skeleton.joints[7].pos = SetVector(0, 3.7, -2.6);
