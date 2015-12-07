@@ -1,5 +1,6 @@
 #include "objects.h"
 #include <stdlib.h>
+#include "signal.h"
 
 int check_collision(bounding_box_s * b1, bounding_box_s * b2)
 {
@@ -216,7 +217,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[8].orig_pos = SetVector(0,2.7,0);
 
   f->skeleton.joints[8].constraint = 1;
-  f->skeleton.joints[8].max_angle = 5;
+  f->skeleton.joints[8].max_angle = 40;
   f->skeleton.joints[8].orig_vec = SetVector(0,1,0);
 
 
@@ -226,7 +227,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 	"farmer_groin", "farmer_groin_pos", "farmer_groin_bone_pos", 0);
 
   f->skeleton.joints[9].constraint = 1;
-  f->skeleton.joints[9].max_angle = 5;
+  f->skeleton.joints[9].max_angle = 40;
   f->skeleton.joints[9].orig_vec = SetVector(0,1,0);
 
 
@@ -240,12 +241,12 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   f->skeleton.joints[10].constraint = 1;
-  f->skeleton.joints[10].max_angle = 2;
+  f->skeleton.joints[10].max_angle = 5;
   f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
 
 
   f->skeleton.joints[11].constraint = 1;
-  f->skeleton.joints[11].max_angle = 2;
+  f->skeleton.joints[11].max_angle = 5;
   f->skeleton.joints[11].orig_vec = SetVector(0,0,1);
 
   //knee joints
@@ -255,17 +256,18 @@ void create_farmer(farmer_s * f, vec3 pos)
 //	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
 
 
-  f->skeleton.joints[12].constraint = 1;
-  f->skeleton.joints[12].max_angle = 25;
-  f->skeleton.joints[12].orig_vec = SetVector(0,1,0);
-
   create_joint(&f->skeleton.joints[13],
 	VectorAdd(f->pos, SetVector(0, .8, -.35)),
 	NULL, NULL, NULL, 0);
 //	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
 
+
+  f->skeleton.joints[12].constraint = 1;
+  f->skeleton.joints[12].max_angle = 40;
+  f->skeleton.joints[12].orig_vec = SetVector(0,1,0);
+
   f->skeleton.joints[13].constraint = 1;
-  f->skeleton.joints[13].max_angle = 25;
+  f->skeleton.joints[13].max_angle = 40;
   f->skeleton.joints[13].orig_vec = SetVector(0,1,0);
 
 
@@ -286,16 +288,17 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[15].max_angle = 25;
   f->skeleton.joints[15].orig_vec = SetVector(0,1,0);
 
-/*
-  mat4 rrr = Mult(T(0,6,0), Mult(Rz(M_PI/2), T(0,-6,0)));
+
+  mat4 rrr = Mult(T(0,6,0), Mult(Rz(M_PI/10), T(0,-6,0)));
   int i;
   for(i=0;i<16;i++)
   {
     //f->skeleton.joints[i].pos.z += 0.0;
+    //f->skeleton.joints[i].orig_pos = MultVec3(rrr, f->skeleton.joints[i].orig_pos);
     f->skeleton.joints[i].pos = MultVec3(rrr, f->skeleton.joints[i].pos);
 
   }
-*/
+
 
 
 
@@ -421,12 +424,14 @@ void draw_farmer(farmer_s * f, GLuint program)
   {
     //mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
     mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x,
-    	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
+    	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.15,.15,.15));
     //mat4 tmp = T(f->skeleton.joints[i].pos.x,
 //	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z);
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
     DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
   }
+
+
 
 }
 
@@ -930,7 +935,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   if(keyIsDown('a'))
     r->joints[0].force.z = 20;
   else if(keyIsDown('q'))
-    r->joints[0].force.y = -80;
+    r->joints[0].force.x = -80;
   else if(keyIsDown('o'))
     r->joints[0].force.z = -20;
   else if(keyIsDown('.'))
@@ -943,7 +948,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   }
 
   int test=0;
-  vec3 dP, dX, calculated_force = {0,-2,0};
+  vec3 dP, dX, calculated_force = {0,-10,0};
   vec3 n;
   vec3 real_dist;
   int i;
@@ -953,6 +958,12 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
     joint_s * j = &r->joints[i];
     joint_s * parent = r->joints[i].parent;
 
+      if(j->pos.y <= 0)
+      {
+        //raise(SIGABRT);
+        j->pos.y += .3;
+        j->speed.y *= -.8;
+      }
 
     dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
     j->speed = VectorAdd(j->speed, dP);
@@ -984,7 +995,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       float ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
 
 
-      while((ang > j->max_angle && j->constraint))
+      while((ang > j->max_angle && j->constraint) && j->pos.y > 0)
       {
         //printf("%f\n", ang);
 
@@ -1023,7 +1034,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
       joint_s * jp = j;
       while(jp != NULL)
       {
-      while(jp->pos.y <= 0)
+      if(jp->pos.y <= 0)
       {
         jp->pos.y += .02;
         jp->speed.y *= -.6;
@@ -1031,7 +1042,6 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         jp = jp->parent;
       }
 */
-
 
     j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
 
