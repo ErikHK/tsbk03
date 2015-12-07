@@ -5,7 +5,7 @@ all : proj
 
 
 proj : main.c $(commondir)GL_utilities.c $(commondir)VectorUtils3.c $(commondir)loadobj.c $(commondir)objects.c $(commondir)/Linux/MicroGlut.c $(commondir)LoadTGA.h
-	gcc -Wall -o project -I$(commondir) -DGL_GLEXT_PROTOTYPES main.c $(commondir)GL_utilities.c $(commondir)loadobj.c $(commondir)VectorUtils3.c $(commondir)MicroGlut.c $(commondir)objects.c $(commondir)LoadTGA.c -lGL -lm -lX11 -Wno-unused-but-set-variable -Wno-unused-variable -std=c99
+	gcc -Wall -o project -I$(commondir) -DGL_GLEXT_PROTOTYPES main.c $(commondir)GL_utilities.c $(commondir)loadobj.c $(commondir)VectorUtils3.c $(commondir)MicroGlut.c $(commondir)objects.c $(commondir)LoadTGA.c -lGL -lm -lX11 -Wno-unused-but-set-variable -Wno-unused-variable -std=c99 -g
 
 clean :
 	rm project

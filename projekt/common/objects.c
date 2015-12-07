@@ -69,7 +69,7 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
   //printf("%f\n", dist);
 
   //project b2 to sat[]
-  
+
 
 
   vec3 v1, v2;
@@ -122,18 +122,18 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.num_joints = 16;
 
   //head joint
-  create_joint(&f->skeleton.joints[0], 
-	VectorAdd(f->pos, SetVector(0,6,0)), 
+  create_joint(&f->skeleton.joints[0],
+	VectorAdd(f->pos, SetVector(0,6,0)),
 	"farmer_head", "farmer_head_pos", "farmer_head_bone_pos", 0);
 
 
   //neck joint
-  create_joint(&f->skeleton.joints[1], 
-  	VectorAdd(f->pos, SetVector(-.1, 3.7, 0)), 
+  create_joint(&f->skeleton.joints[1],
+  	VectorAdd(f->pos, SetVector(-.1, 3.7, 0)),
 	"farmer_neck", "farmer_neck_pos", "farmer_neck_bone_pos", 0);
 
   f->skeleton.joints[1].constraint = 1;
-  f->skeleton.joints[1].max_angle = 5;
+  f->skeleton.joints[1].max_angle = 10;
   f->skeleton.joints[1].orig_vec = SetVector(0,1,0);
 
   //f->skeleton.joints[1].T = T(0, 3.7, .2);
@@ -141,19 +141,19 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   //shoulder joints
-  create_joint(&f->skeleton.joints[2], 
-	VectorAdd(f->pos, SetVector(0, 3.7, .6)), 
+  create_joint(&f->skeleton.joints[2],
+	VectorAdd(f->pos, SetVector(0, 3.7, .6)),
 	"farmer_lshoulder", "farmer_lshoulder_pos", "farmer_lshoulder_bone_pos", 0);
-  create_joint(&f->skeleton.joints[3], 
-	VectorAdd(f->pos, SetVector(0, 3.7, -.6)), 
+  create_joint(&f->skeleton.joints[3],
+	VectorAdd(f->pos, SetVector(0, 3.7, -.6)),
 	"farmer_rshoulder", "farmer_rshoulder_pos", "farmer_rshoulder_bone_pos", 0);
 
   //elbow joints
-  create_joint(&f->skeleton.joints[4], 
-	VectorAdd(f->pos, SetVector(0, 3.4, 1.7)), 
+  create_joint(&f->skeleton.joints[4],
+	VectorAdd(f->pos, SetVector(0, 3.8, 1.7)),
 	NULL, NULL, NULL, 0);
-  create_joint(&f->skeleton.joints[5], 
-	VectorAdd(f->pos, SetVector(0, 3.4, -1.7)), 
+  create_joint(&f->skeleton.joints[5],
+	VectorAdd(f->pos, SetVector(0, 3.4, -1.7)),
 	NULL, NULL, NULL, 0);
 
   f->skeleton.joints[4].orig_pos = SetVector(0,3.7,1.7);
@@ -168,26 +168,28 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[3].max_angle = 10;
   f->skeleton.joints[3].orig_vec = SetVector(0,0,1);
 
+
   f->skeleton.joints[4].constraint = 1;
-  f->skeleton.joints[4].max_angle = 30;
+  f->skeleton.joints[4].max_angle = 80;
   f->skeleton.joints[4].orig_vec = SetVector(0,0,-1);
 
   f->skeleton.joints[5].constraint = 1;
-  f->skeleton.joints[5].max_angle = 30;
+  f->skeleton.joints[5].max_angle = 80;
   f->skeleton.joints[5].orig_vec = SetVector(0,0,1);
 
 
 
   //hand joints
-  create_joint(&f->skeleton.joints[6], 
-	VectorAdd(f->pos, SetVector(0, 3.7, 2.8)), 
+  create_joint(&f->skeleton.joints[6],
+	VectorAdd(f->pos, SetVector(0, 3.7, 2.8)),
 	NULL, NULL, NULL, 0);
-  create_joint(&f->skeleton.joints[7], 
-	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)), 
+  create_joint(&f->skeleton.joints[7],
+	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)),
 	NULL, NULL, NULL, 0);
 
   f->skeleton.joints[6].orig_pos = SetVector(0,3.7,2.8);
   f->skeleton.joints[7].orig_pos = SetVector(0,3.7,-2.8);
+
 
   f->skeleton.joints[6].constraint = 1;
   f->skeleton.joints[6].max_angle = 70;
@@ -207,8 +209,8 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   //stomach joint
-  create_joint(&f->skeleton.joints[8], 
-	VectorAdd(f->pos, SetVector(0, 2.7, .05)), 
+  create_joint(&f->skeleton.joints[8],
+	VectorAdd(f->pos, SetVector(0, 2.7, .05)),
 	"farmer_stomach", "farmer_stomach_pos", "farmer_stomach_bone_pos", 0);
 
   f->skeleton.joints[8].orig_pos = SetVector(0,2.7,0);
@@ -219,8 +221,8 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   //groin joint
-  create_joint(&f->skeleton.joints[9], 
-	VectorAdd(f->pos, SetVector(0, 2, 0)), 
+  create_joint(&f->skeleton.joints[9],
+	VectorAdd(f->pos, SetVector(0, 2, 0)),
 	"farmer_groin", "farmer_groin_pos", "farmer_groin_bone_pos", 0);
 
   f->skeleton.joints[9].constraint = 1;
@@ -229,26 +231,26 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   //hip joints
-  create_joint(&f->skeleton.joints[10], 
-	VectorAdd(f->pos, SetVector(0, 2, .4)), 
+  create_joint(&f->skeleton.joints[10],
+	VectorAdd(f->pos, SetVector(0, 2, .4)),
 	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
-  create_joint(&f->skeleton.joints[11], 
-	VectorAdd(f->pos, SetVector(0, 2, -.4)), 
+  create_joint(&f->skeleton.joints[11],
+	VectorAdd(f->pos, SetVector(0, 2, -.4)),
 	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
 
 
   f->skeleton.joints[10].constraint = 1;
-  f->skeleton.joints[10].max_angle = 5;
+  f->skeleton.joints[10].max_angle = 2;
   f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
 
 
   f->skeleton.joints[11].constraint = 1;
-  f->skeleton.joints[11].max_angle = 5;
+  f->skeleton.joints[11].max_angle = 2;
   f->skeleton.joints[11].orig_vec = SetVector(0,0,1);
 
   //knee joints
-  create_joint(&f->skeleton.joints[12], 
-	VectorAdd(f->pos, SetVector(0, .8, .35)), 
+  create_joint(&f->skeleton.joints[12],
+	VectorAdd(f->pos, SetVector(0, .8, .35)),
 	NULL, NULL, NULL, 0);
 //	"farmer_lhip", "farmer_lhip_pos", "farmer_lhip_bone_pos", 0);
 
@@ -257,8 +259,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[12].max_angle = 25;
   f->skeleton.joints[12].orig_vec = SetVector(0,1,0);
 
-  create_joint(&f->skeleton.joints[13], 
-	VectorAdd(f->pos, SetVector(0, .8, -.35)), 
+  create_joint(&f->skeleton.joints[13],
+	VectorAdd(f->pos, SetVector(0, .8, -.35)),
 	NULL, NULL, NULL, 0);
 //	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
 
@@ -268,11 +270,11 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   //foot joints
-  create_joint(&f->skeleton.joints[14], 
-	VectorAdd(f->pos, SetVector(0, 0, .3)), 
+  create_joint(&f->skeleton.joints[14],
+	VectorAdd(f->pos, SetVector(0, 0, .3)),
 	NULL, NULL, NULL, 0);
-  create_joint(&f->skeleton.joints[15], 
-	VectorAdd(f->pos, SetVector(0, 0, -.3)), 
+  create_joint(&f->skeleton.joints[15],
+	VectorAdd(f->pos, SetVector(0, 0, -.3)),
 	NULL, NULL, NULL, 0);
 
 
@@ -284,10 +286,16 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[15].max_angle = 25;
   f->skeleton.joints[15].orig_vec = SetVector(0,1,0);
 
+/*
+  mat4 rrr = Mult(T(0,6,0), Mult(Rz(M_PI/2), T(0,-6,0)));
   int i;
   for(i=0;i<16;i++)
-    f->skeleton.joints[i].pos.z += 0.0;
+  {
+    //f->skeleton.joints[i].pos.z += 0.0;
+    f->skeleton.joints[i].pos = MultVec3(rrr, f->skeleton.joints[i].pos);
 
+  }
+*/
 
 
 
@@ -309,7 +317,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   //stomach
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
   //groin
-  f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
+  //f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
   //f->skeleton.joints[10].child[1] = &f->skeleton.joints[11];
   //hips
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
@@ -384,6 +392,8 @@ void update_farmer(farmer_s * f)
     //j->pos.y += .02;
     //j->pos.z += .02;
     j->T = T(j->pos.x, j->pos.y, j->pos.z);
+    //if(i==2)
+    //  printf("%f %f %f\n", j->pos.x, j->pos.y, j->pos.z);
   }
   //f->pos.x += .02;
   //f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
@@ -402,7 +412,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  //DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
 
@@ -410,9 +420,9 @@ void draw_farmer(farmer_s * f, GLuint program)
   for(i=0;i<16;i++)
   {
     //mat4 tmp = Mult(f->skeleton.joints[i].T, S(.2,.2,.2));
-    mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x, 
+    mat4 tmp = Mult(T(f->skeleton.joints[i].pos.x,
     	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z), S(.2,.2,.2));
-    //mat4 tmp = T(f->skeleton.joints[i].pos.x, 
+    //mat4 tmp = T(f->skeleton.joints[i].pos.x,
 //	f->skeleton.joints[i].pos.y, f->skeleton.joints[i].pos.z);
     glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
     DrawModel(f->skeleton.joints[i].body, program, "inPosition", "inNormal", "inTexCoord");
@@ -920,7 +930,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   if(keyIsDown('a'))
     r->joints[0].force.z = 20;
   else if(keyIsDown('q'))
-    r->joints[0].force.x = 20;
+    r->joints[0].force.y = -80;
   else if(keyIsDown('o'))
     r->joints[0].force.z = -20;
   else if(keyIsDown('.'))
@@ -933,7 +943,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   }
 
   int test=0;
-  vec3 dP, dX, calculated_force = {0,0,0};
+  vec3 dP, dX, calculated_force = {0,-2,0};
   vec3 n;
   vec3 real_dist;
   int i;
@@ -942,58 +952,104 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
     joint_s * j = &r->joints[i];
     joint_s * parent = r->joints[i].parent;
+
+
+    dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
+    j->speed = VectorAdd(j->speed, dP);
+    dX = ScalarMult(j->speed, dT);
+    j->pos = VectorAdd(j->pos, dX);
+    //parent = parent->parent;
+
     if(parent != NULL && j != NULL)
     {
+
       //parent = parent->parent;
       real_dist = VectorSub(j->pos, parent->pos);
       n = Normalize(real_dist);
       float dist_diff = (Norm(real_dist)-j->dist_to_parent);
+
+      //if(i==1)
+      //  printf("%f %f %f \n", n.x, n.y, n.z);
+
       vec3 speed_diff = VectorSub(j->speed, parent->speed);
-      calculated_force = VectorSub(ScalarMult(n, -dist_diff*40),
-      ScalarMult(speed_diff, 5));
+      //calculated_force = VectorSub(ScalarMult(n, -dist_diff*40),
+      //ScalarMult(speed_diff, 5));
+      //calculated_force = VectorSub(ScalarMult(n, -dist_diff*10),
+      //ScalarMult(speed_diff, 5));
+      //calculated_force = SetVector(0,-10,0);
       j->pos = VectorSub(j->pos, ScalarMult(n, dist_diff));
 
+      //j->pos = VectorSub(j->pos, ScalarMult(n, dist_diff));
+
       float ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
-      while(ang > j->max_angle && j->constraint)
+
+
+      while((ang > j->max_angle && j->constraint))
       {
-        printf("%f\n", ang);
+        //printf("%f\n", ang);
 
         real_dist = VectorSub(parent->pos, j->pos);
-        dist_diff = (Norm(real_dist)-j->dist_to_parent);
+        dist_diff = (Norm(real_dist) - j->dist_to_parent);
 
         n = Normalize(real_dist);
         vec3 align_vec = Normalize(VectorSub(real_dist, j->orig_vec));
+
         if(dist_diff < 0)
           j->pos = VectorAdd(j->pos, ScalarMult(n, -.01));
         else
           j->pos = VectorAdd(j->pos, ScalarMult(n, .01));
+
         j->pos = VectorAdd(j->pos, ScalarMult(align_vec, .01));
         ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
+
+	if(i==4)
+	  printf("hej %f %f %f , %f %f\n", real_dist.x, real_dist.y, real_dist.z, j->dist_to_parent, Norm(real_dist));
+
       }
 
+/*
+      while(fabs(dist_diff) > .02)
+      {
+        real_dist = VectorSub(j->pos, parent->pos);
+        n = Normalize(real_dist);
+        dist_diff = (Norm(real_dist)-j->dist_to_parent);
+        j->pos = VectorSub(j->pos, ScalarMult(n, dist_diff/20.0));
+
+//        printf("%f \n", dist_diff);
+
+      }
+*/
+/*
       joint_s * jp = j;
       while(jp != NULL)
       {
       while(jp->pos.y <= 0)
       {
-        jp->pos.y += .2;
+        jp->pos.y += .02;
         jp->speed.y *= -.6;
       }
         jp = jp->parent;
       }
+*/
+
+
+    j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
+
 
     }
 
       //j = j->parent;
       //parent = parent->parent;
     //}
-
-    dP = ScalarMult(VectorAdd(SetVector(0,-10,0), VectorAdd(j->force, calculated_force)), dT);
+/*
+    //dP = ScalarMult(VectorAdd(SetVector(0,-10,0), VectorAdd(j->force, calculated_force)), dT);
+    dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
     j->speed = VectorAdd(j->speed, dP);
     dX = ScalarMult(j->speed, dT);
     j->pos = VectorAdd(j->pos, dX);
     j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
     //parent = parent->parent;
+*/
 
   }
 }
@@ -1017,7 +1073,7 @@ void draw_joint(joint_s *j, GLuint program)
 {
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, j->body_matrix.m);
   DrawModel(j->body, program, "inPosition", "inNormal", "inTexCoord");
-  
+
 }
 
 void create_ball(ball_s * b, vec3 pos)

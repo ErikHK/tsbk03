@@ -147,7 +147,8 @@ void main(void)
     //dist = distance(inPosition, vec3(0,6,0));
 
     if(dist < leng/1.8)
-    gl_Position += proj_matrix*cam_matrix*farmer_head[0]*mdl_matrix*vec4(inPosition,1);
+      gl_Position += proj_matrix*cam_matrix*mdl_matrix*farmer_head[0]*(vec4(inPosition,1));
+
 
   //l shoulder
   for(int i=0;i<2;i++)
@@ -159,9 +160,9 @@ void main(void)
     dist = distance(vec3(inPosition), farmer_lshoulder_bone_pos[i]);
 
     if(dist < leng/1.8)
-      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*vec4(inPosition, 1);
+      gl_Position += proj_matrix*cam_matrix*farmer_lshoulder[i]*mdl_matrix*(vec4(inPosition, 1));
   }
-
+/*
   //r shoulder
   for(int i=0;i<2;i++)
   {
@@ -200,12 +201,26 @@ void main(void)
     //distance to middle of bone
     dist = distance(vec3(inPosition), farmer_lhip_bone_pos[i]);
 
-    if(dist < leng/2)
+    if(dist < leng/1.8)
       gl_Position += proj_matrix*cam_matrix*farmer_lhip[i]*mdl_matrix*vec4(inPosition, 1);
 
   }
 
+  //right leg
+  for(int i=0;i<3;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(farmer_rhip_pos[i], farmer_rhip_bone_pos[i]);
 
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), farmer_rhip_bone_pos[i]);
+
+    if(dist < leng/1.8)
+      gl_Position += proj_matrix*cam_matrix*farmer_rhip[i]*mdl_matrix*vec4(inPosition, 1);
+
+  }
+
+*/
 
   }
   else

@@ -390,7 +390,7 @@ void calc_bone_transform2(joint_s * j, int acc)
   currpos[0+1] = j->pos.y;
   currpos[0+2] = j->pos.z;
 
-  printf("%f %f %f\n", j->pos.x, j->pos.y, j->pos.z);
+  //printf("%f %f %f\n", j->pos.x, j->pos.y, j->pos.z);
 
 
   glUniformMatrix4fv(glGetUniformLocation(g_shader, j->Mvar), 8, GL_TRUE, T(j->pos.x, j->pos.y, j->pos.z).m);
@@ -410,6 +410,7 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     //tmp = j->parent->Mtot;
   else
     tmp = IdentityMatrix();
+    //tmp = farmer.skeleton.joints[0].T;
     //tmp = j->T;
     //tmp = farmer.matrix;
     //tmp = T(farmer.pos.x, farmer.pos.y, farmer.pos.z);
@@ -451,8 +452,8 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     float s = Norm(v);
     float c = DotProduct(a, b);
 
-    printf("s %f\n", asin(s)*180/M_PI );
-    printf("c %f\n\n", acos(c)*180/M_PI );
+    //printf("s %f\n", asin(s)*180/M_PI );
+    //printf("c %f\n\n", acos(c)*180/M_PI );
 /*
     mat4 vv = CrossMatrix(v);
     mat4 vv2 = Mult(vv, vv);
@@ -475,10 +476,22 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     else
       RR = IdentityMatrix();
 
+   OrthoNormalizeMatrix(&RR);
+
     //tmp = Mult(tmp, Mult(j->R, invtrans));
     tmp = Mult(tmp, Mult(RR, invtrans));
+    //tmp =Mult(j->T, Mult(RR, invtrans));
+    //tmp = Mult(RR, invtrans);
+    //tmp = Mult(j->T, Mult(tmp, RR));
+    //tmp = Mult(j->T, Mult(tmp, Mult(RR, invtrans)));
+    //tmp = Mult(j->T, Mult(RR, invtrans));
     //tmp = Mult(j->T, Mult(RR, invtrans));
 
+    if(i==0)
+    {
+      vec3 test = MultVec3(RR, SetVector(0,6,0));
+      //printf("%f %f %f\n", test.x, test.y, test.z);
+    }
 
     //tmp = Mult(tmp, j->T);
     //tmp = T(j->pos.x, j->pos.y, j->pos.z);
