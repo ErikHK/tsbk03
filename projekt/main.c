@@ -452,17 +452,6 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     float s = Norm(v);
     float c = DotProduct(a, b);
 
-    //printf("s %f\n", asin(s)*180/M_PI );
-    //printf("c %f\n\n", acos(c)*180/M_PI );
-/*
-    mat4 vv = CrossMatrix(v);
-    mat4 vv2 = Mult(vv, vv);
-    mat4 RR = MatrixAdd(MatrixAdd(IdentityMatrix(), vv),
-	ScalarMultMat4(vv2, (1-c)/(s*s) ));
-    OrthoNormalizeMatrix(&RR);
-    if(s==0)
-      RR = IdentityMatrix();
-*/
     float deg;
 
     if(i==0)
@@ -470,13 +459,17 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     else
       deg = acos(c);
 
+
+    if(i==1)
+      printf("hej %f\n", 180*deg/M_PI);
+
     mat4 RR;
     if(j->parent != NULL)
       RR = ArbRotate(Normalize(v), deg);
     else
       RR = IdentityMatrix();
 
-   OrthoNormalizeMatrix(&RR);
+   //OrthoNormalizeMatrix(&RR);
 
     //tmp = Mult(tmp, Mult(j->R, invtrans));
     tmp = Mult(tmp, Mult(RR, invtrans));

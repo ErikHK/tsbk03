@@ -295,7 +295,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   {
     //f->skeleton.joints[i].pos.z += 0.0;
     //f->skeleton.joints[i].orig_pos = MultVec3(rrr, f->skeleton.joints[i].orig_pos);
-    f->skeleton.joints[i].pos = MultVec3(rrr, f->skeleton.joints[i].pos);
+    //f->skeleton.joints[i].pos = MultVec3(rrr, f->skeleton.joints[i].pos);
 
   }
 
@@ -415,7 +415,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  //DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
 
@@ -955,15 +955,19 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
   //update orig_vec for 1 and 8
   vec3 orig = Normalize(VectorSub(r->joints[0].pos, r->joints[8].pos));
+
   r->joints[0].orig_vec = orig;
   r->joints[1].orig_vec = orig;
   r->joints[8].orig_vec = orig;
   r->joints[9].orig_vec = orig;
+
   r->joints[12].orig_vec = orig;
   r->joints[13].orig_vec = orig;
   r->joints[14].orig_vec = orig;
   r->joints[15].orig_vec = orig;
 
+
+  //printf("hejs %f %f %f\n", orig.x, orig.y, orig.z);
 
   for(i=0;i < r->num_joints;i++)
   {
@@ -1049,8 +1053,8 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         j->pos = VectorAdd(j->pos, ScalarMult(align_vec, .01));
         ang = 180*acos(DotProduct(Normalize(real_dist), j->orig_vec))/M_PI;
 
-	if(i==4)
-	  printf("hej %f %f %f , %f %f\n", real_dist.x, real_dist.y, real_dist.z, j->dist_to_parent, Norm(real_dist));
+	//if(i==4)
+	//  printf("hej %f %f %f , %f %f\n", real_dist.x, real_dist.y, real_dist.z, j->dist_to_parent, Norm(real_dist));
 
       }
 
