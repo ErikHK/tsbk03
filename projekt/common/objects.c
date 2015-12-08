@@ -121,6 +121,10 @@ void create_farmer(farmer_s * f, vec3 pos)
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
 
+  f->verts = malloc(sizeof(GLfloat)*f->body->numVertices*3);
+  memcpy(f->verts, f->body->vertexArray, sizeof(GLfloat)*f->body->numVertices*3);
+
+
   f->skeleton.num_joints = 16;
 
   //head joint
@@ -412,38 +416,85 @@ void update_farmer(farmer_s * f)
 
 
   //SKINNING HERE
-  GLfloat * verts = malloc(sizeof(GLfloat)*f->body->numVertices*3);
+
+  mat4 R = Rx(M_PI/2.3);
+  joint_s * j = &f->skeleton.joints[2];
+  //update_skinning(j);
+    while(j->child[0] != NULL)
+    {
 
   for(i=0;i< f->body->numVertices;i++)
   {
+    vec3 orig_vert = SetVector(f->orig_body->vertexArray[i*3+0], 
+	f->orig_body->vertexArray[i*3+1],
+	f->orig_body->vertexArray[i*3+2]);
+
     vec3 vert = SetVector(f->body->vertexArray[i*3+0], 
 	f->body->vertexArray[i*3+1],
 	f->body->vertexArray[i*3+2]);
 
-    if(i==200)
-      printf("hejsan %f %f %f\n", vert.x, vert.y, vert.z);
-    if(Norm(vert) < 1.10)
-    {
-      verts[i*3 + 0] = f->orig_body->vertexArray[i*3+0]*2;
-      verts[i*3 + 1] = f->orig_body->vertexArray[i*3+1]*2;
-      verts[i*3 + 2] = f->orig_body->vertexArray[i*3+2]*2;
-    }
-    else
-    {
-      verts[i*3 + 0] = f->body->vertexArray[i*3+0];
-      verts[i*3 + 1] = f->body->vertexArray[i*3+1];
-      verts[i*3 + 2] = f->body->vertexArray[i*3+2];
-    }
+    //vec3 to = SetVector(0,3.7,.6);
+    //vec3 to2 = SetVector(0,3.7,1.7);
 
+      //printf("hejhej %i \n", i);
+    vec3 to = j->orig_pos;
+    vec3 to2 = j->child[0]->orig_pos;
+
+    vec3 midd = ScalarMult(VectorAdd(to, to2), .5);
+
+    vec3 dist = VectorSub(orig_vert, midd);
+
+    //if(i==200)
+    //  printf("hejsan %f %f %f\n", vert.x, vert.y, vert.z);
+    if(Norm(dist) < .7)
+    {
+      //vec3 res = MultVec3(Mult(T(to.x, to.y, to.z),
+	//Mult(j->R,T(-to.x, -to.y, -to.z))), orig_vert);
+      vec3 res = MultVec3(j->tmp, orig_vert);
+
+      f->verts[i*3 + 0] = res.x;
+      f->verts[i*3 + 1] = res.y;
+      f->verts[i*3 + 2] = res.z;
+    }
+    //else
+    //{
+    //  verts[i*3 + 0] = f->orig_body->vertexArray[i*3+0];
+    //  verts[i*3 + 1] = f->orig_body->vertexArray[i*3+1];
+    //  verts[i*3 + 2] = f->orig_body->vertexArray[i*3+2];
+    //}
 
   }
 
-  f->body->vertexArray = verts;
+    j = j->child[0];
+    }
+
+
+  f->body->vertexArray = f->verts;
   glBindVertexArray(f->body->vao);
   glBindBuffer(GL_ARRAY_BUFFER, f->body->vb);
   glBufferData(GL_ARRAY_BUFFER, f->body->numVertices*3*sizeof(GLfloat), f->body->vertexArray, GL_STATIC_DRAW);
 
 }
+
+/*
+void calc_bone_transform(joint_s * j, int acc)
+{
+  mat4 tmp, tmptrans;
+  joint_s * jc = j->child[0];
+  if(acc)
+    tmp =j->parent->tmp;
+  else
+    tmp = IdentityMatrix();
+
+  while(jc != NULL)
+  {
+    tmp = Mult(tmp, j->T);
+    invtrans = InvertMat4(j->T);
+
+  }
+}
+
+*/
 
 void draw_farmer(farmer_s * f, GLuint program)
 {

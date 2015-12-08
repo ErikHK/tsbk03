@@ -128,6 +128,8 @@ typedef struct farmer_t
   mat4 matrix;
   struct ragdoll_t skeleton;
 
+  GLfloat * verts;
+
   vec3 pos;
   vec3 speed;
   vec3 acc;

@@ -404,19 +404,14 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
   joint_s * jc;
   joint_s * rootj = j;
   mat4 tmp, tmptrans, invtrans;
-  //tmp = IdentityMatrix();
+
   if(acc)
     tmp = j->parent->tmp;
-    //tmp = j->parent->Mtot;
   else
     tmp = IdentityMatrix();
-    //tmp = farmer.skeleton.joints[0].T;
-    //tmp = j->T;
-    //tmp = farmer.matrix;
-    //tmp = T(farmer.pos.x, farmer.pos.y, farmer.pos.z);
-    //tmp = InvertMat4(T(rootj->pos.x, rootj->pos.y, rootj->pos.z));
-    //tmp = InvertMat4(farmer.matrix);
-    //tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
+    //tmp = T(-farmer.skeleton.joints[0].pos.x,
+    //-farmer.skeleton.joints[0].pos.y,
+    //-farmer.skeleton.joints[0].pos.z);
 
   GLfloat Ms[8][16];
   int i=0,ii=0, k=0;
@@ -425,26 +420,19 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
 
   while(j->child[0] != NULL)
   {
-    //calc_bone_transform(j->child[0], 1);
-    //for(k=1; k < MAX_CHILDREN; k++)
-    //{
-    //  if(j->child[k] != NULL)
-    //    calc_bone_transform(j->child[k], 1);
-    //}
-
     vec3 tmp_bonepos;
     vec3 tmp_bonepos_orig;
     jc = j->child[0];
 
-    tmptrans = j->T;
-    tmp = Mult(tmp, tmptrans);
-    invtrans = InvertMat4(tmptrans);
+    //tmp = Mult(tmp, j->T);
+
+    invtrans = InvertMat4(j->T);
+    tmp = Mult(invtrans, tmp);
 
     vec3 a = Normalize(VectorSub(jc->pos, j->pos));
-    //vec3 b = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
     vec3 b;
     if(j->parent != NULL)
-      b = Normalize(VectorSub(j->pos, j->parent->pos));
+      b = Normalize(VectorSub(j->pos, j->parent->orig_pos));
     else
       b = Normalize(VectorSub(j->pos, j->orig_pos));
 
@@ -459,94 +447,24 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     else
       deg = acos(c);
 
-
-    //if(i==1)
-    //  printf("hej %f\n", 180*deg/M_PI);
-
     mat4 RR;
     if(j->parent != NULL)
       RR = ArbRotate(Normalize(v), deg);
     else
       RR = IdentityMatrix();
 
-   //OrthoNormalizeMatrix(&RR);
-
-    //tmp = Mult(tmp, Mult(j->R, invtrans));
-    tmp = Mult(tmp, Mult(RR, invtrans));
-    //tmp =Mult(j->T, Mult(RR, invtrans));
-    //tmp = Mult(RR, invtrans);
-    //tmp = Mult(j->T, Mult(tmp, RR));
-    //tmp = Mult(j->T, Mult(tmp, Mult(RR, invtrans)));
-    //tmp = Mult(j->T, Mult(RR, invtrans));
-    //tmp = Mult(j->T, Mult(RR, invtrans));
-
-    if(i==0)
-    {
-      vec3 test = MultVec3(RR, SetVector(0,6,0));
-      //printf("%f %f %f\n", test.x, test.y, test.z);
-    }
-
-    //tmp = Mult(tmp, j->T);
-    //tmp = T(j->pos.x, j->pos.y, j->pos.z);
-
+    //OrthoNormalizeMatrix(&RR);
+    //tmp = Mult(tmp, Mult(RR, invtrans));
+    tmp = Mult(j->T, Mult(RR,tmp));
 
     j->tmp = tmp;
     j->isnull = 0;
 
-    //middle of bone
-    tmp_bonepos = ScalarMult(
-		VectorAdd(j->pos, jc->pos), .5);
-    tmp_bonepos_orig = ScalarMult(
-		VectorAdd(j->orig_pos, jc->orig_pos), .5);
-
-    for(ii=0;ii<16;ii++)
-      Ms[i][ii] = (tmp).m[ii];
-
-    //currpos[i*3] = (j->pos.x - j->orig_pos.x);
-    //currpos[i*3+1] = (j->pos.y - j->orig_pos.y);
-    //currpos[i*3+2] = (j->pos.z - j->orig_pos.z);
-
-    //currpos[i*3] = (j->pos.x);
-    //currpos[i*3+1] = (j->pos.y);
-    //currpos[i*3+2] = (j->pos.z);
-
-    //printf("%f %f %f   ", j->pos.x, j->pos.y, j->pos.z);
-
-    currpos[i*3] = (j->orig_pos.x);
-    currpos[i*3+1] = (j->orig_pos.y);
-    currpos[i*3+2] = (j->orig_pos.z);
-
-    //bonepos[i*3] = tmp_bonepos.x;
-    //bonepos[i*3+1] = tmp_bonepos.y;
-    //bonepos[i*3+2] = tmp_bonepos.z;
-
-    //printf("%f %f %f\n", tmp_bonepos.x, tmp_bonepos.y, tmp_bonepos.z);
-
-
-    bonepos[i*3] = tmp_bonepos_orig.x;
-    bonepos[i*3+1] = tmp_bonepos_orig.y;
-    bonepos[i*3+2] = tmp_bonepos_orig.z;
-
-    //bonepos[i*3] = (tmp_bonepos.x - tmp_bonepos_orig.x);
-    //bonepos[i*3+1] = (tmp_bonepos.y - tmp_bonepos_orig.y);
-    //bonepos[i*3+2] = (tmp_bonepos.z - tmp_bonepos_orig.z);
-
+    j->R = RR;
     j = j->child[0];
     i++;
-
-
   }
 
-  if(rootj->posvar != NULL)
-  {
-  //printf(rootj->posvar);
-  //printf("\n");
-  }
-
-  //printf("%f %f %f\n", currpos[0], currpos[1], currpos[2]);
-  glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
-  glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
-  glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
 }
 
 
