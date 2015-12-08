@@ -117,6 +117,7 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
 void create_farmer(farmer_s * f, vec3 pos)
 {
   f->body = LoadModelPlus("./res/farmergirl1_small.obj");
+  f->orig_body = LoadModelPlus("./res/farmergirl1_small.obj");
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
 
@@ -408,6 +409,40 @@ void update_farmer(farmer_s * f)
 
   //f->matrix = T(f->skeleton.joints[0].pos.x,
   //	f->skeleton.joints[0].pos.y-6, f->skeleton.joints[0].pos.z);
+
+
+  //SKINNING HERE
+  GLfloat * verts = malloc(sizeof(GLfloat)*f->body->numVertices*3);
+
+  for(i=0;i< f->body->numVertices;i++)
+  {
+    vec3 vert = SetVector(f->body->vertexArray[i*3+0], 
+	f->body->vertexArray[i*3+1],
+	f->body->vertexArray[i*3+2]);
+
+    if(i==200)
+      printf("hejsan %f %f %f\n", vert.x, vert.y, vert.z);
+    if(Norm(vert) < 1.10)
+    {
+      verts[i*3 + 0] = f->orig_body->vertexArray[i*3+0]*2;
+      verts[i*3 + 1] = f->orig_body->vertexArray[i*3+1]*2;
+      verts[i*3 + 2] = f->orig_body->vertexArray[i*3+2]*2;
+    }
+    else
+    {
+      verts[i*3 + 0] = f->body->vertexArray[i*3+0];
+      verts[i*3 + 1] = f->body->vertexArray[i*3+1];
+      verts[i*3 + 2] = f->body->vertexArray[i*3+2];
+    }
+
+
+  }
+
+  f->body->vertexArray = verts;
+  glBindVertexArray(f->body->vao);
+  glBindBuffer(GL_ARRAY_BUFFER, f->body->vb);
+  glBufferData(GL_ARRAY_BUFFER, f->body->numVertices*3*sizeof(GLfloat), f->body->vertexArray, GL_STATIC_DRAW);
+
 }
 
 void draw_farmer(farmer_s * f, GLuint program)

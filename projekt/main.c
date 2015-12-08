@@ -460,8 +460,8 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
       deg = acos(c);
 
 
-    if(i==1)
-      printf("hej %f\n", 180*deg/M_PI);
+    //if(i==1)
+    //  printf("hej %f\n", 180*deg/M_PI);
 
     mat4 RR;
     if(j->parent != NULL)

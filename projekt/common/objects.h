@@ -124,6 +124,7 @@ typedef struct ragdoll_t
 typedef struct farmer_t
 {
   Model * body;
+  Model * orig_body;
   mat4 matrix;
   struct ragdoll_t skeleton;
 
