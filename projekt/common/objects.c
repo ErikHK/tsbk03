@@ -217,7 +217,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[8].orig_pos = SetVector(0,2.7,0);
 
   f->skeleton.joints[8].constraint = 1;
-  f->skeleton.joints[8].max_angle = 40;
+  f->skeleton.joints[8].max_angle = 10;
   f->skeleton.joints[8].orig_vec = SetVector(0,1,0);
 
 
@@ -227,7 +227,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 	"farmer_groin", "farmer_groin_pos", "farmer_groin_bone_pos", 0);
 
   f->skeleton.joints[9].constraint = 1;
-  f->skeleton.joints[9].max_angle = 40;
+  f->skeleton.joints[9].max_angle = 10;
   f->skeleton.joints[9].orig_vec = SetVector(0,1,0);
 
 
@@ -289,7 +289,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[15].orig_vec = SetVector(0,1,0);
 
 
-  mat4 rrr = Mult(T(0,6,0), Mult(Rz(M_PI/10), T(0,-6,0)));
+  mat4 rrr = Mult(T(0,6,0), Mult(Rz(M_PI/2), T(0,-6,0)));
   int i;
   for(i=0;i<16;i++)
   {
@@ -415,7 +415,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  //DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
 
@@ -952,18 +952,48 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   vec3 n;
   vec3 real_dist;
   int i;
+
+  //update orig_vec for 1 and 8
+  vec3 orig = Normalize(VectorSub(r->joints[0].pos, r->joints[8].pos));
+  r->joints[0].orig_vec = orig;
+  r->joints[1].orig_vec = orig;
+  r->joints[8].orig_vec = orig;
+
   for(i=0;i < r->num_joints;i++)
   {
 
     joint_s * j = &r->joints[i];
     joint_s * parent = r->joints[i].parent;
 
+
       if(j->pos.y <= 0)
       {
         //raise(SIGABRT);
-        j->pos.y += .3;
+        float ang;
+        vec3 real_dist;
+        j->pos.y += .1;
+        joint_s * jp = j->parent;
+        while(jp != NULL)
+        {
+          if(jp->parent != NULL)
+          {
+          real_dist = VectorSub(jp->parent->pos, jp->pos);
+          ang = 180*acos(DotProduct(Normalize(real_dist), jp->orig_vec))/M_PI;
+          }
+          else ang=0;
+          if(ang < jp->max_angle)
+          {
+          jp->pos.y += .1;
+          jp->speed.y *= -.8;
+          }
+          jp = jp->parent;
+
+
+        }
+
         j->speed.y *= -.8;
       }
+
 
     dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
     j->speed = VectorAdd(j->speed, dP);
