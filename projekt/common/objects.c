@@ -958,6 +958,12 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   r->joints[0].orig_vec = orig;
   r->joints[1].orig_vec = orig;
   r->joints[8].orig_vec = orig;
+  r->joints[9].orig_vec = orig;
+  r->joints[12].orig_vec = orig;
+  r->joints[13].orig_vec = orig;
+  r->joints[14].orig_vec = orig;
+  r->joints[15].orig_vec = orig;
+
 
   for(i=0;i < r->num_joints;i++)
   {
@@ -971,7 +977,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         //raise(SIGABRT);
         float ang;
         vec3 real_dist;
-        j->pos.y += .1;
+        j->pos.y += .01;
         joint_s * jp = j->parent;
         while(jp != NULL)
         {
@@ -983,7 +989,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
           else ang=0;
           if(ang < jp->max_angle)
           {
-          jp->pos.y += .1;
+          jp->pos.y += .01;
           jp->speed.y *= -.8;
           }
           jp = jp->parent;
