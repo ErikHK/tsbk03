@@ -419,7 +419,22 @@ void update_farmer(farmer_s * f)
 
   mat4 R = Rx(M_PI/2.3);
   joint_s * j = &f->skeleton.joints[2];
-  //update_skinning(j);
+  update_skinning(f,j);
+  j = &f->skeleton.joints[3];
+  update_skinning(f,j);
+
+
+  f->body->vertexArray = f->verts;
+  glBindVertexArray(f->body->vao);
+  glBindBuffer(GL_ARRAY_BUFFER, f->body->vb);
+  glBufferData(GL_ARRAY_BUFFER, f->body->numVertices*3*sizeof(GLfloat), f->body->vertexArray, GL_STATIC_DRAW);
+
+}
+
+
+void update_skinning(farmer_s * f, joint_s * j)
+{
+  int i;
     while(j->child[0] != NULL)
     {
 
@@ -446,7 +461,7 @@ void update_farmer(farmer_s * f)
 
     //if(i==200)
     //  printf("hejsan %f %f %f\n", vert.x, vert.y, vert.z);
-    if(Norm(dist) < .7)
+    if(Norm(dist) < .75)
     {
       //vec3 res = MultVec3(Mult(T(to.x, to.y, to.z),
 	//Mult(j->R,T(-to.x, -to.y, -to.z))), orig_vert);
@@ -467,12 +482,6 @@ void update_farmer(farmer_s * f)
 
     j = j->child[0];
     }
-
-
-  f->body->vertexArray = f->verts;
-  glBindVertexArray(f->body->vao);
-  glBindBuffer(GL_ARRAY_BUFFER, f->body->vb);
-  glBufferData(GL_ARRAY_BUFFER, f->body->numVertices*3*sizeof(GLfloat), f->body->vertexArray, GL_STATIC_DRAW);
 
 }
 

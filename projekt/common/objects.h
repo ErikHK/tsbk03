@@ -199,3 +199,4 @@ void draw_ragdoll(ragdoll_s * r, GLuint program);
 void create_farmer(farmer_s * f, vec3 pos);
 void draw_farmer(farmer_s * f, GLuint program);
 void update_farmer(farmer_s * f);
+void update_skinning(farmer_s * f, joint_s * j);
