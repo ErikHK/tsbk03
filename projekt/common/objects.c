@@ -139,7 +139,7 @@ void create_farmer(farmer_s * f, vec3 pos)
 	"farmer_neck", "farmer_neck_pos", "farmer_neck_bone_pos", 0);
 
   f->skeleton.joints[1].constraint = 1;
-  f->skeleton.joints[1].max_angle = 10;
+  f->skeleton.joints[1].max_angle = 40;
   f->skeleton.joints[1].orig_vec = SetVector(0,1,0);
 
   //f->skeleton.joints[1].T = T(0, 3.7, .2);
@@ -198,11 +198,11 @@ void create_farmer(farmer_s * f, vec3 pos)
 
 
   f->skeleton.joints[6].constraint = 1;
-  f->skeleton.joints[6].max_angle = 70;
+  f->skeleton.joints[6].max_angle = 90;
   f->skeleton.joints[6].orig_vec = SetVector(0,0,-1);
 
   f->skeleton.joints[7].constraint = 1;
-  f->skeleton.joints[7].max_angle = 70;
+  f->skeleton.joints[7].max_angle = 90;
   f->skeleton.joints[7].orig_vec = SetVector(0,0,1);
 
 
@@ -396,31 +396,26 @@ void update_farmer(farmer_s * f)
   for(i=0;i<16;i++)
   {
     joint_s * j = &f->skeleton.joints[i];
-    //j->pos.x += .02;
-    //j->pos.y += .02;
-    //j->pos.z += .02;
     j->T = T(j->pos.x, j->pos.y, j->pos.z);
-    //if(i==2)
-    //  printf("%f %f %f\n", j->pos.x, j->pos.y, j->pos.z);
   }
-  //f->pos.x += .02;
-  //f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
 
-  f->pos.x =  f->skeleton.joints[0].pos.x;
-  f->pos.y =  f->skeleton.joints[0].pos.y-6;
-  f->pos.z =  f->skeleton.joints[0].pos.z;
+  f->pos.x = f->skeleton.joints[0].pos.x;
+  f->pos.y = f->skeleton.joints[0].pos.y-6;
+  f->pos.z = f->skeleton.joints[0].pos.z;
   f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
-
-  //f->matrix = T(f->skeleton.joints[0].pos.x,
-  //	f->skeleton.joints[0].pos.y-6, f->skeleton.joints[0].pos.z);
 
 
   //SKINNING HERE
-
   mat4 R = Rx(M_PI/2.3);
   joint_s * j = &f->skeleton.joints[2];
   update_skinning(f,j);
   j = &f->skeleton.joints[3];
+  update_skinning(f,j);
+  j = &f->skeleton.joints[10];
+  update_skinning(f,j);
+  j = &f->skeleton.joints[11];
+  update_skinning(f,j);
+  j = &f->skeleton.joints[0];
   update_skinning(f,j);
 
 
@@ -440,6 +435,9 @@ void update_skinning(farmer_s * f, joint_s * j)
 
   for(i=0;i< f->body->numVertices;i++)
   {
+    //if(i==0)
+    //  printf("hoj %f %f %f\n", j->pos.x-j->orig_pos.x, j->pos.y-j->orig_pos.y, j->pos.z-j->orig_pos.z);
+
     vec3 orig_vert = SetVector(f->orig_body->vertexArray[i*3+0], 
 	f->orig_body->vertexArray[i*3+1],
 	f->orig_body->vertexArray[i*3+2]);
@@ -934,6 +932,7 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   //j->body_matrix = Mult(T(pos.x, pos.y, pos.z), S(.1, .1, .1));
   j->body_matrix = T(pos.x, pos.y, pos.z);
   j->T = T(pos.x, pos.y, pos.z);
+  j->orig_T = T(j->orig_pos.x, j->orig_pos.y, j->orig_pos.z);
   j->M = T(pos.x, pos.y, pos.z);
   j->Mp = T(pos.x, pos.y, pos.z);
   j->Mtot = T(pos.x, pos.y, pos.z);

@@ -86,6 +86,7 @@ typedef struct joint_t
   vec3 speed;
   mat4 body_matrix;
   mat4 T;
+  mat4 orig_T;
   mat4 R;
   mat4 M;
   mat4 Mp;

@@ -409,9 +409,9 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     tmp = j->parent->tmp;
   else
     tmp = IdentityMatrix();
-    //tmp = T(-farmer.skeleton.joints[0].pos.x,
-    //-farmer.skeleton.joints[0].pos.y,
-    //-farmer.skeleton.joints[0].pos.z);
+    //tmp = T(farmer.pos.x,
+    //farmer.pos.y-6,
+    //farmer.pos.z);
 
   GLfloat Ms[8][16];
   int i=0,ii=0, k=0;
@@ -426,13 +426,14 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
 
     //tmp = Mult(tmp, j->T);
 
-    invtrans = InvertMat4(j->T);
+    //invtrans = InvertMat4(j->T);
+    invtrans = InvertMat4(j->orig_T);
     tmp = Mult(invtrans, tmp);
 
     vec3 a = Normalize(VectorSub(jc->pos, j->pos));
     vec3 b;
     if(j->parent != NULL)
-      b = Normalize(VectorSub(j->pos, j->parent->orig_pos));
+      b = Normalize(VectorSub(j->pos, j->parent->pos));
     else
       b = Normalize(VectorSub(j->pos, j->orig_pos));
 
@@ -455,7 +456,7 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
 
     //OrthoNormalizeMatrix(&RR);
     //tmp = Mult(tmp, Mult(RR, invtrans));
-    tmp = Mult(j->T, Mult(RR,tmp));
+    tmp = Mult(j->orig_T, Mult(RR,tmp));
 
     j->tmp = tmp;
     j->isnull = 0;
