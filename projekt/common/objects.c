@@ -120,6 +120,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->orig_body = LoadModelPlus("./res/farmergirl1_small.obj");
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
   f->pos = pos;
+  f->body_R = IdentityMatrix();
 
   f->verts = malloc(sizeof(GLfloat)*f->body->numVertices*3);
   memcpy(f->verts, f->body->vertexArray, sizeof(GLfloat)*f->body->numVertices*3);
@@ -402,7 +403,8 @@ void update_farmer(farmer_s * f)
   f->pos.x = f->skeleton.joints[0].pos.x;
   f->pos.y = f->skeleton.joints[0].pos.y-6;
   f->pos.z = f->skeleton.joints[0].pos.z;
-  f->matrix = T(f->pos.x, f->pos.y, f->pos.z);
+  mat4 test = Mult(T(0,6,0), Mult(f->body_R, T(0,-6,0)));
+  f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), test);
 
 
   //SKINNING HERE
@@ -414,6 +416,8 @@ void update_farmer(farmer_s * f)
   j = &f->skeleton.joints[10];
   update_skinning(f,j);
   j = &f->skeleton.joints[11];
+  update_skinning(f,j);
+  j = &f->skeleton.joints[1];
   update_skinning(f,j);
   j = &f->skeleton.joints[0];
   update_skinning(f,j);

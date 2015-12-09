@@ -454,6 +454,14 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
     else
       RR = IdentityMatrix();
 
+    a = Normalize(VectorSub(farmer.skeleton.joints[0].pos, farmer.skeleton.joints[8].pos));
+    b = SetVector(0,1,0);
+    v = CrossProduct(b,a);
+    s = Norm(v);
+
+
+    farmer.body_R = ArbRotate(Normalize(v), asin(s));
+
     //OrthoNormalizeMatrix(&RR);
     //tmp = Mult(tmp, Mult(RR, invtrans));
     tmp = Mult(j->orig_T, Mult(RR,tmp));

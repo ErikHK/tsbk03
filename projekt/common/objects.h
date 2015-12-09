@@ -138,6 +138,7 @@ typedef struct farmer_t
   vec3 torque;
   vec3 momentum;
   mat4 R;
+  mat4 body_R;
   float mass;
   vec3 omega;
   GLuint tex;
