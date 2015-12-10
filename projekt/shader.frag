@@ -51,7 +51,8 @@ void main(void)
 
   //fragColor = vec4(colors,1);
 
-  if(collision==1 && draw_cow==1)
+  //if(collision==1 && draw_cow==1)
+  if(collision==1)
     fragColor = vec4(.5,0,.5,1);
 
 }

@@ -17,6 +17,14 @@ int check_collision(bounding_box_s * b1, bounding_box_s * b2)
   return 0;
 }
 
+int check_sphere_collision(vec3 pos1, vec3 pos2, float r1, float r2)
+{
+  vec3 diff = VectorSub(pos1, pos2);
+  if(Norm(diff) < r1+r2)
+    return 1;
+  return 0;
+}
+
 int sign(float x)
 {
   if(x > 0)
@@ -400,6 +408,8 @@ void update_farmer(farmer_s * f)
     j->T = T(j->pos.x, j->pos.y, j->pos.z);
   }
 
+  //printf("%f \n", f->skeleton.joints[0].force.z);
+
   f->pos.x = f->skeleton.joints[0].pos.x;
   f->pos.y = f->skeleton.joints[0].pos.y-6;
   f->pos.z = f->skeleton.joints[0].pos.z;
@@ -408,7 +418,7 @@ void update_farmer(farmer_s * f)
 
 
   //SKINNING HERE
-  mat4 R = Rx(M_PI/2.3);
+  //mat4 R = Rx(M_PI/2.3);
   joint_s * j = &f->skeleton.joints[2];
   update_skinning(f,j);
   j = &f->skeleton.joints[3];
@@ -512,7 +522,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  //DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
 
@@ -629,6 +639,7 @@ void update_bb(bounding_box_s * bb, vec3 pos, vec3 angle)
 void create_cow(cow_s * c)
 {
   c->main_body = LoadModelPlus("./res/ko_fine.obj");
+  c->debug_sphere = LoadModelPlus("./res/groundsphere.obj");
   c->matrix = S(.1,.1,.1); //makes it roughly 5 high
   c->pos = SetVector(5,0,5);
   c->speed = SetVector(0,0,0);
@@ -678,6 +689,14 @@ void update_cow(cow_s * c, GLfloat dT)
 
   update_vertices(&c->bb, c->pos, c->R);
   //update_bb(&c->bb, c->pos, SetVector(0,-c->angle,0));
+
+
+  //update head pos
+  c->head_pos = VectorAdd(c->pos, SetVector(-3,3,0));
+
+  mat4 R = Mult(Mult(T(c->pos.x, c->pos.y, c->pos.z), 
+  c->R), T(-c->pos.x, -c->pos.y, -c->pos.z));
+  c->head_pos = MultVec3(R, c->head_pos);
 }
 
 void move_cow(cow_s * c, float angle)
@@ -747,6 +766,8 @@ void move_cow(cow_s * c, float angle)
     c->force.y=0;// = SetVector(c->force.x, 0, c->force.z);
   }
 */
+
+
 }
 
 void update_floor(floor_s * f, cow_s * c)
@@ -921,6 +942,7 @@ void create_bone(bone_s * b, vec3 pos)
 
 void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * boneposvar, int id)
 {
+  j->leader = 0;
   j->isnull = 1;
   j->Mvar = Mvar;
   j->posvar = posvar;
@@ -1040,9 +1062,9 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
     r->joints[0].force.y = 80;
   else
   {
-    r->joints[0].force.z = 0;
-    r->joints[0].force.y = 0;
-    r->joints[0].force.x = 0;
+    //r->joints[0].force.z = 0;
+    //r->joints[0].force.y = 0;
+    //r->joints[0].force.x = 0;
   }
 
   int test=0;
@@ -1069,10 +1091,8 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
   for(i=0;i < r->num_joints;i++)
   {
-
     joint_s * j = &r->joints[i];
     joint_s * parent = r->joints[i].parent;
-
 
       if(j->pos.y <= 0)
       {
@@ -1102,6 +1122,8 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         j->speed.y *= -.8;
       }
 
+    if(i==8)
+      printf("%f\n", r->joints[8].force.y);
 
     dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
     j->speed = VectorAdd(j->speed, dP);
@@ -1156,48 +1178,18 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
 
       }
 
-/*
-      while(fabs(dist_diff) > .02)
-      {
-        real_dist = VectorSub(j->pos, parent->pos);
-        n = Normalize(real_dist);
-        dist_diff = (Norm(real_dist)-j->dist_to_parent);
-        j->pos = VectorSub(j->pos, ScalarMult(n, dist_diff/20.0));
-
-//        printf("%f \n", dist_diff);
-
-      }
-*/
-/*
-      joint_s * jp = j;
-      while(jp != NULL)
-      {
-      if(jp->pos.y <= 0)
-      {
-        jp->pos.y += .02;
-        jp->speed.y *= -.6;
-      }
-        jp = jp->parent;
-      }
-*/
-
     j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
 
 
     }
 
-      //j = j->parent;
-      //parent = parent->parent;
-    //}
-/*
-    //dP = ScalarMult(VectorAdd(SetVector(0,-10,0), VectorAdd(j->force, calculated_force)), dT);
-    dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
-    j->speed = VectorAdd(j->speed, dP);
-    dX = ScalarMult(j->speed, dT);
-    j->pos = VectorAdd(j->pos, dX);
-    j->T = Mult(T(j->pos.x, j->pos.y, j->pos.z), S(.5,.5,.5));
-    //parent = parent->parent;
-*/
+    else if(j->leader)
+    {
+      
+    }
+
+
+
 
   }
 }

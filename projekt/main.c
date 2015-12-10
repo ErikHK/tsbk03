@@ -335,6 +335,7 @@ void DisplayWindow()
 	//draw_debug_sphere(&ball, wall.bb.pos, g_shader);
 
 	//draw_debug_sphere(&ball, cow.bb.pos, g_shader);
+	draw_debug_sphere(&ball, cow.head_pos, g_shader);
 	int i;
 	for(i=0;i < 8;i++)
 	{
@@ -497,11 +498,35 @@ void OnTimer(int value)
 	update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
 	update_farmer(&farmer);
+
+
+
+	//check collision between cow and farmer
+	if((check_sphere_collision(cow.head_pos, 
+	farmer.skeleton.joints[8].pos, .5, .5))
+	|| (check_sphere_collision(cow.head_pos, 
+	farmer.skeleton.joints[0].pos, 1, 1)))
+	{
+	  farmer.skeleton.joints[8].leader = 1;
+	  farmer.skeleton.joints[8].speed = SetVector(0,10,0);
+	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 1);
+
+	  //printf("JAPP\n");
+	}
+	else
+	{
+	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 0);
+	  //printf("NOPP\n");
+	}
+
+
         if(keyIsDown('k'))
         {
 	  //update_ragdoll(&ragdoll, delta_t);
           update_ragdoll(&farmer.skeleton, delta_t);
         }
+
+
 
 	if(check_collision_2(&cow.bb, &wall.bb))
 	{
@@ -510,8 +535,8 @@ void OnTimer(int value)
 	  //cow.momentum = SetVector(-cow.momentum.x, cow.momentum.y, -cow.momentum.z);
 	  //wall_collision(wall, cow);
 	}
-	else
-	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 0);
+	//else
+	//  glUniform1i(glGetUniformLocation(g_shader, "collision"), 0);
 
 
 

@@ -25,10 +25,12 @@ typedef struct bounding_box_t
 typedef struct cow_t
 {
   Model * main_body;
+  Model * debug_sphere;
   Model * udder;
   mat4 matrix;
 
   vec3 pos;
+  vec3 head_pos;
   vec3 speed;
   vec3 acc;
   vec3 force;
@@ -105,6 +107,7 @@ typedef struct joint_t
   int isnull;
   float max_angle;
   int constraint;
+  int leader;
 
 } joint_s;
 
@@ -202,3 +205,4 @@ void create_farmer(farmer_s * f, vec3 pos);
 void draw_farmer(farmer_s * f, GLuint program);
 void update_farmer(farmer_s * f);
 void update_skinning(farmer_s * f, joint_s * j);
+int check_sphere_collision(vec3 pos1, vec3 pos2, float r1, float r2);
