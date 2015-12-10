@@ -145,6 +145,7 @@ typedef struct farmer_t
   float mass;
   vec3 omega;
   GLuint tex;
+  int animate;
 
 } farmer_s;
 

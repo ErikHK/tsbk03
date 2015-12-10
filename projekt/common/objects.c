@@ -124,6 +124,7 @@ int check_collision_2(bounding_box_s * b1, bounding_box_s * b2)
 
 void create_farmer(farmer_s * f, vec3 pos)
 {
+  f->animate = 1;
   f->body = LoadModelPlus("./res/farmergirl1_small.obj");
   f->orig_body = LoadModelPlus("./res/farmergirl1_small.obj");
   LoadTGATextureSimple("./res/farmergirl.tga", &(f->tex));
@@ -522,7 +523,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  //DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
+  DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
 
@@ -1189,8 +1190,8 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
     }
 
 
-
-
+  if(j->pos.y <= .3)
+    j->speed = ScalarMult(j->speed, .95);
   }
 }
 

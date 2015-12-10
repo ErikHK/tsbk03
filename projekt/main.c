@@ -336,12 +336,14 @@ void DisplayWindow()
 
 	//draw_debug_sphere(&ball, cow.bb.pos, g_shader);
 	draw_debug_sphere(&ball, cow.head_pos, g_shader);
+	
 	int i;
 	for(i=0;i < 8;i++)
 	{
 	  draw_debug_sphere(&ball, cow.bb.vertices[i], g_shader);
-	  draw_debug_sphere(&ball, wall.bb.vertices[i], g_shader);
+	  //draw_debug_sphere(&ball, wall.bb.vertices[i], g_shader);
 	}
+	
 	//draw_debug_sphere(&ball, VectorAdd(cow.bb.pos, cow.bb.size), g_shader);
 
 
@@ -495,22 +497,25 @@ void OnTimer(int value)
 	update_cow(&cow, delta_t);
 	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
-	update_wall(&wall, &cow, delta_t);
+	//update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
 	update_farmer(&farmer);
 
 
 
 	//check collision between cow and farmer
-	if((check_sphere_collision(cow.head_pos, 
-	farmer.skeleton.joints[8].pos, .5, .5))
+	if(((check_sphere_collision(cow.head_pos, 
+	farmer.skeleton.joints[8].pos, 1, 1))
 	|| (check_sphere_collision(cow.head_pos, 
-	farmer.skeleton.joints[0].pos, 1, 1)))
+	farmer.skeleton.joints[0].pos, 1.5, 1.5))) && farmer.animate)
 	{
-	  farmer.skeleton.joints[8].leader = 1;
-	  farmer.skeleton.joints[8].speed = SetVector(0,10,0);
+	  farmer.skeleton.joints[0].leader = 1;
+	  farmer.skeleton.joints[0].speed = ScalarMult(cow.speed, 1.5);
+	  cow.momentum = ScalarMult(cow.momentum, .6);
+	  //cow.pos = VectorAdd(cow.pos, ScalarMult(Normalize(cow.momentum), -.8));
 	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 1);
-
+	  //switch to ragdoll mode!
+	  farmer.animate = 0;
 	  //printf("JAPP\n");
 	}
 	else
@@ -520,7 +525,7 @@ void OnTimer(int value)
 	}
 
 
-        if(keyIsDown('k'))
+        if(!farmer.animate)
         {
 	  //update_ragdoll(&ragdoll, delta_t);
           update_ragdoll(&farmer.skeleton, delta_t);
