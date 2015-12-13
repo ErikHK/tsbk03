@@ -441,6 +441,7 @@ void calc_bone_transform_cow(joint_s * j, int acc)
   glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
 }
 
+/*
 void calc_bone_transform(joint_s * j, int acc, int start_deg)
 {
   joint_s * jc;
@@ -517,7 +518,7 @@ void calc_bone_transform(joint_s * j, int acc, int start_deg)
   }
 
 }
-
+*/
 
 void OnTimer(int value)
 {
@@ -538,7 +539,7 @@ void OnTimer(int value)
 	update_floor(&f, &cow);
 	//update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
-	update_farmer(&farmer);
+	update_farmer(&farmer, t);
 	update_fence(&ff, &cow, delta_t);
 
 
@@ -765,15 +766,15 @@ void OnTimer(int value)
 	//jc = &farmer.skeleton.joints[5];
 	//jc->R = Rx((-1-cos(4*t))/2);
 
+/*
+	calc_bone_transform(&farmer, &farmer.skeleton.joints[0], 0,0);
+	calc_bone_transform(&farmer, &farmer.skeleton.joints[2], 0,0);
+	calc_bone_transform(&farmer, &farmer.skeleton.joints[3], 0,0);
+	calc_bone_transform(&farmer, &farmer.skeleton.joints[1], 0,0);
 
-	calc_bone_transform(&farmer.skeleton.joints[0], 0,0);
-	calc_bone_transform(&farmer.skeleton.joints[2], 0,0);
-	calc_bone_transform(&farmer.skeleton.joints[3], 0,0);
-	calc_bone_transform(&farmer.skeleton.joints[1], 0,0);
-
-	calc_bone_transform(&farmer.skeleton.joints[10], 0,90);
-	calc_bone_transform(&farmer.skeleton.joints[11], 0,90);
-
+	calc_bone_transform(&farmer, &farmer.skeleton.joints[10], 0,90);
+	calc_bone_transform(&farmer, &farmer.skeleton.joints[11], 0,90);
+*/
 	glutPostRedisplay();
 }
 

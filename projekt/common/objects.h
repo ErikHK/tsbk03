@@ -235,7 +235,7 @@ void draw_ragdoll(ragdoll_s * r, GLuint program);
 
 void create_farmer(farmer_s * f, vec3 pos);
 void draw_farmer(farmer_s * f, GLuint program);
-void update_farmer(farmer_s * f);
+void update_farmer(farmer_s * f, GLfloat t);
 void update_skinning(farmer_s * f, joint_s * j);
 int check_sphere_collision(vec3 pos1, vec3 pos2, float r1, float r2);
 
@@ -246,3 +246,4 @@ void update_plank(plank_s * p, cow_s * c, GLfloat dT);
 void create_fence(fence_s * f, int width, vec3 pos);
 void draw_fence(fence_s * f, GLuint program);
 void update_fence(fence_s * f, cow_s * c, GLfloat dT);
+void calc_bone_transform(farmer_s * f, joint_s * j, int acc, int start_deg);
