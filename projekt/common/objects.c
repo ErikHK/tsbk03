@@ -1291,6 +1291,7 @@ void create_fence(fence_s * f, int width, vec3 pos)
 {
 
   f->width = width;
+  f->pos = pos;
 
   int i;
   for(i=0;i<width;i++)
@@ -1620,10 +1621,10 @@ void update_fence(fence_s * f, cow_s *c, GLfloat dT)
           f->planks[j][1].destroyed_at = i;
           f->planks[j+1][1].destroyed_at = i;
 
-          create_plank(&f->planks[j][0], SetVector((j-1)*3.6, 4, 0), 2);
-          create_plank(&f->planks[j][1], SetVector((j-1)*3.6+i*1.8/2, 4, 0), 3);
-          create_plank(&f->planks[j+1][0], SetVector((j-1)*3.6, 2, 0), 2);
-          create_plank(&f->planks[j+1][1], SetVector((j-1)*3.6+i*1.8/2, 2, 0), 3);
+          create_plank(&f->planks[j][0], VectorAdd(f->pos, SetVector((j-1)*3.6, 4, 0)), 2);
+          create_plank(&f->planks[j][1], VectorAdd(f->pos, SetVector((j-1)*3.6+i*1.8/2, 4, 0)), 3);
+          create_plank(&f->planks[j+1][0], VectorAdd(f->pos, SetVector((j-1)*3.6, 2, 0)), 2);
+          create_plank(&f->planks[j+1][1], VectorAdd(f->pos, SetVector((j-1)*3.6+i*1.8/2, 2, 0)), 3);
 
 
           f->planks[j][0].momentum = c->momentum;

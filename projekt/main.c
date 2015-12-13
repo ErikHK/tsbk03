@@ -847,7 +847,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(DisplayWindow);
 
 	create_floor(&f);
-	create_fence(&ff, 14, SetVector(0,0,0));
+	create_fence(&ff, 14, SetVector(0,0,30));
 	//f.model = generate_terrain(32);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));
