@@ -569,7 +569,8 @@ void OnTimer(int value)
         if(!farmer.animate)
         {
 	  //update_ragdoll(&ragdoll, delta_t);
-          update_ragdoll(&farmer.skeleton, delta_t);
+	  if(keyIsDown('k'))
+            update_ragdoll(&farmer.skeleton, delta_t);
         }
 
 

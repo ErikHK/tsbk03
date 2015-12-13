@@ -542,7 +542,7 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
 
 void update_farmer(farmer_s * f, GLfloat t)
 {
-/*
+
   if(f->animate)
   {
     mat4 test = Mult(T(0,6,0), Mult(f->body_R, T(0,-6,0)));
@@ -610,7 +610,7 @@ void update_farmer(farmer_s * f, GLfloat t)
 
   }
 
-  else*/ if(!f->animate)
+  else if(!f->animate)
   {
 
   int i;
@@ -760,6 +760,7 @@ void draw_farmer(farmer_s * f, GLuint program)
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
+  if(keyIsDown('m'))
   DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 
