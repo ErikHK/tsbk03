@@ -9,6 +9,7 @@ out vec4 fragColor;
 
 uniform int draw_cow;
 uniform int draw_floor;
+uniform int draw_plank;
 uniform int draw_ball;
 uniform int collision;
 
@@ -43,6 +44,8 @@ void main(void)
     //fragColor = texture(tex, outTexCoord*5)*.1 + vec4(.4,.6,.4,1);
     fragColor = texture(tex, outTexCoord*1);
     //fragColor = vec4(sin(inPos.x)+.4, sin(inPos.y)+.4, sin(inPos.z)+.4, 1);
+  else if(draw_plank==1)
+    fragColor = vec4(colors/6,0) + vec4(.25,.1,0, 1);
   else
     fragColor = texture(tex, outTexCoord)*vec4(colors+.4, 1);
 
