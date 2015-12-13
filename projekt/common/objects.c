@@ -425,48 +425,16 @@ void calc_bone_transform(farmer_s * f, joint_s * j, int acc, int start_deg)
     vec3 tmp_bonepos_orig;
     jc = j->child[0];
 
-    //tmp = Mult(tmp, j->T);
+    tmp = Mult(tmp, j->T);
 
-    //invtrans = InvertMat4(j->T);
-    invtrans = InvertMat4(j->orig_T);
-    tmp = Mult(invtrans, tmp);
+    invtrans = InvertMat4(j->T);
 
-    vec3 a = Normalize(VectorSub(jc->pos, j->pos));
-    vec3 b;
-    if(j->parent != NULL)
-      b = Normalize(VectorSub(j->pos, j->parent->pos));
-    else
-      b = Normalize(VectorSub(j->pos, j->orig_pos));
-
-    vec3 v = CrossProduct(b,a);
-    float s = Norm(v);
-    float c = DotProduct(a, b);
-
-    float deg;
-
-    if(i==0)
-      deg = acos(c)-M_PI*start_deg/180.0;
-    else
-      deg = acos(c);
-
-    mat4 RR;
-    if(j->parent != NULL)
-      RR = ArbRotate(Normalize(v), deg);
-    else
-      RR = IdentityMatrix();
-
-    a = Normalize(VectorSub(f->skeleton.joints[0].pos, f->skeleton.joints[8].pos));
-    b = SetVector(0,1,0);
-    v = CrossProduct(b,a);
-    s = Norm(v);
-
-
-    //f->body_R = ArbRotate(Normalize(v), asin(s));
     f->body_R = IdentityMatrix();
 
     //OrthoNormalizeMatrix(&RR);
     //tmp = Mult(tmp, Mult(RR, invtrans));
-    tmp = Mult(j->orig_T, Mult(j->R,tmp));
+
+    tmp = Mult(tmp, Mult(j->R,invtrans));
 
     j->tmp = tmp;
     j->isnull = 0;
@@ -606,18 +574,18 @@ void update_farmer(farmer_s * f, GLfloat t)
     calc_bone_transform(f, &f->skeleton.joints[10], 0,90);
     calc_bone_transform(f, &f->skeleton.joints[11], 0,90);
 
-    j = &f->skeleton.joints[0];
-    update_skinning(f,j);
+//    j = &f->skeleton.joints[0];
+//    update_skinning(f,j);
     j = &f->skeleton.joints[2];
     update_skinning(f,j);
-    j = &f->skeleton.joints[3];
-    update_skinning(f,j);
-    j = &f->skeleton.joints[1];
-    update_skinning(f,j);
-    j = &f->skeleton.joints[10];
-    update_skinning(f,j);
-    j = &f->skeleton.joints[11];
-    update_skinning(f,j);
+//    j = &f->skeleton.joints[3];
+//    update_skinning(f,j);
+//    j = &f->skeleton.joints[1];
+//    update_skinning(f,j);
+//    j = &f->skeleton.joints[10];
+//    update_skinning(f,j);
+//    j = &f->skeleton.joints[11];
+//    update_skinning(f,j);
 
     f->body->vertexArray = f->verts;
     glBindVertexArray(f->body->vao);
@@ -679,13 +647,14 @@ void update_farmer(farmer_s * f, GLfloat t)
 }
 
 
+
 void update_skinning(farmer_s * f, joint_s * j)
 {
   int i;
     while(j->child[0] != NULL)
     {
 
-  for(i=0;i< f->body->numVertices;i++)
+  for(i=0;i < f->body->numVertices;i++)
   {
     //if(i==0)
     //  printf("hoj %f %f %f\n", j->pos.x-j->orig_pos.x, j->pos.y-j->orig_pos.y, j->pos.z-j->orig_pos.z);
@@ -702,16 +671,19 @@ void update_skinning(farmer_s * f, joint_s * j)
     //vec3 to2 = SetVector(0,3.7,1.7);
 
       //printf("hejhej %i \n", i);
-    vec3 to = j->orig_pos;
-    vec3 to2 = j->child[0]->orig_pos;
+    vec3 to = j->pos;
+    vec3 to2 = j->child[0]->pos;
 
     vec3 midd = ScalarMult(VectorAdd(to, to2), .5);
+    //printf("hej %f\n", Norm(midd));
+
+    float len = fabs(Norm(VectorSub(to, midd)));
 
     vec3 dist = VectorSub(orig_vert, midd);
 
     //if(i==200)
     //  printf("hejsan %f %f %f\n", vert.x, vert.y, vert.z);
-    if(Norm(dist) < .75)
+    if(Norm(dist) < len*1)
     {
       //vec3 res = MultVec3(Mult(T(to.x, to.y, to.z),
 	//Mult(j->R,T(-to.x, -to.y, -to.z))), orig_vert);
