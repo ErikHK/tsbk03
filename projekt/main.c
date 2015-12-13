@@ -305,7 +305,7 @@ void DisplayWindow()
 	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
-	//draw_cow(&cow, g_shader);
+	draw_cow(&cow, g_shader);
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 0);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_floor"), 1);
@@ -369,37 +369,71 @@ void DisplayWindow()
 	//printf("runrunrun\n");
 }
 
-void calc_bone_transform2(joint_s * j, int acc)
+void calc_bone_transform_cow(joint_s * j, int acc)
 {
+  joint_s * jc;
+  joint_s * rootj = j;
+  mat4 tmp, tmptrans, invtrans;
+  //tmp = IdentityMatrix();
+  if(acc)
+    tmp = j->parent->tmp;
+    //tmp = j->parent->Mtot;
+  else
+    //tmp = IdentityMatrix();
+    tmp = Mult(T(cow.pos.x, cow.pos.y, cow.pos.z), Ry(cow.angle));
 
-  GLfloat bonepos[8*3] = {0};
-  GLfloat currpos[8*3] = {0};
+  GLfloat Ms[8][16];
+  int i=0,ii=0, k=0;
+  float currpos[8*3] = {0};
+  float bonepos[8*3] = {0};
 
-  joint_s * jc = j->child[0];
+  while(j->child[0] != NULL)
+  {
+    //calc_bone_transform(j->child[0], 1);
+    for(k=1; k < MAX_CHILDREN; k++)
+    {
+      if(j->child[k] != NULL)
+        calc_bone_transform_cow(j->child[k], 1);
+    }
 
-  vec3 tmp_bonepos;
+    jc = j->child[0];
+    vec3 tmp_bonepos;
+    tmptrans = j->T;
+    tmp = Mult(tmp, tmptrans);
+    invtrans = InvertMat4(tmptrans);
+    tmp = Mult(tmp, Mult(j->R, invtrans));
+    j->tmp = tmp;
+    j->isnull = 0;
 
-  if(jc != NULL)
+    //middle of bone
     tmp_bonepos = ScalarMult(
 		VectorAdd(j->pos, jc->pos), .5);
-  else
-    tmp_bonepos = SetVector(0,0,0);
 
-  bonepos[0] = tmp_bonepos.x;
-  bonepos[0+1] = tmp_bonepos.y;
-  bonepos[0+2] = tmp_bonepos.z;
+    for(ii=0;ii<16;ii++)
+      Ms[i][ii] = (tmp).m[ii];
 
-  currpos[0] = j->pos.x;
-  currpos[0+1] = j->pos.y;
-  currpos[0+2] = j->pos.z;
+    currpos[i*3] = 10*j->pos.x;
+    currpos[i*3+1] = 10*j->pos.y;
+    currpos[i*3+2] = 10*j->pos.z;
 
-  //printf("%f %f %f\n", j->pos.x, j->pos.y, j->pos.z);
+    bonepos[i*3] = 10*tmp_bonepos.x;
+    bonepos[i*3+1] = 10*tmp_bonepos.y;
+    bonepos[i*3+2] = 10*tmp_bonepos.z;
 
+    j = j->child[0];
+    i++;
+  }
 
-  glUniformMatrix4fv(glGetUniformLocation(g_shader, j->Mvar), 8, GL_TRUE, T(j->pos.x, j->pos.y, j->pos.z).m);
-  glUniform3fv(glGetUniformLocation(g_shader, j->posvar), 8, currpos);
-  glUniform3fv(glGetUniformLocation(g_shader, j->boneposvar), 8, bonepos);
+  if(rootj->posvar != NULL)
+  {
+  //printf(rootj->posvar);
+  //printf("\n");
+  }
 
+  //printf("%f %f %f\n", currpos[0], currpos[1], currpos[2]);
+  glUniformMatrix4fv(glGetUniformLocation(g_shader, rootj->Mvar), 8, GL_TRUE, Ms[0]);
+  glUniform3fv(glGetUniformLocation(g_shader, rootj->posvar), 8, currpos);
+  glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
 }
 
 void calc_bone_transform(joint_s * j, int acc, int start_deg)
@@ -631,12 +665,11 @@ void OnTimer(int value)
 	//legbase_joint[0].R = ArbRotate(SetVector(0,0,1), cos(3*t)/2);
 
 
-	/*
 	//legs
-	calc_bone_transform(&legbase_joint[0], 0);
-	calc_bone_transform(&legbase_joint[1], 0);
-	calc_bone_transform(&legbase_joint[2], 0);
-	calc_bone_transform(&legbase_joint[3], 0);
+	calc_bone_transform_cow(&legbase_joint[0], 0);
+	calc_bone_transform_cow(&legbase_joint[1], 0);
+	calc_bone_transform_cow(&legbase_joint[2], 0);
+	calc_bone_transform_cow(&legbase_joint[3], 0);
 
 	j = &tail_joint[0];
 	j->R = ArbRotate(SetVector(0,0,1), -M_PI/2.5);
@@ -656,7 +689,7 @@ void OnTimer(int value)
 	j->R = ArbRotate(SetVector(0,1,0), m_angle + cow.angle);
 	j->R = Mult(j->R, ArbRotate(SetVector(0,0,1), cos(freq*t)/9));
 
-	calc_bone_transform(&body_joint[0],0);
+	calc_bone_transform_cow(&body_joint[0],0);
 
 	//tail
 	//j = &tail_joint[1];
@@ -678,8 +711,8 @@ void OnTimer(int value)
 
 	j->R = ArbRotate(SetVector(0,0,1), sin(7*t)/9.5);
 
-	calc_bone_transform(&head_joint[0],0);
-*/
+	calc_bone_transform_cow(&head_joint[0],0);
+
 
 /*
 	j = &farmer.skeleton.joints[2];
@@ -792,7 +825,7 @@ int main(int argc, char **argv)
 	mouse_y = 0;
 	old_mouse_y = 0;
 
-	m_angle = 0;
+	m_angle = -8*M_PI;
 
 
 	glutInit(&argc, argv);

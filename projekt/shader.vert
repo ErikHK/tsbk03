@@ -134,8 +134,121 @@ void main(void)
 
   float leng, dist;
 
+  if(draw_cow==1)
+  {
+  //calc distance to the bones
+  float dist, leng;
 
-  if(draw_floor==1)
+  //head
+  for(int i=0;i<4;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(headcurrpos[i], headbonepos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), headbonepos[i]);
+
+    if(dist < leng*1.1)
+      gl_Position += proj_matrix*cam_matrix*headjoint[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  //body
+  for(int i=0;i<7;i++)
+  {
+    //length of bone (joint to middle of bone times 2)
+    leng = 2*distance(bodycurrpos[i], bodybonepos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), bodybonepos[i]);
+
+    if(dist < leng*2.2 && i<=1)
+      gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
+
+    else if(dist < leng/2 && i<=2)
+      gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
+
+    else if(dist < leng*1.3 && i>3)
+      gl_Position += proj_matrix*cam_matrix*bodyjoint[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  
+
+  //leg 0
+  for(int i=0;i<4;i++)
+  {
+    //length of bone (joint to joint)
+    leng = 2*distance(legcurrpos0[i], legbonepos0[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), legbonepos0[i]);
+
+    if(abs(dist) < leng/1.5 && i<2)
+      gl_Position += proj_matrix*cam_matrix*legjoint0[i]*mdl_matrix*vec4(inPosition, 1);
+    else if(dist < leng/1.5)
+      gl_Position += proj_matrix*cam_matrix*legjoint0[i]*mdl_matrix*vec4(inPosition, 1);
+
+  }
+
+  //leg 1
+  for(int i=0;i<4;i++)
+  {
+    //length of bone (joint to joint)
+    leng = 2*distance(legcurrpos1[i], legbonepos1[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), legbonepos1[i]);
+
+    if(abs(dist) < leng/2+1.8)
+      gl_Position += proj_matrix*cam_matrix*legjoint1[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+  //leg 2 (hind)
+  for(int i=0;i<4;i++)
+  {
+    //length of bone (joint to joint)
+    leng = 2*distance(legcurrpos2[i], legbonepos2[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), legbonepos2[i]);
+
+    if(abs(dist) < leng/2+1.7)
+      gl_Position += proj_matrix*cam_matrix*legjoint2[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  //leg 3 (hind)
+  for(int i=0;i<4;i++)
+  {
+    //length of bone (joint to joint)
+    leng = 2*distance(legcurrpos3[i], legbonepos3[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), legbonepos3[i]);
+
+    if(abs(dist) < leng/2+1.7)
+      gl_Position += proj_matrix*cam_matrix*legjoint3[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+  //tail
+  for(int i=0;i<5;i++)
+  {
+    //length of bone (joint to joint)
+    leng = 2*distance(tailcurrpos[i], tailbonepos[i]);
+
+    //distance to middle of bone
+    dist = distance(vec3(inPosition), tailbonepos[i]);
+
+    if(dist < leng*2)
+      gl_Position += proj_matrix*cam_matrix*tailjoint[i]*mdl_matrix*vec4(inPosition, 1);
+  }
+
+
+
+  }
+
+
+
+  else if(draw_floor==1)
   {
     gl_Position += proj_matrix*cam_matrix*mdl_matrix*vec4(inPosition,1);
     gl_Position += vec4(0,0,0,0);

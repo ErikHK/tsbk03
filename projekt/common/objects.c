@@ -649,7 +649,7 @@ void create_cow(cow_s * c)
   c->torque = SetVector(0,0,0);
   c->momentum = SetVector(0,0,0);
   c->mass = 2.0;
-  c->angle = 0;
+  c->angle = 8*M_PI;
   c->d_angle = 0;
   c->jumping = 0;
   LoadTGATextureSimple("./res/texture.tga", &(c->tex));
@@ -1069,7 +1069,7 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
   }
 
   int test=0;
-  vec3 dP, dX, calculated_force = {0,-10,0};
+  vec3 dP, dX, calculated_force = {0,-30,0};
   vec3 n;
   vec3 real_dist;
   int i;
