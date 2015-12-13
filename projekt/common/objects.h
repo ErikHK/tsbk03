@@ -172,6 +172,37 @@ typedef struct wall_t
 
 } wall_s;
 
+typedef struct plank_t
+{
+  Model * body;
+  Model * debug_sphere;
+  mat4 R;
+  mat4 T;
+  mat4 M;
+  vec3 acc;
+  vec3 speed;
+  vec3 force;
+  vec3 torque;
+  vec3 momentum;
+  vec3 angular_momentum;
+  vec3 omega;
+  vec3 pos;
+  vec3 size;
+  int type;
+  int destroyed_at;
+
+  float mass;
+
+} plank_s;
+
+typedef struct fence_t
+{
+  plank_s planks[400][2];
+  vec3 pos;
+  int width;
+
+} fence_s;
+
 void create_cow();
 void draw_cow();
 void turn_cow(cow_s * c, float angle);
@@ -207,3 +238,11 @@ void draw_farmer(farmer_s * f, GLuint program);
 void update_farmer(farmer_s * f);
 void update_skinning(farmer_s * f, joint_s * j);
 int check_sphere_collision(vec3 pos1, vec3 pos2, float r1, float r2);
+
+void create_plank(plank_s * p, vec3 pos, int type);
+void draw_plank(plank_s * p, GLuint program);
+void update_plank(plank_s * p, cow_s * c, GLfloat dT);
+
+void create_fence(fence_s * f, int width, vec3 pos);
+void draw_fence(fence_s * f, GLuint program);
+void update_fence(fence_s * f, cow_s * c, GLfloat dT);

@@ -1285,3 +1285,404 @@ void draw_ball(ball_s * b, GLuint program)
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, b->matrix.m);
   DrawModel(b->model, program, "inPosition", "inNormal", "inTexCoord");
 }
+
+
+void create_fence(fence_s * f, int width, vec3 pos)
+{
+
+  f->width = width;
+
+  int i;
+  for(i=0;i<width;i++)
+  {
+    //create upright (type 0)
+    create_plank(&f->planks[i*3][0], 
+	VectorAdd(pos, SetVector(i*10.8,0,0)), 0);
+
+    create_plank(&f->planks[i*3+1][0],
+	 VectorAdd(pos, SetVector(i*10.8,4,0)), 1);
+
+    create_plank(&f->planks[i*3+2][0],
+	 VectorAdd(pos, SetVector(i*10.8,2,0)), 1);
+  }
+
+  create_plank(&f->planks[(width-1)*3+3][0],
+	VectorAdd(pos, SetVector(width*10.8,0,0)), 0);
+
+}
+
+void draw_fence(fence_s * f, GLuint program)
+{
+
+  int i;
+  for(i=0;i < f->width*3+1;i++)
+  {
+    if(f->planks[i][0].destroyed_at == -1 || f->planks[i][0].type == 2 || f->planks[i][0].type == 3)
+      draw_plank(&f->planks[i][0], program);
+    if(f->planks[i][1].destroyed_at == -1 || f->planks[i][1].type == 2 || f->planks[i][1].type == 3)
+      draw_plank(&f->planks[i][1], program);
+    //glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->planks[i].T.m);
+    //DrawModel(f->planks[i].body, program, "inPosition", "inNormal", "inTexCoord");
+  }
+
+
+  //draw_plank(&f->planks[0], program);
+
+}
+
+
+void create_plank(plank_s * p, vec3 pos, int type)
+{
+
+  int i,j,x,y,z;
+  //int tri_count = (size.x-1)*(size.y-1)*(size.z-1)*3;
+
+  p->pos = pos;
+  p->type = type;
+
+  p->mass = 2*(float)rand()/(float)RAND_MAX;
+  printf("%f\n", p->mass);
+
+  p->force = SetVector(0,-15,0);
+  //not destroyed
+  if(type==0 || type==1)
+    p->destroyed_at = -1;
+
+  if(type==0)
+    //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Rz(M_PI/2)), T(-pos.x, -pos.y, -pos.z));
+    //p->T = Mult( T(pos.x, pos.y, pos.z), Rz(M_PI/2) );
+    p->R = Rz(M_PI/2);
+    //p->T = Rz(M_PI/2);
+    //p->T = T(0,0,0);
+  else if(type==2)
+    //p->T = Mult(Mult(T(pos.x, pos.y, pos.z), Ry(M_PI/1.1)), T(-p->destroyed_at*5/3.0,0,-.5));
+    p->R = Mult(Ry(M_PI/1.1), T(-p->destroyed_at*5/6.0,0,-.5));
+  //else
+  else
+    p->R = IdentityMatrix();
+
+  p->T = T(pos.x, pos.y, pos.z);
+
+  p->M = Mult(p->T, p->R);
+
+  int fine=1;
+
+#define XS 12
+#define YS 10
+#define ZS 2
+
+GLfloat verts[XS*YS*ZS*3*2];
+GLfloat norms[XS*YS*ZS*3*2];
+i=0;
+  for(x=0;x < XS;x++)
+  {
+    for(y = 0;y < YS;y++)
+    {
+      for(z = 0;z < ZS;z++)
+      {
+        //printf("%i %i %i\n", x,y,z);
+        //if upright
+        if(type==0)
+          verts[i*3 + 0] = x*.5;
+        else if(type==1)
+          verts[i*3 + 0] = x*1.0;
+        else if(type==2)
+          verts[i*3 + 0] = (p->destroyed_at)*x/12.0;
+        else
+        {
+          verts[i*3 + 0] = (12-p->destroyed_at)*x/12.0;
+          //printf("BAAAJS\n");
+        }
+
+
+        verts[i*3 + 1] = y/10.0;
+        verts[i*3 + 2] = z/2.0;
+
+	i++;
+      }
+    }
+
+  }
+
+
+if(type==3)
+{
+verts[0] = -.5;
+verts[3] = -.2;
+
+verts[12] = -.9;
+verts[15] = -.3;
+
+verts[24] = -1.1;
+verts[27] = -.3;
+
+verts[36] = -0.4;
+verts[39] = -.9;
+
+verts[48] = -.2;
+verts[51] = -.4;
+}
+else if(type==2)
+{
+verts[0] = -1;
+verts[3] = -.2;
+
+verts[12] = -.9;
+verts[15] = -.3;
+
+verts[24] = -.5;
+verts[27] = -.3;
+
+verts[36] = -.4;
+verts[39] = -.9;
+
+verts[48] = -.2;
+verts[51] = -1.2;
+
+
+
+}
+
+Point3D tmp_normal;
+i=0;
+  for(x=0;x < XS;x++)
+  {
+    for(y = 0;y < YS;y++)
+    {
+      for(z = 0;z < ZS;z++)
+      {
+
+      //calc_normal(verts, x, y, YS, &tmp_normal);
+      if(z>0)
+        norms[i*3 + 2] = 1;
+      else
+        norms[i*3 + 2] = -1;
+      norms[i*3 + 1] = 0;
+      norms[i*3 + 0] = 0;
+      i++;
+      }
+    }
+  }
+
+
+GLuint indic[XS*YS*ZS*3*3] = {0};
+//int j;
+i=0;
+j=0;
+//printf("\n\n");
+//printf("%i\n\n", y);
+for(i=0;i < XS-1;i++)
+{
+  /*
+  indic[i*9 + 0] = i*8;
+  indic[i*9 + 1] = i*8+2;
+  indic[i*9 + 2] = i*8 + 6+2;
+  indic[i*9  + 3] = i*8 + 2;
+  indic[i*9  + 4] = i*8+ 2 + 2;
+  indic[i*9  + 5] = i*8 + 2 + 6+2;
+  indic[i*9  + 6] = i*8 + 2+2;
+  indic[i*9  + 7] = i*8+ 2 + 2+2;
+  indic[i*9  + 8] = i*8 + 2 + 6+2+2;
+  */
+
+  for(j=0;j < YS-1;j++)
+  {
+    //one side (z=0)
+    indic[i*(y-1)*3 + 0+ 3*j] = (y)*2*i + 2*j;
+    indic[i*(y-1)*3 + 1+ 3*j] = (y)*2*i + 2*j + 2;
+    indic[i*(y-1)*3 + 2+ 3*j] = (y)*2*i + 2*j + (y)*2;
+
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j + 2;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j +(y)*2;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3] = (y)*2*i + 2*j + (y)*2 +2;
+
+    //other side (z=1)
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*2] = (y)*2*i + 2*j + (y)*2 + 1;
+
+    indic[i*(y-1)*3 + 0+ 3*j + (XS-1)*(YS-1)*3*3] = (y)*2*i + 2*j + 2 + 1;
+    indic[i*(y-1)*3 + 1+ 3*j + (XS-1)*(YS-1)*3*3] = (y)*2*i + 2*j +(y)*2 + 1;
+    indic[i*(y-1)*3 + 2+ 3*j + (XS-1)*(YS-1)*3*3] = (y)*2*i + 2*j + (y)*2 +2 + 1;
+
+  }
+
+
+  //bottom
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 0] = y*2*i;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 1] = y*2*i + 1;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 2] = y*2*i + 2*(y);
+
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 3] = y*2*i + 1;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 4] = y*2*i + y*2;
+  indic[(XS-1)*(YS-1)*3*4 + i*6 + 5] = y*2*i + 2*(y) + 1;
+
+
+  //top
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 0] = y*2*i + (YS-1)*2;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 1] = y*2*i + 1 + (YS-1)*2;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 2] = y*2*i + 2*(y) + (YS-1)*2;
+
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 3] = y*2*i + (YS-1)*2+1;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 4] = y*2*i + 1 + (YS-1)*4+1;
+  indic[(XS-1)*(YS-1)*3*5  + i*6 + 5] = y*2*i + 3 + (YS-1)*4;
+
+}
+
+for(i=0;i<2*YS;i++)
+{
+  //left side
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 0] = i + 0;
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 1] = i + 1;
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 2] = i + 2;
+
+  //right side
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 3] = i + 0 + 2*(YS)*(XS-1);
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 4] = i + 1 + 2*(YS)*(XS-1);
+  indic[(XS-1)*(YS-1)*3*6  + i*6 + 5] = i + 2 + 2*(YS)*(XS-1);
+
+
+//  indic[72*2+18+18 + i*6 + 0] = i + 0;
+//  indic[72*2+18+18 + i*6 + 1] = i + 1;
+//  indic[72*2+18+18 + i*6 + 2] = i + 2;
+
+/*
+  //right side
+  indic[72*2+18+18 + i*6 + 3] = i + 0+30;
+  indic[72*2+18+18 + i*6 + 4] = i + 1+30;
+  indic[72*2+18+18 + i*6 + 5] = i + 2+30;
+*/
+}
+
+
+for(i=0;i < 32*6*4;i++)
+{
+  //printf("%i ", indic[i]);
+  //if((i+1)%3==0)
+  //  printf("\n");
+}
+
+  p->body = LoadDataToModel(
+	verts,
+	norms,
+	NULL,
+	NULL,
+	indic,
+	(XS)*(YS)*ZS,
+	(XS)*(YS)*2*2*2*2-40);
+
+  p->debug_sphere = LoadModelPlus("./res/groundsphere.obj");
+}
+
+void draw_plank(plank_s * p, GLuint program)
+{
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, p->M.m);
+  DrawModel(p->body, program, "inPosition", "inNormal", "inTexCoord");
+
+  int i;
+  for(i=0;i < 6;i++)
+  {
+/*
+  if(p->type==1)
+  {
+  mat4 tmp = T(p->pos.x + 2*i, p->pos.y, p->pos.z);
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, tmp.m);
+  DrawModel(p->debug_sphere, program, "inPosition", "inNormal", "inTexCoord");
+  }
+*/
+  }
+}
+
+
+void update_fence(fence_s * f, cow_s *c, GLfloat dT)
+{
+  int i,j;
+  for(j=1;j < 40;j+=1)
+  {
+  float dist = Norm(VectorSub(c->head_pos, f->planks[j][0].pos));
+  //first check
+  if(dist < 10)
+  {
+    //printf("COLLISION %f\n", dist);
+    //alright, now test for every vertex along x axis
+    for(i=0;i < 12;i++)
+    {
+      dist = Norm(VectorSub(c->head_pos, 
+	VectorAdd(f->planks[j][0].pos, SetVector(i*1, 0, 0))));
+      if(dist < 1.5)
+      {
+        //set plank to state "destroyed"
+        printf("COLL2, %f %i \n", dist, i);
+        if(f->planks[j][0].destroyed_at == -1)
+        {
+          f->planks[j][0].destroyed_at = i;
+          f->planks[j+1][0].destroyed_at = i;
+          f->planks[j][1].destroyed_at = i;
+          f->planks[j+1][1].destroyed_at = i;
+
+          create_plank(&f->planks[j][0], SetVector((j-1)*3.6, 4, 0), 2);
+          create_plank(&f->planks[j][1], SetVector((j-1)*3.6+i*1.8/2, 4, 0), 3);
+          create_plank(&f->planks[j+1][0], SetVector((j-1)*3.6, 2, 0), 2);
+          create_plank(&f->planks[j+1][1], SetVector((j-1)*3.6+i*1.8/2, 2, 0), 3);
+
+
+          f->planks[j][0].momentum = c->momentum;
+          f->planks[j][1].momentum = c->momentum;
+
+          f->planks[j+1][0].momentum = c->momentum;
+          f->planks[j+1][1].momentum = c->momentum;
+
+          f->planks[j][0].angular_momentum = SetVector(.8,2,.2);
+          f->planks[j+1][0].angular_momentum = SetVector(.8,2,.2);
+          f->planks[j][1].angular_momentum = SetVector(.8,2,.2);
+          f->planks[j+1][1].angular_momentum = SetVector(.8,2,.2);
+
+
+          c->momentum = ScalarMult(c->momentum, -1);
+          c->pos = VectorAdd(c->pos, SetVector(0,0,.1));
+
+
+          //printf("destroyed at %i\n", i);
+        }
+        //break;
+
+      }
+    }
+
+  }
+
+  }
+
+  for(i=0;i < 20;i++)
+  {
+    if(f->planks[i][0].type == 2 || f->planks[i][0].type==3)
+    {
+    update_plank(&f->planks[i][0], c, dT);
+    update_plank(&f->planks[i][1], c, dT);
+    }
+  }
+
+}
+
+void update_plank(plank_s * p, cow_s * c, GLfloat dT)
+{
+  //p->pos = VectorAdd(p->pos, SetVector(0,0,-dT*20));
+
+  vec3 dP = ScalarMult(p->force, dT);
+  vec3 dL = ScalarMult(p->torque, dT);
+  p->angular_momentum = VectorAdd(p->angular_momentum, dL);
+  p->omega = p->angular_momentum;
+  vec3 dO = ScalarMult(p->omega, dT);
+  mat4 Rd = CrossMatrix(dO);
+  Rd = Mult(Rd, p->R);
+  p->R = MatrixAdd(p->R, Rd);
+
+  p->momentum = VectorAdd(p->momentum, dP);
+  p->speed = ScalarMult(p->momentum, 1.0/p->mass);
+  vec3 dX = ScalarMult(p->speed, dT);
+
+  p->pos = VectorAdd(p->pos, dX);
+  p->M = Mult(T(p->pos.x, p->pos.y, p->pos.z), p->R);
+
+  OrthoNormalizeMatrix(&p->R);
+}
