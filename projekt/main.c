@@ -556,6 +556,7 @@ void OnTimer(int value)
 	  glUniform1i(glGetUniformLocation(g_shader, "collision"), 1);
 	  //switch to ragdoll mode!
 	  farmer.animate = 0;
+          reset_farmer_matrices(&farmer);
 	  //printf("JAPP\n");
 	}
 	else
