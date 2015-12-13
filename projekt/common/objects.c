@@ -1123,8 +1123,8 @@ void update_ragdoll(ragdoll_s * r, GLfloat dT)
         j->speed.y *= -.8;
       }
 
-    if(i==8)
-      printf("%f\n", r->joints[8].force.y);
+    //if(i==8)
+    //  printf("%f\n", r->joints[8].force.y);
 
     dP = ScalarMult(VectorAdd(j->force, calculated_force), dT);
     j->speed = VectorAdd(j->speed, dP);
