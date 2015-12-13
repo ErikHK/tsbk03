@@ -539,7 +539,7 @@ void OnTimer(int value)
 	//update_wall(&wall, &cow, delta_t);
 	update_ball(&ball, &cow, delta_t);
 	update_farmer(&farmer);
-
+	update_fence(&ff, &cow, delta_t);
 
 
 	//check collision between cow and farmer
