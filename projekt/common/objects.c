@@ -163,6 +163,9 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 3.7, -.6)),
 	"farmer_rshoulder", "farmer_rshoulder_pos", "farmer_rshoulder_bone_pos", 0);
 
+  //f->skeleton.joints[2].orig_R = Rx(-M_PI/2);
+
+
   //elbow joints
   create_joint(&f->skeleton.joints[4],
 	VectorAdd(f->pos, SetVector(0, 3.8, 1.7)),
@@ -204,8 +207,8 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 3.7, -2.8)),
 	NULL, NULL, NULL, 0);
 
-  f->skeleton.joints[6].weight = 0;
-  f->skeleton.joints[7].weight = 0;
+//  f->skeleton.joints[6].weight = 0;
+//  f->skeleton.joints[7].weight = 0;
 
   f->skeleton.joints[6].orig_pos = SetVector(0,3.7,2.8);
   f->skeleton.joints[7].orig_pos = SetVector(0,3.7,-2.8);
@@ -249,7 +252,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[9].max_angle = 10;
   f->skeleton.joints[9].orig_vec = SetVector(0,1,0);
 
-  f->skeleton.joints[9].weight = 1.5;
+  f->skeleton.joints[9].weight = 2;
 
 
   //hip joints
@@ -267,6 +270,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[10].constraint = 1;
   f->skeleton.joints[10].max_angle = 5;
   f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
+
+  f->skeleton.joints[10].orig_R = Rx(-M_PI/2);
 
 
   f->skeleton.joints[11].constraint = 1;
@@ -294,8 +299,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[13].max_angle = 40;
   f->skeleton.joints[13].orig_vec = SetVector(0,1,0);
 
-  f->skeleton.joints[12].weight = 1.6;
-  f->skeleton.joints[13].weight = 1.6;
+  f->skeleton.joints[12].weight = 1;
+  f->skeleton.joints[13].weight = 1;
 
   //foot joints
   create_joint(&f->skeleton.joints[14],
@@ -346,9 +351,12 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[5].child[0] = &f->skeleton.joints[7];
   //stomach
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
+  //f->skeleton.joints[8].child[0] = &f->skeleton.joints[10];
+  //f->skeleton.joints[8].child[1] = &f->skeleton.joints[11];
+
   //groin
-  f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
-  f->skeleton.joints[10].child[1] = &f->skeleton.joints[11];
+  f->skeleton.joints[9].child[0] = &f->skeleton.joints[11];
+  f->skeleton.joints[9].child[1] = &f->skeleton.joints[10];
   //hips
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
   f->skeleton.joints[11].child[0] = &f->skeleton.joints[13];
@@ -356,8 +364,8 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[12].child[0] = &f->skeleton.joints[14];
   f->skeleton.joints[13].child[0] = &f->skeleton.joints[15];
 
-  f->skeleton.joints[6].child[0] = NULL;
-  f->skeleton.joints[6].child[1] = NULL;
+//  f->skeleton.joints[6].child[0] = NULL;
+//  f->skeleton.joints[6].child[1] = NULL;
 
 
   //set parents
@@ -476,13 +484,13 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
   while(j->child[0] != NULL)
   {
     jc = j->child[0];
-/*
+
     for(k=1; k < MAX_CHILDREN; k++)
     {
       if(j->child[k] != NULL)
-        calc_bone_transform_ragdoll(f, j->child[k], 1, 0);
+        calc_bone_transform_ragdoll(f, j->child[k], 1, j->start_deg);
     }
-*/
+
 
     invtrans = InvertMat4(j->orig_T);
 
@@ -510,7 +518,11 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
 
     float deg;
 
-    deg = acos(c);
+
+    //if(j->start_deg == 0)
+      deg = acos(c);
+    //else
+    //  deg = acos(c)-M_PI*j->start_deg/180;
 
     mat4 RR;
       RR = ArbRotate(Normalize(v), deg);
@@ -519,7 +531,7 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
     //tmp = Mult(j->orig_T, Mult(RR,tmp));
     //tmp = Mult(tmp, Mult(RR, invtrans));
     //tmp = Mult(j->orig_T, Mult(RR, invtrans));
-    tmp = Mult(tmp, Mult(RR, invtrans));
+    tmp = Mult(tmp, Mult( Mult(RR, InvertMat4(j->orig_R)), invtrans));
 
     //if(i!=0)
     //tmp = Mult(j->parent->T, tmp);
@@ -638,11 +650,11 @@ void update_farmer(farmer_s * f, GLfloat t)
   f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), test);
 
   calc_bone_transform_ragdoll(f, &f->skeleton.joints[0], 0,0);
-  calc_bone_transform_ragdoll(f, &f->skeleton.joints[2], 0,0);
-//  calc_bone_transform_ragdoll(f, &f->skeleton.joints[3], 0,0);
-//  calc_bone_transform_ragdoll(f, &f->skeleton.joints[1], 0,0);
-//  calc_bone_transform_ragdoll(f, &f->skeleton.joints[10], 0,90);
-//  calc_bone_transform_ragdoll(f, &f->skeleton.joints[11], 0,90);
+  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[2], 0,0);
+  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[3], 0,0);
+  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[1], 0,0);
+  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[10], 0,90);
+  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[11], 0,90);
 
 
 
@@ -665,10 +677,18 @@ void update_farmer(farmer_s * f, GLfloat t)
 
   joint_s * j = &f->skeleton.joints[0];
   update_skinning(f,j,-1);
-//  j = &f->skeleton.joints[3];
-//  update_skinning(f,j,-1);
-//  j = &f->skeleton.joints[2];
-//  update_skinning(f,j,-1);
+
+  j = &f->skeleton.joints[3];
+  update_skinning(f,j,-1);
+
+  j = &f->skeleton.joints[2];
+  update_skinning(f,j,-1);
+
+  j = &f->skeleton.joints[9];
+  update_skinning(f,j,-1);
+
+  j = &f->skeleton.joints[10];
+  update_skinning(f,j,-1);
 
   f->body->vertexArray = f->verts;
   glBindVertexArray(f->body->vao);
@@ -1175,6 +1195,8 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   j->Mvar = Mvar;
   j->posvar = posvar;
   j->boneposvar = boneposvar;
+  j->start_deg = 0;
+
 
   j->orig_pos = pos;
   j->orig_vec = SetVector(0,0,1);
@@ -1193,6 +1215,7 @@ void create_joint(joint_s * j, vec3 pos, char * Mvar, char * posvar, char * bone
   //j->Minv = InvertMat4(j->M);
   j->Minv = InvertMat4(T(pos.x, pos.y, pos.z));
   j->R = IdentityMatrix();
+  j->orig_R = IdentityMatrix();
   //j->body_matrix = S(.1, .1, .1);
   //j->body_matrix = IdentityMatrix();
 }

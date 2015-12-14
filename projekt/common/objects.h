@@ -109,6 +109,8 @@ typedef struct joint_t
   int constraint;
   int leader;
   float weight;
+  float start_deg;
+  mat4 orig_R;
 
 } joint_s;
 
