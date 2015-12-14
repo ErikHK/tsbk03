@@ -477,7 +477,7 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
   float currpos[8*3] = {0};
   float bonepos[8*3] = {0};
 
-  if(j->child[0] != NULL)
+  while(j->child[0] != NULL)
   {
     jc = j->child[0];
 /*
@@ -487,9 +487,9 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
         calc_bone_transform_ragdoll(f, j->child[k], 1, 0);
     }
 */
-    tmp = Mult(tmp, j->T);
+    invtrans = InvertMat4(j->orig_T);
 
-    invtrans = InvertMat4(jc->T);
+    //tmp = Mult(invtrans, tmp);
 
 
     vec3 a = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
@@ -510,7 +510,7 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
     //tmp = Mult(tmp, Mult(RR, invtrans));
     //tmp = Mult(j->orig_T, Mult(RR,tmp));
     //tmp = Mult(tmp, Mult(RR, invtrans));
-    tmp = Mult(j->T, Mult(RR, invtrans));
+    tmp = Mult(j->orig_T, Mult(RR, invtrans));
 
     j->tmp = tmp;
     j->isnull = 0;
@@ -539,7 +539,7 @@ void update_farmer(farmer_s * f, GLfloat t)
     //j->pos.x += .02;
   }
 
-    //f->pos.x += .02;
+    f->pos.x += .02;
 
     mat4 test = Mult(T(0,6,0), Mult(f->body_R, T(0,-6,0)));
     f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), test);
@@ -693,9 +693,9 @@ void update_skinning(farmer_s * f, joint_s * j, int side)
     //vec3 to2 = SetVector(0,3.7,1.7);
 
       //printf("hejhej %i \n", i);
-    vec3 to = j->pos;
+    vec3 to = j->orig_pos;
     vec3 to2;
-    to2 = j->child[0]->pos;
+    to2 = j->child[0]->orig_pos;
 
     vec3 midd = ScalarMult(VectorAdd(to, to2), .5);
     //printf("hej %f\n", Norm(midd));
