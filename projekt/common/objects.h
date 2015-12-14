@@ -135,6 +135,7 @@ typedef struct farmer_t
 
   GLfloat * verts;
 
+  vec3 orig_pos;
   vec3 pos;
   vec3 speed;
   vec3 acc;

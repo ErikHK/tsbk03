@@ -538,7 +538,7 @@ void OnTimer(int value)
 	move_cow(&cow, m_angle);
 	update_floor(&f, &cow);
 	//update_wall(&wall, &cow, delta_t);
-	update_ball(&ball, &cow, delta_t);
+	//update_ball(&ball, &cow, delta_t);
 	update_farmer(&farmer, t);
 	update_fence(&ff, &cow, delta_t);
 

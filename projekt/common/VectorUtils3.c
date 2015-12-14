@@ -215,6 +215,8 @@ char transposed = 0;
 		vec3 result;
 
 		norm = sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+                if(norm==0)
+                  return SetVector(0,0,0);
 		result.x = a.x / norm;
 		result.y = a.y / norm;
 		result.z = a.z / norm;
