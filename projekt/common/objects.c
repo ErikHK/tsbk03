@@ -349,7 +349,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   //stomach
   f->skeleton.joints[8].child[0] = &f->skeleton.joints[9];
   //groin
-  //f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
+  f->skeleton.joints[9].child[0] = &f->skeleton.joints[10];
   f->skeleton.joints[10].child[1] = &f->skeleton.joints[11];
   //hips
   f->skeleton.joints[10].child[0] = &f->skeleton.joints[12];
@@ -488,12 +488,23 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
 
     invtrans = InvertMat4(j->orig_T);
 
-    //tmp = Mult(invtrans, tmp);
     tmp = Mult(tmp, j->orig_T);
+    //tmp = Mult(invtrans, tmp);
 
-    vec3 a = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
+    vec3 a;
     vec3 b;
-    b = Normalize(VectorSub(jc->pos, j->pos));
+    if(j->parent != NULL)
+    {
+      a = Normalize(VectorSub(j->parent->pos, j->pos));
+      b = Normalize(VectorSub(j->pos, jc->pos));
+    }
+    else
+    {
+      a = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
+      b = Normalize(VectorSub(jc->pos, j->pos));
+    }
+
+
 
     vec3 v = Normalize(CrossProduct(a,b));
     float s = Norm(v);
