@@ -269,7 +269,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[11].weight = 1.6;
 
 
-  f->skeleton.joints[10].constraint = 0;
+  f->skeleton.joints[10].constraint = 1;
   f->skeleton.joints[10].max_angle = 5;
   f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
 
@@ -277,7 +277,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   //f->skeleton.joints[11].orig_R = Rx(-M_PI);
 
 
-  f->skeleton.joints[11].constraint = 0;
+  f->skeleton.joints[11].constraint = 1;
   f->skeleton.joints[11].max_angle = 5;
   f->skeleton.joints[11].orig_vec = SetVector(0,0,1);
 
@@ -499,12 +499,16 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
 
     invtrans = InvertMat4(j->orig_T);
 
-    tmp = Mult(tmp, j->orig_T);
+    if(j->parent != NULL)
+      tmp = Mult(Mult(tmp, j->orig_T), InvertMat4(j->parent->R));
+    else
+      tmp = Mult(tmp, j->orig_T);
+
     //tmp = Mult(invtrans, tmp);
 
     vec3 a;
     vec3 b;
-
+/*
     if(j->parent != NULL)
     {
       a = Normalize(VectorSub(j->parent->pos, j->pos));
@@ -512,9 +516,10 @@ void calc_bone_transform_ragdoll(farmer_s * f, joint_s * j, int acc, int start_d
     }
     else
     {
+*/
       a = Normalize(VectorSub(jc->orig_pos, j->orig_pos));
       b = Normalize(VectorSub(jc->pos, j->pos));
-    }
+//    }
 
 
     vec3 v = Normalize(CrossProduct(a,b));
