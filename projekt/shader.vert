@@ -92,7 +92,11 @@ uniform vec3 farmer_groin_bone_pos[8];
 uniform mat4 farmer_groin[8];
 
 mat3 normal_matrix = mat3(cam_matrix * mdl_matrix);
-vec3 transformed_normal = normal_matrix * inNormal;
+
+uniform vec3 light_normal;
+
+vec3 transformed_normal;
+
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -120,6 +124,8 @@ return mat4(1,0,0,pos.x,
 
 void main(void)
 {
+
+  transformed_normal = normal_matrix * inNormal;
 
   gl_Position = vec4(0,0,0,0);
   ex_normal = transformed_normal;

@@ -464,6 +464,11 @@ void OnTimer(int value)
 	GLfloat tmpppp[3] = {cow.pos.x, cow.pos.y, cow.pos.z};
 	glUniform3fv(glGetUniformLocation(g_shader, "cow_pos"), 1, tmpppp);
 
+	vec3 tmpz = SetVector(1,1,1);
+	tmpz = MultVec3(Ry(cow.angle), tmpz);
+	GLfloat tmppppp[3] = {tmpz.x, tmpz.y, tmpz.z};
+	glUniform3fv(glGetUniformLocation(g_shader, "light_normal"), 1, tmppppp);
+
 
 	turn_cow(&cow, -m_angle);
 	update_cow(&cow, delta_t);

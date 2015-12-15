@@ -14,6 +14,8 @@ uniform int draw_ball;
 uniform int collision;
 uniform int draw_skybox;
 
+uniform vec3 light_normal;
+
 uniform vec3 cow_pos;
 uniform mat4 cam_matrix;
 
@@ -28,13 +30,13 @@ vec3 reflection;
 void main(void)
 {
   colors = vec3(0,0,0);
-  s = normalize(light_cam_matrix * vec3(inPos));
+  s = normalize(light_cam_matrix * light_normal);
   n = normalize(ex_normal);
-  float lambert = pow(dot(n,s),2)-.001;  
+  float lambert = pow(dot(n,s),1)-.001;  
 
   if(lambert > 0)
   {
-    colors += vec3(1,1,1)*lambert;
+    colors += lambert;
     reflection = reflect(s,n);
     
   }
