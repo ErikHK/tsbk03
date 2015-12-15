@@ -242,7 +242,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[8].max_angle = 10;
   f->skeleton.joints[8].orig_vec = SetVector(0,1,0);
 
-  f->skeleton.joints[8].weight = 1.2;
+  f->skeleton.joints[8].weight = 1.6;
 
 
   //groin joint
@@ -254,7 +254,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   f->skeleton.joints[9].max_angle = 10;
   f->skeleton.joints[9].orig_vec = SetVector(0,1,0);
 
-  f->skeleton.joints[9].weight = 1;
+  f->skeleton.joints[9].weight = 1.6;
 
 
   //hip joints
@@ -265,11 +265,11 @@ void create_farmer(farmer_s * f, vec3 pos)
 	VectorAdd(f->pos, SetVector(0, 2, -.4)),
 	"farmer_rhip", "farmer_rhip_pos", "farmer_rhip_bone_pos", 0);
 
-  f->skeleton.joints[10].weight = 1.2;
-  f->skeleton.joints[11].weight = 1.2;
+  f->skeleton.joints[10].weight = 1.6;
+  f->skeleton.joints[11].weight = 1.6;
 
 
-  f->skeleton.joints[10].constraint = 1;
+  f->skeleton.joints[10].constraint = 0;
   f->skeleton.joints[10].max_angle = 5;
   f->skeleton.joints[10].orig_vec = SetVector(0,0,-1);
 
@@ -277,7 +277,7 @@ void create_farmer(farmer_s * f, vec3 pos)
   //f->skeleton.joints[11].orig_R = Rx(-M_PI);
 
 
-  f->skeleton.joints[11].constraint = 1;
+  f->skeleton.joints[11].constraint = 0;
   f->skeleton.joints[11].max_angle = 5;
   f->skeleton.joints[11].orig_vec = SetVector(0,0,1);
 
@@ -572,11 +572,14 @@ void update_farmer(farmer_s * f, GLfloat t)
 
 //    f->pos.x += .02;
 
-    f->omega.y += .02;
+    f->omega.y = 1;
+    //f->omega.x = -.3;
+    static float rot = 0;
+    rot += .02;
     f->pos.y = fabs(cos(5*t));
 
     mat4 test = Mult(T(0,6,0), Mult(f->body_R, T(0,-6,0)));
-    mat4 rrr = ArbRotate(Normalize(f->omega), Norm(f->omega));
+    mat4 rrr = ArbRotate(Normalize(f->omega), rot);
 
     f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), test);
     f->matrix = Mult(f->matrix, rrr);
@@ -662,11 +665,11 @@ void update_farmer(farmer_s * f, GLfloat t)
   f->matrix = Mult(T(f->pos.x, f->pos.y, f->pos.z), test);
 
   calc_bone_transform_ragdoll(f, &f->skeleton.joints[0], 0,0);
-  calc_bone_transform_ragdoll(f, &f->skeleton.joints[2], 0,0);
-  calc_bone_transform_ragdoll(f, &f->skeleton.joints[3], 0,0);
+//  calc_bone_transform_ragdoll(f, &f->skeleton.joints[2], 0,0);
+//  calc_bone_transform_ragdoll(f, &f->skeleton.joints[3], 0,0);
   //calc_bone_transform_ragdoll(f, &f->skeleton.joints[1], 0,0);
-  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[10], 0,0);
-  //calc_bone_transform_ragdoll(f, &f->skeleton.joints[11], 0,0);
+  calc_bone_transform_ragdoll(f, &f->skeleton.joints[10], 0,0);
+  calc_bone_transform_ragdoll(f, &f->skeleton.joints[11], 0,0);
 
 
 
