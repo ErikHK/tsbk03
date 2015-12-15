@@ -786,12 +786,43 @@ void update_skinning(farmer_s * f, joint_s * j, int side)
   }
 }
 
+/*
+void draw_skybox(Model * skybox, GLuint program)
+{
+
+  glDisable(GL_DEPTH_TEST);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glUniform1i(glGetUniformLocation(program, "skybox"), 1);
+
+  //curr_trans = &trans1;
+  //glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, myMatrix);
+  //glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, look.m);
+
+  GLfloat skyboxmat[16];
+  memcpy(skyboxmat, cam_matrix.m, sizeof(skyboxmat));
+  skyboxmat[3] = 0;
+  skyboxmat[7] = 0;
+  skyboxmat[11] = 0;
+  skyboxmat[15] = 1;
+
+  //glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, skyboxmat);
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, IdentityMatrix().m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "cam_matrix"), 1, GL_TRUE, skyboxmat);
+  //glBindTexture(GL_TEXTURE_2D, tex1);
+  DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+
+  glEnable(GL_DEPTH_TEST);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glUniform1i(glGetUniformLocation(program, "skybox"), 0);
+}
+*/
+
 void draw_farmer(farmer_s * f, GLuint program)
 {
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 1);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, f->matrix.m);
   glBindTexture(GL_TEXTURE_2D, f->tex);
-  if(keyIsDown('m'))
+  //if(keyIsDown('m'))
   DrawModel(f->body, program, "inPosition", "inNormal", "inTexCoord");
   glUniform1i(glGetUniformLocation(program, "draw_farmer"), 0);
 

@@ -69,7 +69,11 @@ float mouse_x, mouse_y, old_mouse_x, old_mouse_y;
 float m_angle;
 
 mat4 modelViewMatrix, projectionMatrix;
+mat4 cam_matrix;
 Model * terr;
+Model * skybox;
+void draw_skybox(Model * skybox, GLuint program);
+
 
 void filter(GLfloat * Xre, GLfloat * Xim, int size)
 {
@@ -303,8 +307,14 @@ Model * generate_terrain(int size)
 
 void DisplayWindow()
 {
-	glClearColor(0.4, 0.4, 0.8, 1);
-	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
+
+	draw_skybox(skybox, g_shader);
+
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "cam_matrix"), 1, GL_TRUE, cam_matrix.m);
+
+
+	//glClearColor(0.4, 0.4, 0.8, 1);
+	//glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
 	glUniform1i(glGetUniformLocation(g_shader, "draw_cow"), 1);
 	draw_cow(&cow, g_shader);
@@ -441,84 +451,6 @@ void calc_bone_transform_cow(joint_s * j, int acc)
   glUniform3fv(glGetUniformLocation(g_shader, rootj->boneposvar), 8, bonepos);
 }
 
-/*
-void calc_bone_transform(joint_s * j, int acc, int start_deg)
-{
-  joint_s * jc;
-  joint_s * rootj = j;
-  mat4 tmp, tmptrans, invtrans;
-
-  if(acc)
-    tmp = j->parent->tmp;
-  else
-    tmp = IdentityMatrix();
-    //tmp = T(farmer.pos.x,
-    //farmer.pos.y-6,
-    //farmer.pos.z);
-
-  GLfloat Ms[8][16];
-  int i=0,ii=0, k=0;
-  float currpos[8*3] = {0};
-  float bonepos[8*3] = {0};
-
-  while(j->child[0] != NULL)
-  {
-    vec3 tmp_bonepos;
-    vec3 tmp_bonepos_orig;
-    jc = j->child[0];
-
-    //tmp = Mult(tmp, j->T);
-
-    //invtrans = InvertMat4(j->T);
-    invtrans = InvertMat4(j->orig_T);
-    tmp = Mult(invtrans, tmp);
-
-    vec3 a = Normalize(VectorSub(jc->pos, j->pos));
-    vec3 b;
-    if(j->parent != NULL)
-      b = Normalize(VectorSub(j->pos, j->parent->pos));
-    else
-      b = Normalize(VectorSub(j->pos, j->orig_pos));
-
-    vec3 v = CrossProduct(b,a);
-    float s = Norm(v);
-    float c = DotProduct(a, b);
-
-    float deg;
-
-    if(i==0)
-      deg = acos(c)-M_PI*start_deg/180.0;
-    else
-      deg = acos(c);
-
-    mat4 RR;
-    if(j->parent != NULL)
-      RR = ArbRotate(Normalize(v), deg);
-    else
-      RR = IdentityMatrix();
-
-    a = Normalize(VectorSub(farmer.skeleton.joints[0].pos, farmer.skeleton.joints[8].pos));
-    b = SetVector(0,1,0);
-    v = CrossProduct(b,a);
-    s = Norm(v);
-
-
-    farmer.body_R = ArbRotate(Normalize(v), asin(s));
-
-    //OrthoNormalizeMatrix(&RR);
-    //tmp = Mult(tmp, Mult(RR, invtrans));
-    tmp = Mult(j->orig_T, Mult(RR,tmp));
-
-    j->tmp = tmp;
-    j->isnull = 0;
-
-    j->R = RR;
-    j = j->child[0];
-    i++;
-  }
-
-}
-*/
 
 void OnTimer(int value)
 {
@@ -569,7 +501,7 @@ void OnTimer(int value)
         if(!farmer.animate)
         {
 	  //update_ragdoll(&ragdoll, delta_t);
-	  if(keyIsDown('k'))
+	  //if(keyIsDown('k'))
             update_ragdoll(&farmer.skeleton, delta_t);
         }
 
@@ -592,7 +524,7 @@ void OnTimer(int value)
 
 
 	mat4 proj_matrix = frustum(-1, 1, -1, 1, 1, 750.0);
-	mat4 cam_matrix = lookAt(cam_dist*cos(m_angle)+cow.pos.x, 9+cow.pos.y,  cam_dist*sin(m_angle)+cow.pos.z, cow.pos.x, 8.5+cow.pos.y, cow.pos.z, 0.0, 1.0, 0.0);
+	cam_matrix = lookAt(cam_dist*cos(m_angle)+cow.pos.x, 9+cow.pos.y,  cam_dist*sin(m_angle)+cow.pos.z, cow.pos.x, 8.5+cow.pos.y, cow.pos.z, 0.0, 1.0, 0.0);
 	//mat4 cam_matrix = lookAt(200+200*cos(cam_angle), 0,  200, 0, 8, 0, 0.0, 1.0, 0.0);
 
 	//g_shader = loadShaders("shader.vert" , "shader.frag");
@@ -721,62 +653,6 @@ void OnTimer(int value)
 
 	calc_bone_transform_cow(&head_joint[0],0);
 
-
-/*
-	j = &farmer.skeleton.joints[2];
-	//j->R = Rx(cos(4*t));
-	j->R = Mult(Rx(M_PI/2.2 + sin(5*t)/11), Ry(cos(-5*t)/2));
-
-	j = &farmer.skeleton.joints[3];
-	//j->R = Rx(cos(4*t));
-	j->R = Mult(Rx(-M_PI/2.2 + sin(5*t)/11), Ry(cos(5*t)/2));
-
-	//left shoulder (her right)
-	//jc = &farmer.skeleton.joints[3];
-	//jc->R = Rx(-sin(3*t));
-
-	jc = &farmer.skeleton.joints[4];
-	jc->R = Ry(M_PI/3 + cos(5*t)/8);
-
-	jc = &farmer.skeleton.joints[5];
-	jc->R = Ry(-M_PI/3 + cos(5*t)/8);
-
-
-	jc = &farmer.skeleton.joints[10];
-	//jc->R = Rz(M_PI/3);
-	jc->R = Rz(.5-cos(5*t));
-
-	jc = &farmer.skeleton.joints[12];
-	jc->R = Rz((-1-cos(5*t))/2);
-
-
-	jc = &farmer.skeleton.joints[11];
-	//jc->R = Rz(M_PI/3);
-	jc->R = Rz(.5+cos(5*t));
-
-
-	jc = &farmer.skeleton.joints[3];
-	jc->R = Ry((-1-cos(5*t))/2);
-
-	jc = &farmer.skeleton.joints[2];
-	jc->R = Ry((-1-cos(3*t))/1);
-
-	jc = &farmer.skeleton.joints[0];
-	jc->R = Ry((-1-cos(5*t))/2);
-*/
-
-	//jc = &farmer.skeleton.joints[5];
-	//jc->R = Rx((-1-cos(4*t))/2);
-
-/*
-	calc_bone_transform(&farmer, &farmer.skeleton.joints[0], 0,0);
-	calc_bone_transform(&farmer, &farmer.skeleton.joints[2], 0,0);
-	calc_bone_transform(&farmer, &farmer.skeleton.joints[3], 0,0);
-	calc_bone_transform(&farmer, &farmer.skeleton.joints[1], 0,0);
-
-	calc_bone_transform(&farmer, &farmer.skeleton.joints[10], 0,90);
-	calc_bone_transform(&farmer, &farmer.skeleton.joints[11], 0,90);
-*/
 	glutPostRedisplay();
 }
 
@@ -786,6 +662,37 @@ void keyboardFunc( unsigned char key, int x, int y)
 	if(key == 27)	//Esc
 		exit(-1);
 }
+
+
+void draw_skybox(Model * skybox, GLuint program)
+{
+
+  glDisable(GL_DEPTH_TEST);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glUniform1i(glGetUniformLocation(program, "draw_skybox"), 1);
+
+  //curr_trans = &trans1;
+  //glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, myMatrix);
+  //glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, look.m);
+
+  GLfloat skyboxmat[16];
+  memcpy(skyboxmat, cam_matrix.m, sizeof(skyboxmat));
+  skyboxmat[3] = 0;
+  skyboxmat[7] = 0;
+  skyboxmat[11] = 0;
+  skyboxmat[15] = 1;
+
+  //glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, skyboxmat);
+  glUniformMatrix4fv(glGetUniformLocation(program, "mdl_matrix"), 1, GL_TRUE, IdentityMatrix().m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "cam_matrix"), 1, GL_TRUE, skyboxmat);
+  //glBindTexture(GL_TEXTURE_2D, tex1);
+  DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+
+  glEnable(GL_DEPTH_TEST);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glUniform1i(glGetUniformLocation(program, "draw_skybox"), 0);
+}
+
 
 void mouse(int x, int y)
 {
@@ -985,6 +892,7 @@ int main(int argc, char **argv)
 
 	create_cow(&cow);
 	create_farmer(&farmer, SetVector(0,0,0));
+	skybox = LoadModelPlus("./res/sphere.obj");
 
 	//create_ragdoll(&ragdoll);
 

@@ -252,3 +252,4 @@ void draw_fence(fence_s * f, GLuint program);
 void update_fence(fence_s * f, cow_s * c, GLfloat dT);
 void calc_bone_transform(farmer_s * f, joint_s * j, int acc, int start_deg);
 void reset_farmer_matrices(farmer_s * f);
+//void draw_skybox(Model * skybox, GLuint program);

@@ -12,6 +12,7 @@ uniform int draw_floor;
 uniform int draw_plank;
 uniform int draw_ball;
 uniform int collision;
+uniform int draw_skybox;
 
 uniform vec3 cow_pos;
 uniform mat4 cam_matrix;
@@ -29,7 +30,7 @@ void main(void)
   colors = vec3(0,0,0);
   s = normalize(light_cam_matrix * vec3(inPos));
   n = normalize(ex_normal);
-  float lambert = dot(n,s)-.001;  
+  float lambert = pow(dot(n,s),2)-.001;  
 
   if(lambert > 0)
   {
@@ -47,13 +48,17 @@ void main(void)
   else
     fragColor = texture(tex, outTexCoord)*vec4(colors+.4, 1);
 
-  if(length(vec3(inPos)-cow_pos) < 2.5)
-    fragColor += vec4(-.2, -.2, -.2, 0);
+  if(draw_skybox==1)
+  {
+    //fragColor = vec4((2-inPos.y)*.5,2-inPos.y,1,1);
+    fragColor = (1/distance(inPos, vec4(0,2,5,1)))*vec4(.4,.4,0,1);
+    fragColor += vec4(.3,.3,1,0);
+    fragColor += (.7/(inPos.y+3))*vec4(1,1,1,0);
+  }
 
-  //fragColor = vec4(colors,1);
 
-  //if(collision==1 && draw_cow==1)
-  //if(collision==1)
-  //  fragColor = vec4(.5,0,.5,1);
+  //if(length(vec3(inPos)-cow_pos) < 2.5)
+  //  fragColor += vec4(-.2, -.2, -.2, 0);
+
 
 }
