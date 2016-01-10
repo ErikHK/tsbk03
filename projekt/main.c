@@ -5,6 +5,7 @@
 
 // 2013: Adapted to VectorUtils3 and MicroGlut.
 
+//#include <fftw3.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -34,6 +35,16 @@
 #include "GL_utilities.h"
 #include "VectorUtils3.h"
 #include "loadobj.h"
+
+typedef struct COMPLEX_t
+{
+  double real;
+  double imag;
+
+} COMPLEX;
+
+int FFT(int dir,int m,double *x,double *y);
+int Powerof2(int n,int *m,int *twopm);
 
 // Ref till shader
 GLuint g_shader;
@@ -90,6 +101,197 @@ void filter(GLfloat * Xre, GLfloat * Xim, int size)
 
   }
 }
+
+float cosf(float x)
+{
+  return 1-x*x/2;
+}
+
+float sinf(float x)
+{
+  return x-x*x*x/6.;
+}
+
+/*-------------------------------------------------------------------------
+   Perform a 2D FFT inplace given a complex 2D array
+   The direction dir, 1 for forward, -1 for reverse
+   The size of the array (nx,ny)
+   Return false if there are memory problems or
+      the dimensions are not powers of 2
+*/
+int FFT2D(COMPLEX **c,int nx,int ny,int dir)
+{
+   int i,j;
+   int m,twopm;
+   double *real,*imag;
+
+   /* Transform the rows */
+   real = (double *)malloc(nx * sizeof(double));
+   imag = (double *)malloc(nx * sizeof(double));
+   if (real == NULL || imag == NULL)
+      return(0);
+   if (!Powerof2(nx,&m,&twopm) || twopm != nx)
+      return(0);
+   for (j=0;j<ny;j++) {
+      for (i=0;i<nx;i++) {
+         real[i] = c[i][j].real;
+         imag[i] = c[i][j].imag;
+      }
+      FFT(dir,m,real,imag);
+      for (i=0;i<nx;i++) {
+         c[i][j].real = real[i];
+         c[i][j].imag = imag[i];
+      }
+   }
+   free(real);
+   free(imag);
+
+   /* Transform the columns */
+   real = (double *)malloc(ny * sizeof(double));
+   imag = (double *)malloc(ny * sizeof(double));
+   if (real == NULL || imag == NULL)
+      return 0;
+   if (!Powerof2(ny,&m,&twopm) || twopm != ny)
+      return 0;
+   for (i=0;i<nx;i++) {
+      for (j=0;j<ny;j++) {
+         real[j] = c[i][j].real;
+         imag[j] = c[i][j].imag;
+      }
+      FFT(dir,m,real,imag);
+      for (j=0;j<ny;j++) {
+         c[i][j].real = real[j];
+         c[i][j].imag = imag[j];
+      }
+   }
+   free(real);
+   free(imag);
+
+   return 1;
+}
+
+
+/*-------------------------------------------------------------------------
+   This computes an in-place complex-to-complex FFT
+   x and y are the real and imaginary arrays of 2^m points.
+   dir =  1 gives forward transform
+   dir = -1 gives reverse transform
+
+     Formula: forward
+                  N-1
+                  ---
+              1   \          - j k 2 pi n / N
+      X(n) = ---   >   x(k) e                    = forward transform
+              N   /                                n=0..N-1
+                  ---
+                  k=0
+
+      Formula: reverse
+                  N-1
+                  ---
+                  \          j k 2 pi n / N
+      X(n) =       >   x(k) e                    = forward transform
+                  /                                n=0..N-1
+                  ---
+                  k=0
+*/
+int FFT(int dir,int m,double *x,double *y)
+{
+   long nn,i,i1,j,k,i2,l,l1,l2;
+   double c1,c2,tx,ty,t1,t2,u1,u2,z;
+
+   /* Calculate the number of points */
+   nn = 1;
+   for (i=0;i<m;i++)
+      nn *= 2;
+
+   /* Do the bit reversal */
+   i2 = nn >> 1;
+   j = 0;
+   for (i=0;i<nn-1;i++) {
+      if (i < j) {
+         tx = x[i];
+         ty = y[i];
+         x[i] = x[j];
+         y[i] = y[j];
+         x[j] = tx;
+         y[j] = ty;
+      }
+      k = i2;
+      while (k <= j) {
+         j -= k;
+         k >>= 1;
+      }
+      j += k;
+   }
+
+   /* Compute the FFT */
+   c1 = -1.0;
+   c2 = 0.0;
+   l2 = 1;
+   for (l=0;l<m;l++) {
+      l1 = l2;
+      l2 <<= 1;
+      u1 = 1.0;
+      u2 = 0.0;
+      for (j=0;j<l1;j++) {
+         for (i=j;i<nn;i+=l2) {
+            i1 = i + l1;
+            t1 = u1 * x[i1] - u2 * y[i1];
+            t2 = u1 * y[i1] + u2 * x[i1];
+            x[i1] = x[i] - t1;
+            y[i1] = y[i] - t2;
+            x[i] += t1;
+            y[i] += t2;
+         }
+         z =  u1 * c1 - u2 * c2;
+         u2 = u1 * c2 + u2 * c1;
+         u1 = z;
+      }
+      c2 = sqrt((1.0 - c1) / 2.0);
+      if (dir == 1)
+         c2 = -c2;
+      c1 = sqrt((1.0 + c1) / 2.0);
+   }
+
+   /* Scaling for forward transform */
+   if (dir == 1) {
+      for (i=0;i<nn;i++) {
+         x[i] /= (double)nn;
+         y[i] /= (double)nn;
+      }
+   }
+
+   return(1);
+}
+
+/*-------------------------------------------------------------------------
+   Calculate the closest but lower power of two of a number
+   twopm = 2**m <= n
+   Return TRUE if 2**m == n
+*/
+int Powerof2(int n,int *m,int *twopm)
+{
+   if (n <= 1) {
+      *m = 0;
+      *twopm = 1;
+      return(0);
+   }
+
+   *m = 1;
+   *twopm = 2;
+   do {
+      (*m)++;
+      (*twopm) *= 2;
+   } while (2*(*twopm) <= n);
+
+   if (*twopm != n)
+      return(0);
+   else
+      return(1);
+}
+
+
 
 void fft(GLfloat * vertices, int size, GLfloat * Xre, GLfloat * Xim)
 {
@@ -234,16 +436,23 @@ Model * generate_terrain(int size)
   GLfloat *normals = malloc(sizeof(GLfloat) * 3 * size * size);
   GLuint *indices = malloc(sizeof(GLuint) * 3 * tri_count);
 
+  COMPLEX * X = malloc(sizeof(GLfloat)*3*6*size*size);
+
   for(x=0;x < size; x++)
   {
     for(z = 0;z < size; z++)
     {
       vertices[(z + x*size)*3 + 0] = x*6;
-      vertices[(z + x*size)*3 + 1] = 0*(random()-.5);
+      vertices[(z + x*size)*3 + 1] = 20*(random()-.5);
       vertices[(z + x*size)*3 + 2] = z*6;
 
+      X[(z + x*size)*3 + 0].real = x*6;
+      X[(z + x*size)*3 + 1].real = 20*(random()-.5);
+      X[(z + x*size)*3 + 2].real = z*6;
 
-
+      X[(z + x*size)*3 + 0].imag = 0;
+      X[(z + x*size)*3 + 1].imag = 0;
+      X[(z + x*size)*3 + 2].imag = 0;
     }
   }
 
@@ -284,12 +493,16 @@ Model * generate_terrain(int size)
   GLfloat Xre[size*size*6*6];
   GLfloat Xim[size*size*6*6];
 
+  //COMPLEX X[size*size*6*6];
+
   //Xre = malloc(sizeof(GLfloat)*size*size);
   //Xim = malloc(sizeof(GLfloat)*size*size);
 
-  fft(vertices, size, Xre, Xim);
-  filter(Xre, Xim, size);
-  ifft(vertices, size, Xre, Xim);
+  //fft(vertices, size, Xre, Xim);
+
+  //FFT2D(&X, size, size, 1);
+  //filter(Xre, Xim, size);
+  //ifft(vertices, size, Xre, Xim);
 
   //printf("%f\n", Xre[0][0]);
 
@@ -764,6 +977,15 @@ int main(int argc, char **argv)
 	create_floor(&f);
 	create_fence(&ff, 14, SetVector(0,0,30));
 	//f.model = generate_terrain(32);
+	double * X = (double *)malloc(sizeof(double)*32);
+	double * Y = (double *)malloc(sizeof(double)*32);
+	int ii;
+	for(ii = 0;ii < 32;ii++)
+	{
+	  X[ii] = 0;
+	  Y[ii] = 0;
+	}
+	FFT(1, 5, X, Y);
 	create_ball(&ball, SetVector(5,0,0));
 	create_wall(&wall, SetVector(0,10,0), SetVector(2,5,2));
 

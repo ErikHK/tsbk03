@@ -53,9 +53,9 @@ void main(void)
   if(draw_skybox==1)
   {
     //fragColor = vec4((2-inPos.y)*.5,2-inPos.y,1,1);
-    fragColor = (1/distance(inPos, vec4(0,2,5,1)))*vec4(.4,.4,0,1);
-    fragColor += vec4(.3,.3,1,0);
-    fragColor += (.7/(inPos.y+3))*vec4(1,1,1,0);
+    fragColor = vec4(.4/distance(inPos, vec4(0,2,5,1)));
+    fragColor += vec4(.3,.3,1,1);
+    fragColor += (1/(inPos.y+2))*vec4(1,1,1,1);
   }
 
 

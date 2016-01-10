@@ -1711,7 +1711,48 @@ i=0;
 
   }
 
+float rands[10];
+for(i=0;i<10;i++)
+  rands[i] = -((rand()/(float)RAND_MAX) -.5); //from -.5 to .5
+  //rands[i] = 1;
 
+if(type==3)
+{
+verts[0] = verts[0] - rands[0];
+verts[3] = verts[3] - rands[1];
+
+verts[12] = verts[12] - rands[2];
+verts[15] = verts[15] - rands[3];
+
+verts[24] = verts[24] - rands[4];
+verts[27] = verts[27] - rands[5];
+
+verts[36] = verts[36] - rands[6];
+verts[39] = verts[39] - rands[7];
+
+verts[48] = verts[48] - rands[8];
+verts[51] = verts[51] - rands[9];
+}
+else if(type==2)
+{
+verts[0] = verts[0] - rands[0];
+verts[3] = verts[3] - rands[1];
+
+verts[12] = verts[12] - rands[2];
+verts[15] = verts[15] - rands[3];
+
+verts[24] = verts[24] - rands[4];
+verts[27] = verts[27] - rands[5];
+
+verts[36] = verts[36] - rands[6];
+verts[39] = verts[39] - rands[7];
+
+verts[48] = verts[48] - rands[8];
+verts[51] = verts[51] - rands[9];
+
+}
+
+/*
 if(type==3)
 {
 verts[0] = -.5;
@@ -1745,10 +1786,8 @@ verts[39] = -.9;
 
 verts[48] = -.2;
 verts[51] = -1.2;
-
-
-
 }
+*/
 
 Point3D tmp_normal;
 i=0;
